@@ -1,2 +1,2 @@
 # stuyaviators.github.io
-Website for StuyAviators, Stuyvesant High School's first aviation club.
+Website for StuyAviators, Stuyvesant High School's official aviation club.
