@@ -1,0 +1,10 @@
+/* Fade in/out transition */
+body.fade {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+  
+  body.fade.fade-in {
+    opacity: 1;
+  }
+  

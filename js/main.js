@@ -1,8 +1,6 @@
-// main.js
-
 const scriptList = [
     '/js/custom/headerFooter.js',
-    // Add more as needed
+    '/js/custom/fadeIntro.js',
   ];
   
   function loadScript(src) {
@@ -23,6 +21,11 @@ const scriptList = [
       } catch (e) {
         console.error(e);
       }
+    }
+  
+    // Manually trigger fade-in now that fadeIntro.js is loaded
+    if (typeof runFadeIn === 'function') {
+      runFadeIn();
     }
   })();
   
