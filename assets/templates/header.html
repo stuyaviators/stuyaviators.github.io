@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <!-- Logo and Brand -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="/images/logo.png" alt="Logo" width="40" height="40" class="me-2">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/images/logo-official.png" alt="Logo" width="40" height="40" class="me-2">
             <span>StuyAviators</span>
         </a>
 
@@ -16,8 +16,7 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <!-- About Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    <a class="nav-link" href="/about">
                         About
                     </a>
                     <ul class="dropdown-menu">
@@ -30,48 +29,90 @@
 
                 <!-- Explore Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    <a class="nav-link" href="/explore">
                         Explore
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Meetings</a></li>
-                        <li><a class="dropdown-item" href="#">Opportunities</a></li>
-                        <li><a class="dropdown-item" href="#">Scholarships</a></li>
-                        <li><a class="dropdown-item" href="#">Future Careers</a></li>
+                        <li><a class="dropdown-item" href="/explore/meetings">Meetings</a></li>
+                        <li><a class="dropdown-item" href="/explore/opportunities">Opportunities</a></li>
+                        <li><a class="dropdown-item" href="/explore/scholarships">Scholarships</a></li>
+                        <li><a class="dropdown-item" href="/explore/future">Future Careers</a></li>
                     </ul>
                 </li>
 
                 <!-- Get Involved Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    <a class="nav-link" href="/get-involved">
                         Get Involved
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Join the Flight Crew</a></li>
-                        <li><a class="dropdown-item" href="#">Share Your Story</a></li>
-                        <li><a class="dropdown-item" href="#">Feature Photos & Videos</a></li>
+                        <li><a class="dropdown-item" href="/get-involved/flight-crew">Join the Flight Crew</a></li>
+                        <li><a class="dropdown-item" href="/get-involved/your-story">Share Your Story</a></li>
+                        <li><a class="dropdown-item" href="/get-involved/features">Feature Photos & Videos</a></li>
                     </ul>
                 </li>
 
                 <!-- Connect Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    <a class="nav-link" href="/connect">
                         Connect
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Socials</a></li>
-                        <li><a class="dropdown-item" href="#">Contact Us</a></li>
+                        <li><a class="dropdown-item" href="/connect/socials">Socials</a></li>
+                        <li><a class="dropdown-item" href="/connect/contact-us">Contact Us</a></li>
                     </ul>
                 </li>
             </ul>
 
             <!-- Join on Epsilon Button -->
             <div class="d-flex ms-3">
-                <a href="#" class="btn btn-primary">Join on Epsilon!</a>
+                <button class="btn btn-primary" id="joinEpsilonBtn" data-bs-toggle="modal" data-bs-target="#confirmationModal">Join on Epsilon!</button>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Modal Structure for Confirmation -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Leave Website?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You are about to leave the current website and be redirected to the Epsilon website. Do you want to continue?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="https://epsilon.stuysu.org/stuyaviators" id="confirmBtn" class="btn btn-primary" target="_blank">Continue</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for hover dropdown -->
+<style>
+    /* Show the dropdown menu on hover */
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    /* Prevent dropdown from closing when hovering over dropdown items */
+    .nav-item.dropdown:hover > .nav-link {
+        background-color: transparent; /* Optional: keeps the background color unchanged */
+    }
+
+    /* Optional: Add some delay before the dropdown appears */
+    .dropdown-menu {
+        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
