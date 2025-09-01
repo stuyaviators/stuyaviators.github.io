@@ -1,52 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700;900&display=swap');
 
-/* Apply Lato globally */
+/* Apply Montserrat globally */
 * {
-  font-family: 'Lato', sans-serif !important;
+  font-family: 'Montserrat', sans-serif !important;
   font-weight: 400;  /* Default weight (regular) */
 }
 
 /* Headings */
 h1 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;  /* Bold for main headings */
 }
 
 h2 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;  /* Bold for secondary headings */
 }
 
 h3 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;  /* Semi-bold for tertiary headings */
 }
 
 h4 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;  /* Semi-bold for subheadings */
 }
 
 h5 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;  /* Medium for lower-level headings */
 }
 
 h6 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;  /* Medium for lower-level headings */
 }
 
 /* Paragraphs */
 p {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for paragraphs */
   line-height: 1.6;  /* Comfortable line height for readability */
 }
 
 /* Links */
 a {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;  /* Medium weight for links */
   text-decoration: none; /* Optional: remove underline */
 }
@@ -58,30 +58,30 @@ a:hover {
 
 /* Lists */
 ul, ol {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for list items */
 }
 
 li {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for list items */
 }
 
 /* Buttons */
 button, .btn {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;  /* Semi-bold for buttons */
 }
 
 /* Form Inputs */
 input, textarea, select {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for input fields */
 }
 
 /* Blockquotes */
 blockquote {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;  /* Medium weight for blockquotes */
   font-style: italic; /* Optional: add italics to blockquotes */
   border-left: 4px solid #ccc;  /* Optional: style for blockquote */
@@ -92,14 +92,14 @@ blockquote {
 
 /* Small Text */
 small {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 300;  /* Light weight for small text */
   font-size: 0.85rem; /* Smaller text size */
 }
 
 /* Code blocks */
 code, pre {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for code */
   background-color: #f4f4f4;  /* Optional: background for code blocks */
   padding: 5px;  /* Optional: padding for code block */
@@ -109,30 +109,30 @@ code, pre {
 
 /* Navigation */
 .navbar, .nav-item, .nav-link {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;  /* Medium weight for navbar items */
 }
 
 .navbar-brand {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;  /* Semi-bold for navbar brand */
 }
 
 /* Footer */
 footer {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 300;  /* Light weight for footer text */
 }
 
 /* Containers */
 .container, .container-fluid {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;  /* Regular weight for containers */
 }
 
 /* Titles */
 .title, .page-title {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;  /* Bold for titles */
 }
 
