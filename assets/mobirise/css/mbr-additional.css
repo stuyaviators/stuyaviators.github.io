@@ -10400,6 +10400,36 @@ a {
 .cid-uWP54vhcx7 .card-title {
   color: #0f1b32;
 }
+.cid-uX7FYx1Oer {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  background-color: #0f1b32;
+}
+.cid-uX7FYx1Oer .mbr-overlay {
+  background-color: #ffffff;
+  opacity: 0.4;
+}
+.cid-uX7FYx1Oer form .mbr-section-btn {
+  text-align: center;
+  width: 100%;
+}
+.cid-uX7FYx1Oer form .mbr-section-btn .btn {
+  display: inline-flex;
+}
+@media (max-width: 991px) {
+  .cid-uX7FYx1Oer form .mbr-section-btn .btn {
+    width: 100%;
+  }
+}
+.cid-uX7FYx1Oer .content-head {
+  max-width: 800px;
+}
+.cid-uX7FYx1Oer .mbr-section-title {
+  color: #deebff;
+}
+.cid-uX7FYx1Oer .mbr-section-subtitle {
+  color: #8cbbfd;
+}
 .cid-uWP73PeTyG {
   z-index: 1000;
   width: 100%;
