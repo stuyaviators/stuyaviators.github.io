@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
 
 import "@/styles/globals.css";
+import Header from "@/components/Header";
 
 const lexend = Lexend({
 	variable: "--font-lexend",
@@ -9,7 +10,7 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-	title: "Stuyaviators",
+	title: "StuyAviators",
 };
 
 export default function RootLayout({
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${lexend.variable} antialiased`}>{children}</body>
+			<body className={`${lexend.variable} antialiased`}>
+				<Header />
+				{children}
+			</body>
 		</html>
 	);
 }
