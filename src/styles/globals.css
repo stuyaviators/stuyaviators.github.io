@@ -2,53 +2,6 @@
 @import "@catppuccin/tailwindcss/mocha.css";
 @import "tw-animate-css";
 
-body {
-	background: var(--color-ctp-base);
-	color: var(--color-ctp-text);
-	font-family: "Lexend", sans-serif;
-}
-
-@theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--radius-2xl: calc(var(--radius) + 8px);
-	--radius-3xl: calc(var(--radius) + 12px);
-	--radius-4xl: calc(var(--radius) + 16px);
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
-}
-
 :root {
 	--radius: 0.625rem;
 	--background: oklch(1 0 0);
@@ -120,9 +73,95 @@ body {
 
 @layer base {
 	* {
-		@apply border-border outline-ring/50;
+		border-color: var(--border);
+		outline-color: var(--ring);
 	}
 	body {
-		@apply bg-background text-foreground;
+		background-color: var(--background);
+		color: var(--foreground);
+	}
+}
+
+/* Glass & glow fx */
+@layer components {
+	/* Blur & border */
+	.glass {
+		backdrop-filter: blur(40px);
+		border: 1px solid var(--color-ctp-overlay1);
+		border-color: rgb(var(--color-ctp-overlay1) / 0.6);
+	}
+
+	/* Header has gradient */
+	.glass-header {
+		backdrop-filter: blur(40px);
+		background: linear-gradient(
+			135deg,
+			rgb(var(--color-ctp-surface0) / 0.75) 0%,
+			rgb(var(--color-ctp-base) / 0.65) 50%,
+			rgb(var(--color-ctp-surface0) / 0.55) 100%
+		);
+		border: 1px solid rgb(var(--color-ctp-overlay1) / 0.6);
+		border-radius: 0.625rem;
+		box-shadow:
+			0px 18px 38px rgba(0, 0, 0, 0.35),
+			0px 0px 24px rgba(148, 163, 184, 0.16);
+		outline: 1px solid rgb(var(--color-ctp-overlay1) / 0.35);
+		outline-offset: 2px;
+	}
+
+	.glass-header:hover {
+		box-shadow:
+			0px 18px 38px rgba(0, 0, 0, 0.35),
+			0px 0px 32px rgba(202, 166, 247, 0.2);
+		outline: 2px solid rgb(var(--color-ctp-lavender) / 0.4);
+	}
+
+	/* Glass button w/ funny hover effect */
+	.glass-button {
+		backdrop-filter: blur(40px);
+		background: linear-gradient(
+			135deg,
+			rgb(var(--color-ctp-overlay1) / 0.15) 0%,
+			rgb(var(--color-ctp-surface0) / 0.45) 50%,
+			rgb(var(--color-ctp-overlay0) / 0.15) 100%
+		);
+		border: 1px solid rgb(var(--color-ctp-overlay1) / 0.6);
+		border-radius: 0.625rem;
+		box-shadow:
+			inset 0px 1px 3px rgba(255, 255, 255, 0.3),
+			inset 0px -3px 8px rgba(0, 0, 0, 0.12),
+			0px 10px 18px rgba(0, 0, 0, 0.22);
+	}
+
+	.glass-button:hover {
+		box-shadow:
+			inset 0px 1px 3px rgba(255, 255, 255, 0.3),
+			inset 0px -3px 8px rgba(0, 0, 0, 0.12),
+			0px 14px 24px rgba(202, 166, 247, 0.15);
+		outline: 2px solid rgb(var(--color-ctp-lavender) / 0.35);
+		outline-offset: 2px;
+		scale: 1.02;
+		translate: 0 -1px;
+		transition: all 0.2s ease;
+	}
+
+	/* Flavor switcher (generic) */
+	.glass-switcher {
+		backdrop-filter: blur(40px);
+		background: linear-gradient(
+			135deg,
+			rgb(var(--color-ctp-surface0) / 0.8) 0%,
+			rgb(var(--color-ctp-surface0) / 0.6) 50%,
+			rgb(var(--color-ctp-base) / 0.45) 100%
+		);
+		border: 1px solid rgb(var(--color-ctp-overlay1) / 0.6);
+		border-radius: 0.625rem;
+		box-shadow: 0px 14px 30px rgba(0, 0, 0, 0.32);
+	}
+
+	.glass-switcher:hover {
+		box-shadow: 0px 18px 36px rgba(0, 0, 0, 0.38);
+		translate: 0 -1px;
+		transition: all 0.2s ease;
 	}
 }
