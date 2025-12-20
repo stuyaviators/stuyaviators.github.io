@@ -7,14 +7,13 @@ import { ArrowUpRight, Copy, Mail, MailPlus, MapPin } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { siDiscord, siFacebook, siInstagram } from "simple-icons/icons";
+import { siDiscord, siInstagram } from "simple-icons/icons";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const socials = [
 	{ label: "Discord", href: "#", Icon: DiscordIcon },
 	{ label: "Instagram", href: "#", Icon: InstagramIcon },
-	{ label: "Facebook", href: "#", Icon: FacebookIcon },
 ];
 
 const contacts = [
@@ -289,6 +288,3 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
 	return <SimpleIconSvg icon={siInstagram} {...props} />;
 }
 
-function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
-	return <SimpleIconSvg icon={siFacebook} {...props} />;
-}
