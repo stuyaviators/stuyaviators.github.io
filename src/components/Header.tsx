@@ -91,8 +91,7 @@ export default function Header() {
 		document.body.classList.add(nextFlavor);
 	};
 
-	useEffect(() => {
-		// On startup
+	useEffect(() => { // On startup
 		// Get stored flavor
 		const stored = localStorage.getItem("catppuccin-flavor");
 		// No (valid) flavor then mocha default
@@ -138,7 +137,7 @@ export default function Header() {
 		<>
 			<header
 				ref={headerRef}
-				className="glass-header fixed top-6 left-6 right-6 z-40 mx-auto max-w-4xl px-6 py-3"
+				className="fixed top-6 left-6 right-6 z-40 mx-auto max-w-4xl rounded-lg border border-ctp-overlay1/60 bg-linear-to-br from-ctp-surface0/75 via-ctp-base/65 to-ctp-surface0/55 px-6 py-3 backdrop-blur-2xl shadow-[0px_18px_38px_rgba(0,0,0,0.35),0px_0px_24px_rgba(148,163,184,0.16)] ring-1 ring-ctp-overlay1/35 transition "
 			>
 				{/* Logo */}
 				<div className="flex items-center justify-between gap-8">
@@ -182,7 +181,7 @@ export default function Header() {
 							href="https://epsilon.stuysu.org/stuyaviators"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="group glass-button relative inline-flex flex-col items-center justify-center gap-0.5 px-5 py-3 text-sm font-semibold text-ctp-subtext0 transition-all focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
+							className="group relative inline-flex flex-col items-center justify-center gap-0.5 rounded-lg bg-linear-to-br from-ctp-overlay1/15 via-ctp-surface0/45 to-ctp-overlay0/15 px-5 py-3 text-sm font-semibold text-ctp-subtext0 backdrop-blur-xl border border-ctp-overlay1/60 shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_10px_18px_rgba(0,0,0,0.22)] transition-all hover:scale-[1.02] hover:-translate-y-px hover:ring-2 hover:ring-ctp-lavender/35 hover:shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_14px_24px_rgba(202,166,247,0.15)] focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
 						>
 							<div className="absolute inset-0 rounded-lg ring-2 ring-ctp-overlay1/12 opacity-90 transition group-hover:opacity-100 group-hover:ring-ctp-overlay1/30" />
 							<span className="relative z-10 leading-none text-xs">
@@ -252,7 +251,7 @@ export default function Header() {
 						disabled={!mounted}
 						onClick={() => setMenuOpen((open) => !open)}
 						title="Switch Catppuccin flavour"
-						className="glass-switcher flex h-full items-center gap-2 px-5 text-xs font-semibold text-ctp-subtext0 transition focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 disabled:opacity-70 cursor-pointer"
+						className="flex h-full items-center gap-2 rounded-lg border border-ctp-overlay1/60 bg-linear-to-br from-ctp-surface0/80 via-ctp-surface0/60 to-ctp-base/45 px-5 text-xs font-semibold text-ctp-subtext0 shadow-[0px_14px_30px_rgba(0,0,0,0.32)] backdrop-blur-2xl transition hover:-translate-y-px hover:shadow-[0px_18px_36px_rgba(0,0,0,0.38)] hover:ring-2 hover:ring-ctp-lavender/35 focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 disabled:opacity-70 cursor-pointer"
 					>
 						<span className="text-base" aria-hidden>
 							{currentFlavor?.icon ?? "🌿"}
