@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { B612, Lexend } from "next/font/google";
 
 import "@/styles/globals.css";
@@ -14,6 +14,11 @@ const b612 = B612({
 	subsets: ["latin"],
 	weight: ["400", "700"],
 });
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+};
 
 export const metadata: Metadata = {
 	title: "StuyAviators",
