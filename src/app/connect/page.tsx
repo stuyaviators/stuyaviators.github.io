@@ -9,11 +9,25 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { siDiscord, siInstagram } from "simple-icons/icons";
 
+
+
 import "mapbox-gl/dist/mapbox-gl.css";
 
+
+
+
+
 const socials = [
-	{ label: "Discord", href: "#", Icon: DiscordIcon },
-	{ label: "Instagram", href: "#", Icon: InstagramIcon },
+	{
+		label: "Discord",
+		href: "https://discord.gg/PCywWHervk",
+		Icon: DiscordIcon,
+	},
+	{
+		label: "Instagram",
+		href: "https://www.instagram.com/stuyaviators",
+		Icon: InstagramIcon,
+	},
 ];
 
 const contacts = [
@@ -287,4 +301,3 @@ function DiscordIcon(props: React.SVGProps<SVGSVGElement>) {
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
 	return <SimpleIconSvg icon={siInstagram} {...props} />;
 }
-
