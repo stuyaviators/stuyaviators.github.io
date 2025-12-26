@@ -241,13 +241,57 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 				method: "POST",
 				body: form,
 			});
-			if (!response.ok) throw new Error(await response.text());
-			const url = await response.text();
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(errorText || "Upload failed");
+			}
+
+			const extractUrlFromResponse = async (
+				uploadResponse: Response
+			): Promise<string> => {
+				const ct = uploadResponse.headers.get("content-type") ?? "";
+				if (ct.includes("application/json")) {
+					const data: unknown = await uploadResponse.json();
+					if (typeof data === "string") return data;
+					if (data && typeof data === "object") {
+						const dataObject = data as Record<string, unknown>;
+						const candidate =
+							dataObject.url ?? dataObject.path ?? dataObject.fileUrl;
+						if (typeof candidate === "string") return candidate;
+					}
+
+					return "";
+				}
+
+				const text = await uploadResponse.text();
+				try {
+					const parsed: unknown = JSON.parse(text);
+					if (parsed && typeof parsed === "object") {
+						const parsedObject = parsed as Record<string, unknown>;
+						const candidate =
+							parsedObject.url ?? parsedObject.path ?? parsedObject.fileUrl;
+						if (typeof candidate === "string") return candidate;
+					}
+
+					return text;
+				} catch {
+					return text;
+				}
+			};
+
+			const url = await extractUrlFromResponse(response);
+			if (!url) throw new Error("Upload response did not include a URL");
 			handleFieldChange("imageUrl", url);
 			showStatus("success", "Image uploaded.");
-		} catch (error) {
-			console.error("Upload error:", error);
-			showStatus("error", "Image upload failed.");
+		} catch (error: unknown) {
+			// Avoid using console in linted code; extract message when available
+			const maybeError = error as { message?: string } | undefined;
+			showStatus(
+				"error",
+				maybeError?.message
+					? `Image upload failed: ${maybeError.message}`
+					: "Image upload failed."
+			);
 		} finally {
 			setIsUploading(false);
 			if (fileInputRef.current) fileInputRef.current.value = "";
