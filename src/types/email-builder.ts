@@ -1,9 +1,8 @@
 export type Article = {
 	id: string;
-	type?: "article" | "separator";
+	type?: "article" | "separator" | "subheading" | "image";
 	title?: string;
 	description?: string;
-	content?: string;
 	imageUrl?: string;
 	buttonText?: string;
 	buttonUrl?: string;
@@ -26,9 +25,4 @@ export type NewsletterFormData = {
 		url: string;
 	}>;
 	viewInBrowserUrl: string;
-};
-
-export type ValidationError = {
-	field: string;
-	message: string;
 };
