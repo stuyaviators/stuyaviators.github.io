@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
 	try {
 		const form = await request.formData();
-		const file = form.get("file") as File | null;
+		const file = form.get("file") as File | undefined;
 		if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
 		const uploadForm = new FormData();

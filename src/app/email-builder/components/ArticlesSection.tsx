@@ -16,7 +16,7 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 	onUpdate,
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const articleRefs = useRef<Record<string, HTMLDivElement | null>>({});
+	const articleRefs = useRef<Record<string, HTMLDivElement | undefined>>({});
 
 	const reorder = (from: number, to: number) => {
 		if (from === to) return;
@@ -52,14 +52,19 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 		setIsCollapsed(false);
 		// Scroll to the newly added item after render
 		const scrollToNew = (attempt = 0) => {
-			const el = articleRefs.current[id];
-			if (el) {
-				el.scrollIntoView({ behavior: "smooth", block: "center" });
+			const element = articleRefs.current[id];
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth", block: "center" });
 			} else if (attempt < 10) {
-				setTimeout(() => scrollToNew(attempt + 1), 50);
+				setTimeout(() => {
+					scrollToNew(attempt + 1);
+				}, 50);
 			}
 		};
-		setTimeout(() => scrollToNew(), 0);
+
+		setTimeout(() => {
+			scrollToNew();
+		}, 0);
 	};
 
 	const handleAddSeparator = () => {
@@ -73,14 +78,19 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 		onUpdate({ articles: newArticles });
 		setIsCollapsed(false);
 		const scrollToNew = (attempt = 0) => {
-			const el = articleRefs.current[id];
-			if (el) {
-				el.scrollIntoView({ behavior: "smooth", block: "center" });
+			const element = articleRefs.current[id];
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth", block: "center" });
 			} else if (attempt < 10) {
-				setTimeout(() => scrollToNew(attempt + 1), 50);
+				setTimeout(() => {
+					scrollToNew(attempt + 1);
+				}, 50);
 			}
 		};
-		setTimeout(() => scrollToNew(), 0);
+
+		setTimeout(() => {
+			scrollToNew();
+		}, 0);
 	};
 
 	const handleAddSubheading = () => {
@@ -94,14 +104,19 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 		onUpdate({ articles: newArticles });
 		setIsCollapsed(false);
 		const scrollToNew = (attempt = 0) => {
-			const el = articleRefs.current[id];
-			if (el) {
-				el.scrollIntoView({ behavior: "smooth", block: "center" });
+			const element = articleRefs.current[id];
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth", block: "center" });
 			} else if (attempt < 10) {
-				setTimeout(() => scrollToNew(attempt + 1), 50);
+				setTimeout(() => {
+					scrollToNew(attempt + 1);
+				}, 50);
 			}
 		};
-		setTimeout(() => scrollToNew(), 0);
+
+		setTimeout(() => {
+			scrollToNew();
+		}, 0);
 	};
 
 	const handleAddImage = () => {
@@ -116,14 +131,19 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 		onUpdate({ articles: newArticles });
 		setIsCollapsed(false);
 		const scrollToNew = (attempt = 0) => {
-			const el = articleRefs.current[id];
-			if (el) {
-				el.scrollIntoView({ behavior: "smooth", block: "center" });
+			const element = articleRefs.current[id];
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth", block: "center" });
 			} else if (attempt < 10) {
-				setTimeout(() => scrollToNew(attempt + 1), 50);
+				setTimeout(() => {
+					scrollToNew(attempt + 1);
+				}, 50);
 			}
 		};
-		setTimeout(() => scrollToNew(), 0);
+
+		setTimeout(() => {
+			scrollToNew();
+		}, 0);
 	};
 
 	const handleUpdateArticle = (index: number, updatedArticle: Article) => {
@@ -154,7 +174,9 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 			<div className="sticky top-0 z-20 flex items-center justify-between gap-3 -mx-4 px-4 rounded-lg border border-ctp-overlay1/40 bg-linear-to-br from-ctp-surface0/60 via-ctp-base/50 to-ctp-surface0/40 py-3 min-h-16">
 				<div className="flex items-center gap-2">
 					<button
-						onClick={() => setIsCollapsed(!isCollapsed)}
+						onClick={() => {
+							setIsCollapsed(!isCollapsed);
+						}}
 						className="text-ctp-subtext1 hover:text-ctp-text transition hover:scale-105"
 						title={isCollapsed ? "Expand" : "Collapse"}
 						aria-label={isCollapsed ? "Expand Content" : "Collapse Content"}
@@ -195,9 +217,9 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 						return (
 							<div
 								key={article.id}
-								ref={(el) => {
-									if (el) {
-										articleRefs.current[article.id] = el;
+								ref={(element) => {
+									if (element) {
+										articleRefs.current[article.id] = element;
 									}
 								}}
 								className="relative group"
@@ -208,8 +230,12 @@ export const ArticlesSection: React.FC<ArticlesSectionProps> = ({
 									typeSpecificIndex={typeSpecificIndex}
 									onUpdate={handleUpdateArticle}
 									onRemove={handleRemoveArticle}
-									onMoveUp={() => handleMoveUp(index)}
-									onMoveDown={() => handleMoveDown(index)}
+									onMoveUp={() => {
+										handleMoveUp(index);
+									}}
+									onMoveDown={() => {
+										handleMoveDown(index);
+									}}
 									canMoveUp={index > 0}
 									canMoveDown={index < data.articles.length - 1}
 								/>

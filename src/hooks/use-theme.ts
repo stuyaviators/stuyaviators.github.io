@@ -18,6 +18,7 @@ export function useTheme() {
 			document.documentElement.classList.remove(className);
 			document.body.classList.remove(className);
 		}
+
 		// Only need to add dark class and flavor class
 		document.documentElement.classList.toggle("dark", isDark);
 		document.body.classList.toggle("dark", isDark);
@@ -41,10 +42,11 @@ export function useTheme() {
 		// (re) Set and apply
 		setFlavor(nextFlavor);
 		applyTheme(nextFlavor);
-		// nextFlavor will be set, but not he localstorage item, so go ahead and do that
+		// NextFlavor will be set, but not he localstorage item, so go ahead and do that
 		if (!stored) {
 			localStorage.setItem("catppuccin-flavor", nextFlavor);
 		}
+
 		setMounted(true);
 	}, []);
 

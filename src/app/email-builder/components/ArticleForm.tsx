@@ -35,7 +35,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 
 	const [isCollapsed, setIsCollapsed] = useState(false);
 
-	// client-side upload state & ref
+	// Client-side upload state & ref
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
@@ -50,13 +50,15 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 		try {
 			const form = new FormData();
 			form.append("file", file, file.name);
-			// send to your server route (no CORS issues)
-			const response = await fetch("/api/upload", { method: "POST", body: form });
+			const response = await fetch("/api/upload", {
+				method: "POST",
+				body: form,
+			});
 			if (!response.ok) throw new Error(await response.text());
 			const { url } = await response.json();
 			handleFieldChange("imageUrl", url);
-		} catch (err) {
-			console.error("Upload error:", err);
+		} catch (error) {
+			console.error("Upload error:", error);
 			alert("Image upload failed.");
 		} finally {
 			setIsUploading(false);
@@ -72,7 +74,9 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 				<div className="flex items-start justify-between gap-4">
 					<div className="flex items-center gap-2">
 						<button
-							onClick={() => setIsCollapsed(!isCollapsed)}
+							onClick={() => {
+								setIsCollapsed(!isCollapsed);
+							}}
 							className="text-ctp-subtext1 hover:text-ctp-text transition hover:scale-105"
 							title={isCollapsed ? "Expand" : "Collapse"}
 							aria-label={isCollapsed ? "Expand article" : "Collapse article"}
@@ -112,7 +116,9 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 							/>
 						</div>
 						<GlassButton
-							onClick={() => onRemove(articleIndex)}
+							onClick={() => {
+								onRemove(articleIndex);
+							}}
 							variant="danger"
 							icon={<Trash2 className="h-4 w-4" />}
 							className="h-8 w-8 p-0"
@@ -154,7 +160,6 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 									placeholder="https://example.com/image.jpg"
 									type="url"
 								/>
-								{/* hidden file input for client-side upload */}
 								<input
 									ref={fileInputRef}
 									type="file"

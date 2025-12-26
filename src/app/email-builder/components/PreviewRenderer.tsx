@@ -8,9 +8,7 @@ type PreviewRendererProps = {
 	onReorderArticles?: (fromIndex: number, toIndex: number) => void;
 };
 
-export const PreviewRenderer: React.FC<PreviewRendererProps> = ({
-	data,
-}) => {
+export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ data }) => {
 	return (
 		<div
 			className="preview-renderer-content"
@@ -309,7 +307,10 @@ export const PreviewRenderer: React.FC<PreviewRendererProps> = ({
 				{(() => {
 					const items = data.socialLinks.filter((s) => s.platform && s.url);
 					const epsilonUrl = `https://stuyaviators.vercel.app/epsilon-wordmark.png`;
-					{/* This is the only way you can align it btw (i think)*/}
+					{
+						/* This is the only way you can align it btw (i think) */
+					}
+
 					return (
 						<table
 							role="presentation"
@@ -335,7 +336,7 @@ export const PreviewRenderer: React.FC<PreviewRendererProps> = ({
 														const platform = social.platform
 															.trim()
 															.toLowerCase();
-														const slug = platform.replace(/\s+/g, "");
+														const slug = platform.replaceAll(/\s+/g, "");
 														const isEpsilon = platform === "epsilon";
 														const href =
 															platform === "gmail" || platform === "email"

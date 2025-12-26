@@ -41,7 +41,6 @@ export const HeaderForm: React.FC<HeaderFormProps> = ({ data, onUpdate }) => {
 				placeholder="https://stuyaviators.vercel.app/stuyaviators.png"
 				type="url"
 			/>
-
 		</div>
 	);
 };

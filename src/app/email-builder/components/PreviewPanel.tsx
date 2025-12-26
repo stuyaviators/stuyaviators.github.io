@@ -49,7 +49,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 			);
 			if (!previewElement) {
 				setCopyMessage("Preview not found");
-				setTimeout(() => setCopyMessage(undefined), 2000);
+				setTimeout(() => {
+					setCopyMessage(undefined);
+				}, 2000);
 				return;
 			}
 
@@ -61,7 +63,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 					const clipboardItem = new ClipboardItem({ "text/html": blob });
 					await navigator.clipboard.write([clipboardItem]);
 					setCopyMessage("Copied formatted content!");
-					setTimeout(() => setCopyMessage(undefined), 2000);
+					setTimeout(() => {
+						setCopyMessage(undefined);
+					}, 2000);
 					return;
 				} catch (apiError) {
 					console.log("Clipboard API failed, trying fallback:", apiError);
@@ -69,39 +73,47 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 			}
 
 			// Fallback: execCommand method
-			const tempDiv = document.createElement("div");
-			tempDiv.contentEditable = "true";
-			tempDiv.style.position = "fixed";
-			tempDiv.style.left = "-9999px";
-			tempDiv.innerHTML = previewElement.outerHTML;
-			document.body.appendChild(tempDiv);
+			const temporaryDiv = document.createElement("div");
+			temporaryDiv.contentEditable = "true";
+			temporaryDiv.style.position = "fixed";
+			temporaryDiv.style.left = "-9999px";
+			temporaryDiv.innerHTML = previewElement.outerHTML;
+			document.body.append(temporaryDiv);
 
 			const range = document.createRange();
-			range.selectNodeContents(tempDiv);
-			const selection = window.getSelection();
+			range.selectNodeContents(temporaryDiv);
+			const selection = globalThis.getSelection();
 			if (selection) {
 				selection.removeAllRanges();
 				selection.addRange(range);
 				const success = document.execCommand("copy");
 				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
+				temporaryDiv.remove();
 
 				if (success) {
 					setCopyMessage("Copied formatted content!");
-					setTimeout(() => setCopyMessage(undefined), 2000);
+					setTimeout(() => {
+						setCopyMessage(undefined);
+					}, 2000);
 				} else {
 					setCopyMessage("Failed to copy");
-					setTimeout(() => setCopyMessage(undefined), 2000);
+					setTimeout(() => {
+						setCopyMessage(undefined);
+					}, 2000);
 				}
 			} else {
-				document.body.removeChild(tempDiv);
+				temporaryDiv.remove();
 				setCopyMessage("Failed to copy");
-				setTimeout(() => setCopyMessage(undefined), 2000);
+				setTimeout(() => {
+					setCopyMessage(undefined);
+				}, 2000);
 			}
 		} catch (error) {
 			console.error("Failed to copy:", error);
 			setCopyMessage("Failed to copy");
-			setTimeout(() => setCopyMessage(undefined), 2000);
+			setTimeout(() => {
+				setCopyMessage(undefined);
+			}, 2000);
 		}
 	};
 
