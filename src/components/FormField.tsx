@@ -16,7 +16,7 @@ export const FormField: React.FC<FormFieldProps> = ({
 	type = "text",
 }) => {
 	const inputClasses =
-		"w-full rounded-lg border border-ctp-overlay1/60 bg-ctp-surface0/60 px-3 py-2 text-sm text-ctp-text placeholder:text-ctp-subtext0/60 shadow-[0px_4px_10px_rgba(0,0,0,0.12)] transition duration-150 focus:border-ctp-mauve/70 focus:shadow-[0px_6px_14px_rgba(0,0,0,0.18)] focus:outline-none focus:ring-2 focus:ring-ctp-mauve/30";
+		"w-full rounded-lg border border-ctp-overlay1/60 bg-ctp-surface0/60 px-3 py-2 text-sm text-ctp-text placeholder:text-ctp-subtext0/60 shadow-[0px_4px_10px_rgba(0,0,0,0.12)] transition duration-150 focus:border-ctp-blue/70 focus:shadow-[0px_6px_14px_rgba(0,0,0,0.18)] focus:outline-none focus:ring-2 focus:ring-ctp-blue/30";
 
 	return (
 		<div className="space-y-1.5">
