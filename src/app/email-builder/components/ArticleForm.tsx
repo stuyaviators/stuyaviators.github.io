@@ -91,7 +91,17 @@ const ImageFields: React.FC<{
 			)}
 		</GlassButton>
 		{/* Status text */}
-		<span className={status ? `text-${status.type}` : ""}>
+		<span
+			className={`ml-4 text-sm ${
+				status
+					? status.type === "error"
+						? "text-ctp-red"
+						: status.type === "success"
+							? "text-ctp-green"
+							: "text-ctp-blue"
+					: ""
+			}`}
+		>
 			{status?.message}
 		</span>
 		<FormField
