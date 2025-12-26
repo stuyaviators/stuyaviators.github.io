@@ -19,6 +19,7 @@
 		"markdown-it": "^14.1.0",
 		"motion": "^12.23.26",
 		"next": "16.0.7",
+		"node-catbox": "^3.4.0",
 		"prettier": "^3.7.4",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
