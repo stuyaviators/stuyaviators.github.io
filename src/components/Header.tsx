@@ -23,13 +23,13 @@ export default function Header() {
 	const headerRef = useRef<HTMLHeadingElement>(null);
 
 	// Header behavior config
-	const HEADER_SCROLL_CONFIG = {
+	const headerScrollConfig = {
 		enabled:
 			(process.env.NEXT_PUBLIC_HEADER_HIDE_ON_SCROLL ?? "true") === "true",
-		hideDownThreshold: 36, // px of downward scroll before hiding
-		showUpThreshold: 12, // px of upward scroll before showing
+		hideDownThreshold: 36, // Px of downward scroll before hiding
+		showUpThreshold: 12, // Px of upward scroll before showing
 		debounceMs: 200,
-		minTop: 8, // don't hide when near the top
+		minTop: 8, // Don't hide when near the top
 	};
 
 	useEffect(() => {
@@ -39,12 +39,15 @@ export default function Header() {
 				setHeaderHeight(headerRef.current.getBoundingClientRect().height);
 			}
 		};
+
 		// Ensure update on change
 		requestAnimationFrame(() => {
 			setTimeout(measureHeader, 0);
 		});
 		window.addEventListener("resize", measureHeader);
-		return () => window.removeEventListener("resize", measureHeader);
+		return () => {
+			window.removeEventListener("resize", measureHeader);
+		};
 	}, []);
 
 	useEffect(() => {
@@ -59,13 +62,13 @@ export default function Header() {
 	}, [pathname]);
 
 	useEffect(() => {
-		if (!HEADER_SCROLL_CONFIG.enabled) return;
+		if (!headerScrollConfig.enabled) return;
 		let lastY = window.scrollY || 0;
 		let accumDown = 0;
 		let accumUp = 0;
-		let timeout: number | undefined;
+		let timeout: ReturnType<typeof setTimeout> | undefined;
 
-		const prefersReducedMotion = window.matchMedia(
+		const prefersReducedMotion = globalThis.matchMedia(
 			"(prefers-reduced-motion: reduce)"
 		).matches;
 
@@ -76,18 +79,19 @@ export default function Header() {
 				accumDown += delta;
 				accumUp = 0;
 				if (
-					y > HEADER_SCROLL_CONFIG.minTop &&
-					accumDown > HEADER_SCROLL_CONFIG.hideDownThreshold
+					y > headerScrollConfig.minTop &&
+					accumDown > headerScrollConfig.hideDownThreshold
 				) {
 					setHidden(true);
 				}
 			} else if (delta < 0) {
 				accumUp += -delta;
 				accumDown = 0;
-				if (accumUp > HEADER_SCROLL_CONFIG.showUpThreshold) {
+				if (accumUp > headerScrollConfig.showUpThreshold) {
 					setHidden(false);
 				}
 			}
+
 			lastY = y;
 		};
 
@@ -96,8 +100,9 @@ export default function Header() {
 				onScroll();
 				return;
 			}
-			window.clearTimeout(timeout);
-			timeout = window.setTimeout(onScroll, HEADER_SCROLL_CONFIG.debounceMs);
+
+			globalThis.clearTimeout(timeout);
+			timeout = globalThis.setTimeout(onScroll, headerScrollConfig.debounceMs);
 		};
 
 		window.addEventListener("scroll", debounced, { passive: true });
@@ -106,7 +111,7 @@ export default function Header() {
 				"scroll",
 				debounced as unknown as EventListener
 			);
-			if (timeout) window.clearTimeout(timeout);
+			if (timeout) globalThis.clearTimeout(timeout);
 		};
 	}, [mounted]);
 
@@ -171,7 +176,9 @@ export default function Header() {
 						<button
 							type="button"
 							className="inline-flex sm:hidden h-10 w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60"
-							onClick={() => setNavOpen((v) => !v)}
+							onClick={() => {
+								setNavOpen((v) => !v);
+							}}
 							aria-label="Toggle navigation"
 							aria-expanded={navOpen}
 							aria-controls="mobile-primary-navigation"
@@ -241,7 +248,9 @@ export default function Header() {
 							<button
 								type="button"
 								disabled={!mounted}
-								onClick={() => setMenuOpen((open) => !open)}
+								onClick={() => {
+									setMenuOpen((open) => !open);
+								}}
 								title="Switch Catppuccin flavour"
 								className="flex h-10 w-10 sm:h-auto sm:w-auto sm:gap-2 justify-center items-center rounded-lg border border-ctp-overlay1/60 bg-linear-to-br from-ctp-surface0/80 via-ctp-surface0/60 to-ctp-base/45 px-0 sm:px-5 py-2 sm:py-3 text-xs font-semibold text-ctp-subtext0 shadow-[0px_14px_30px_rgba(0,0,0,0.32)] backdrop-blur-2xl transition hover:-translate-y-px hover:shadow-[0px_18px_36px_rgba(0,0,0,0.38)] hover:ring-2 hover:ring-ctp-lavender/35 focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 disabled:opacity-70 cursor-pointer"
 								aria-expanded={menuOpen}
@@ -266,7 +275,9 @@ export default function Header() {
 													key={entry.value}
 													type="button"
 													disabled={!mounted}
-													onClick={() => handleFlavorChange(entry.value)}
+													onClick={() => {
+														handleFlavorChange(entry.value);
+													}}
 													className={`w-full rounded-lg sm:rounded-xl border px-2 sm:px-3 py-2 sm:py-3 text-left transition cursor-pointer ${
 														isActive
 															? "border-ctp-lavender/60 bg-ctp-surface1 shadow-[0px_10px_20px_rgba(0,0,0,0.24)]"

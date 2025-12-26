@@ -11,6 +11,7 @@ const xoConfig = {
 	rules: {
 		"import-x/order": "off",
 		"import-x/newline-after-import": "off",
+		"import-x/no-duplicates": "off",
 		"new-cap": "off",
 		"@typescript-eslint/triple-slash-reference": "off",
 		"@typescript-eslint/naming-convention": [

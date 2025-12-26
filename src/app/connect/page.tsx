@@ -9,13 +9,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { siDiscord, siInstagram } from "simple-icons/icons";
 
-
-
 import "mapbox-gl/dist/mapbox-gl.css";
-
-
-
-
 
 const socials = [
 	{
@@ -58,40 +52,41 @@ const mapStyleByFlavor: Record<string, string> = {
 	frappe: "mapbox://styles/webcubed/cmjeqm02j006801qo62lc4cca",
 };
 
-const MAP_COORDINATES: [number, number] = [-74.0138398, 40.7179857];
-const MAP_ZOOM = 15.5;
+const mapCoordinates: [number, number] = [-74.013_839_8, 40.717_985_7];
+const mapZoom = 15.5;
 
 async function copyValue(value: string) {
 	try {
 		if (
 			typeof navigator !== "undefined" &&
-			typeof window !== "undefined" &&
-			window.isSecureContext &&
+			globalThis.window !== undefined &&
+			globalThis.isSecureContext &&
 			navigator.clipboard?.writeText
 		) {
 			await navigator.clipboard.writeText(value);
 			return true;
 		}
-	} catch (_error) {
-		// continue to fallback paths
+	} catch {
+		// Continue to fallback paths
 	}
 
 	if (typeof navigator !== "undefined" && navigator.share) {
 		try {
 			await navigator.share({ text: value });
 			return true;
-		} catch (_error) {
-			// sharing cancelled or unsupported
+		} catch {
+			// Sharing cancelled or unsupported
 		}
 	}
 
 	return false;
 }
+
 export default function Connect() {
-	const [mapStyleId, setMapStyleId] = useState(mapStyleByFlavor["mocha"] ?? "");
-	const mapContainerRef = useRef<HTMLDivElement | null>(null);
-	const mapRef = useRef<mapboxgl.Map | null>(null);
-	const markerRef = useRef<mapboxgl.Marker | null>(null);
+	const [mapStyleId, setMapStyleId] = useState(mapStyleByFlavor.mocha ?? "");
+	const mapContainerRef = useRef<HTMLDivElement>(null);
+	const mapRef = useRef<mapboxgl.Map | undefined>(null);
+	const markerRef = useRef<mapboxgl.Marker | undefined>(null);
 
 	useEffect(() => {
 		const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -99,30 +94,34 @@ export default function Connect() {
 			// No token, skip init to avoid runtime errors.
 			return undefined;
 		}
+
 		mapboxgl.accessToken = token;
 
 		if (!mapContainerRef.current) return undefined;
 
 		const createMarker = () => {
 			if (!mapRef.current) return;
-			if (!markerRef.current) {
-				markerRef.current = new mapboxgl.Marker({
-					color: flavors.find(
-						(flavor) =>
-							flavor.value ===
-							(localStorage.getItem("catppuccin-flavor") ?? "mocha")
-					)?.swatch[1],
-				}).setLngLat(MAP_COORDINATES);
-			}
+			markerRef.current ??= new mapboxgl.Marker({
+				color: flavors.find(
+					(flavor) =>
+						flavor.value ===
+						(localStorage.getItem("catppuccin-flavor") ?? "mocha")
+				)?.swatch[1],
+			}).setLngLat(mapCoordinates);
 			markerRef.current.addTo(mapRef.current);
 		};
 
-		if (!mapRef.current) {
+		if (mapRef.current) {
+			mapRef.current.setStyle(mapStyleId);
+			mapRef.current.once("styledata", () => {
+				createMarker();
+			});
+		} else {
 			mapRef.current = new mapboxgl.Map({
 				container: mapContainerRef.current,
 				style: mapStyleId,
-				center: MAP_COORDINATES,
-				zoom: MAP_ZOOM,
+				center: mapCoordinates,
+				zoom: mapZoom,
 				attributionControl: true,
 			});
 
@@ -132,11 +131,6 @@ export default function Connect() {
 			);
 
 			mapRef.current.once("load", () => {
-				createMarker();
-			});
-		} else {
-			mapRef.current.setStyle(mapStyleId);
-			mapRef.current.once("styledata", () => {
 				createMarker();
 			});
 		}
@@ -150,9 +144,8 @@ export default function Connect() {
 
 	useEffect(() => {
 		const computeStyle = () => {
-			const flavor =
-				document.documentElement.getAttribute("data-catppuccin") ?? "mocha";
-			const mapped = mapStyleByFlavor[flavor] ?? mapStyleByFlavor["mocha"];
+			const flavor = document.documentElement.dataset.catppuccin ?? "mocha";
+			const mapped = mapStyleByFlavor[flavor] ?? mapStyleByFlavor.mocha;
 			setMapStyleId(mapped);
 		};
 
@@ -164,11 +157,11 @@ export default function Connect() {
 			attributeFilter: ["data-catppuccin"],
 		});
 
-		window.addEventListener("storage", computeStyle);
+		globalThis.addEventListener("storage", computeStyle);
 
 		return () => {
 			observer.disconnect();
-			window.removeEventListener("storage", computeStyle);
+			globalThis.removeEventListener("storage", computeStyle);
 		};
 	}, []);
 
