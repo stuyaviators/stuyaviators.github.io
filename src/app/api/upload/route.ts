@@ -10,7 +10,11 @@ export async function POST(request: Request) {
 
 		const uploadForm = new FormData();
 		uploadForm.append("reqtype", "fileupload");
-		uploadForm.append("fileToUpload", file, (file as any).name ?? "upload");
+		const fileName =
+			typeof (file as { name?: unknown }).name === "string"
+				? (file as { name: string }).name
+				: "upload";
+		uploadForm.append("fileToUpload", file, fileName);
 
 		const response = await fetch("https://catbox.moe/user/api.php", {
 			method: "POST",
@@ -21,10 +25,14 @@ export async function POST(request: Request) {
 		if (!response.ok) throw new Error(text || "Catbox upload failed");
 
 		return NextResponse.json({ url: text.trim() });
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Upload failed:", error);
+		const errorMessage =
+			typeof error === "object" && error !== null && "message" in error
+				? (error as { message?: string }).message
+				: undefined;
 		return NextResponse.json(
-			{ error: error?.message || "Upload failed" },
+			{ error: errorMessage ?? "Upload failed" },
 			{ status: 500 }
 		);
 	}

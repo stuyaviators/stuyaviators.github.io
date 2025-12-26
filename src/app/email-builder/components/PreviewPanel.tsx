@@ -86,6 +86,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 			if (selection) {
 				selection.removeAllRanges();
 				selection.addRange(range);
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
 				const success = document.execCommand("copy");
 				selection.removeAllRanges();
 				temporaryDiv.remove();
@@ -261,8 +262,7 @@ function generateHtml(data: NewsletterFormData): string {
 </html>`;
 }
 
-function escapeHtml(text: string | undefined): string {
-	const safeText = text ?? "";
+function escapeHtml(safeText = ""): string {
 	const map: Record<string, string> = {
 		"&": "&amp;",
 		"<": "&lt;",

@@ -4,7 +4,7 @@ import { FormField } from "@/components/FormField";
 import { GlassButton } from "@/components/GlassButton";
 import { type Article } from "@/types/email-builder";
 import { ChevronDown, ChevronUp, Trash2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ArticleFormProps = {
 	article: Article;
@@ -17,6 +17,145 @@ type ArticleFormProps = {
 	canMoveUp?: boolean;
 	canMoveDown?: boolean;
 };
+
+const SeparatorOrSubheadingFields: React.FC<{
+	article: Article;
+	handleFieldChange: (field: keyof Article, value: string) => void;
+}> = ({ article, handleFieldChange }) => (
+	<FormField
+		label={
+			article.type === "separator" ? "Separator Title" : "Subheading Title"
+		}
+		value={article.title ?? ""}
+		onChange={(value) => {
+			handleFieldChange("title", value);
+		}}
+		placeholder={
+			article.type === "separator" ? "Section heading" : "Subheading text"
+		}
+	/>
+);
+
+const ImageFields: React.FC<{
+	article: Article;
+	handleFieldChange: (field: keyof Article, value: string) => void;
+	fileInputRef: React.RefObject<HTMLInputElement>;
+	isUploading: boolean;
+	handleUploadClick: () => void;
+	handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	status?:
+		| {
+				type: "error" | "success" | "info";
+				message: string;
+		  }
+		| undefined;
+}> = ({
+	article,
+	handleFieldChange,
+	fileInputRef,
+	isUploading,
+	handleUploadClick,
+	handleFileChange,
+	status,
+}) => (
+	<>
+		<FormField
+			label="Image URL"
+			value={article.imageUrl ?? ""}
+			onChange={(value) => {
+				handleFieldChange("imageUrl", value);
+			}}
+			placeholder="https://example.com/image.jpg"
+			type="url"
+		/>
+		<input
+			ref={fileInputRef}
+			type="file"
+			accept="image/*"
+			className="hidden"
+			onChange={handleFileChange}
+		/>
+		<GlassButton
+			variant="secondary"
+			className="mt-2"
+			onClick={handleUploadClick}
+			disabled={isUploading}
+		>
+			{isUploading ? (
+				<span>Uploading...</span>
+			) : (
+				<>
+					<Upload className="h-4 w-4 mr-2" aria-hidden />
+					Upload
+				</>
+			)}
+		</GlassButton>
+		{/* Status text */}
+		<span className={status ? `text-${status.type}` : ""}>
+			{status?.message}
+		</span>
+		<FormField
+			label="Description (optional)"
+			value={article.description ?? ""}
+			onChange={(value) => {
+				handleFieldChange("description", value);
+			}}
+			placeholder="Image description/caption"
+			type="textarea"
+		/>
+	</>
+);
+
+const ArticleFields: React.FC<{
+	article: Article;
+	handleFieldChange: (field: keyof Article, value: string) => void;
+}> = ({ article, handleFieldChange }) => (
+	<>
+		<FormField
+			label="Title"
+			value={article.title ?? ""}
+			onChange={(value) => {
+				handleFieldChange("title", value);
+			}}
+			placeholder="Article title"
+		/>
+		<FormField
+			label="Description"
+			value={article.description ?? ""}
+			onChange={(value) => {
+				handleFieldChange("description", value);
+			}}
+			placeholder="Article description"
+			type="textarea"
+		/>
+		<FormField
+			label="Image URL"
+			value={article.imageUrl ?? ""}
+			onChange={(value) => {
+				handleFieldChange("imageUrl", value);
+			}}
+			placeholder="https://example.com/image.jpg"
+			type="url"
+		/>
+		<FormField
+			label="Button Text"
+			value={article.buttonText ?? ""}
+			onChange={(value) => {
+				handleFieldChange("buttonText", value);
+			}}
+			placeholder="e.g., Read More"
+		/>
+		<FormField
+			label="Button URL"
+			value={article.buttonUrl ?? ""}
+			onChange={(value) => {
+				handleFieldChange("buttonUrl", value);
+			}}
+			placeholder="https://example.com"
+			type="url"
+		/>
+	</>
+);
 
 export const ArticleForm: React.FC<ArticleFormProps> = ({
 	article,
@@ -36,17 +175,55 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	// Client-side upload state & ref
-	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(
+		null as unknown as HTMLInputElement
+	);
 	const [isUploading, setIsUploading] = useState(false);
 
+	// Status state + auto-clear
+	const [status, setStatus] = useState<
+		| {
+				type: "error" | "success" | "info";
+				message: string;
+		  }
+		| undefined
+	>(undefined);
+	const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined
+	);
+
+	const showStatus = (
+		type: "error" | "success" | "info",
+		message: string,
+		duration = 5000
+	) => {
+		if (statusTimeoutRef.current)
+			globalThis.clearTimeout(statusTimeoutRef.current);
+		setStatus({ type, message });
+		statusTimeoutRef.current = globalThis.setTimeout(() => {
+			setStatus(undefined);
+		}, duration);
+	};
+
+	useEffect(() => {
+		return () => {
+			if (statusTimeoutRef.current)
+				globalThis.clearTimeout(statusTimeoutRef.current);
+		};
+	}, []);
+
 	const handleUploadClick = () => {
+		setStatus(undefined);
 		fileInputRef.current?.click();
 	};
 
-	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
+	const handleFileChange = async (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const file = event.target.files?.[0];
 		if (!file) return;
 		setIsUploading(true);
+		showStatus("info", "Uploading...");
 		try {
 			const form = new FormData();
 			form.append("file", file, file.name);
@@ -55,11 +232,12 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 				body: form,
 			});
 			if (!response.ok) throw new Error(await response.text());
-			const { url } = await response.json();
+			const url = await response.text();
 			handleFieldChange("imageUrl", url);
+			showStatus("success", "Image uploaded.");
 		} catch (error) {
 			console.error("Upload error:", error);
-			alert("Image upload failed.");
+			showStatus("error", "Image upload failed.");
 		} finally {
 			setIsUploading(false);
 			if (fileInputRef.current) fileInputRef.current.value = "";
@@ -131,115 +309,30 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 					<>
 						{(article.type === "separator" ||
 							article.type === "subheading") && (
-							<FormField
-								label={
-									article.type === "separator"
-										? "Separator Title"
-										: "Subheading Title"
-								}
-								value={article.title ?? ""}
-								onChange={(value) => {
-									handleFieldChange("title", value);
-								}}
-								placeholder={
-									article.type === "separator"
-										? "Section heading"
-										: "Subheading text"
-								}
+							<SeparatorOrSubheadingFields
+								article={article}
+								handleFieldChange={handleFieldChange}
 							/>
 						)}
 
 						{article.type === "image" && (
-							<>
-								<FormField
-									label="Image URL"
-									value={article.imageUrl ?? ""}
-									onChange={(value) => {
-										handleFieldChange("imageUrl", value);
-									}}
-									placeholder="https://example.com/image.jpg"
-									type="url"
-								/>
-								<input
-									ref={fileInputRef}
-									type="file"
-									accept="image/*"
-									className="hidden"
-									onChange={handleFileChange}
-								/>
-								<GlassButton
-									variant="secondary"
-									className="mt-2"
-									onClick={handleUploadClick}
-									disabled={isUploading}
-								>
-									{isUploading ? (
-										<span>Uploading...</span>
-									) : (
-										<>
-											<Upload className="h-4 w-4 mr-2" aria-hidden />
-											Upload
-										</>
-									)}
-								</GlassButton>
-								<FormField
-									label="Description (optional)"
-									value={article.description ?? ""}
-									onChange={(value) => {
-										handleFieldChange("description", value);
-									}}
-									placeholder="Image description/caption"
-									type="textarea"
-								/>
-							</>
+							<ImageFields
+								article={article}
+								handleFieldChange={handleFieldChange}
+								fileInputRef={fileInputRef}
+								isUploading={isUploading}
+								handleUploadClick={handleUploadClick}
+								handleFileChange={handleFileChange}
+								// Pass status so child can render it
+								status={status}
+							/>
 						)}
 
 						{article.type === "article" && (
-							<>
-								<FormField
-									label="Title"
-									value={article.title ?? ""}
-									onChange={(value) => {
-										handleFieldChange("title", value);
-									}}
-									placeholder="Article title"
-								/>
-								<FormField
-									label="Description"
-									value={article.description ?? ""}
-									onChange={(value) => {
-										handleFieldChange("description", value);
-									}}
-									placeholder="Article description"
-									type="textarea"
-								/>
-								<FormField
-									label="Image URL"
-									value={article.imageUrl ?? ""}
-									onChange={(value) => {
-										handleFieldChange("imageUrl", value);
-									}}
-									placeholder="https://example.com/image.jpg"
-									type="url"
-								/>
-								<FormField
-									label="Button Text"
-									value={article.buttonText ?? ""}
-									onChange={(value) => {
-										handleFieldChange("buttonText", value);
-									}}
-									placeholder="e.g., Read More"
-								/>
-								<FormField
-									label="Button URL"
-									value={article.buttonUrl ?? ""}
-									onChange={(value) => {
-										handleFieldChange("buttonUrl", value);
-									}}
-									placeholder="https://example.com"
-									type="url"
-								/>
-							</>
+							<ArticleFields
+								article={article}
+								handleFieldChange={handleFieldChange}
+							/>
 						)}
 					</>
 				)}

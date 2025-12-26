@@ -307,9 +307,7 @@ export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ data }) => {
 				{(() => {
 					const items = data.socialLinks.filter((s) => s.platform && s.url);
 					const epsilonUrl = `https://stuyaviators.vercel.app/epsilon-wordmark.png`;
-					{
-						/* This is the only way you can align it btw (i think) */
-					}
+					/* This is the only way you can align it btw (i think) */
 
 					return (
 						<table
