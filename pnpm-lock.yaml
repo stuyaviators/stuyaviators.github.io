@@ -29,9 +29,6 @@ importers:
       next:
         specifier: 16.1.1
         version: 16.1.1(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      node-catbox:
-        specifier: ^3.4.0
-        version: 3.4.0
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
@@ -2823,10 +2820,6 @@ packages:
         optional: true
       sass:
         optional: true
-
-  node-catbox@3.4.0:
-    resolution: {integrity: sha512-tM/2NvUI4tgAklfbpSzduJaaTQYAMJEMxyQWMUSnFWpMZa+RfJX9FAI2cHnKjAMnr2YWnz9lCVcveKcfLT8Ecg==}
-    engines: {node: '>=19'}
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
@@ -6392,8 +6385,6 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-
-  node-catbox@3.4.0: {}
 
   node-releases@2.0.27: {}
 

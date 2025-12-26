@@ -3,8 +3,8 @@
 import { FormField } from "@/components/FormField";
 import { GlassButton } from "@/components/GlassButton";
 import { type Article } from "@/types/email-builder";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronUp, Trash2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
 
 type ArticleFormProps = {
 	article: Article;
@@ -34,6 +34,35 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 	};
 
 	const [isCollapsed, setIsCollapsed] = useState(false);
+
+	// client-side upload state & ref
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
+
+	const handleUploadClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setIsUploading(true);
+		try {
+			const form = new FormData();
+			form.append("file", file, file.name);
+			// send to your server route (no CORS issues)
+			const response = await fetch("/api/upload", { method: "POST", body: form });
+			if (!response.ok) throw new Error(await response.text());
+			const { url } = await response.json();
+			handleFieldChange("imageUrl", url);
+		} catch (err) {
+			console.error("Upload error:", err);
+			alert("Image upload failed.");
+		} finally {
+			setIsUploading(false);
+			if (fileInputRef.current) fileInputRef.current.value = "";
+		}
+	};
 
 	return (
 		<div className="relative rounded-lg border border-ctp-overlay1/40 bg-linear-to-br from-ctp-surface0/60 via-ctp-base/50 to-ctp-surface0/40 p-6 backdrop-blur-lg">
@@ -125,6 +154,29 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({
 									placeholder="https://example.com/image.jpg"
 									type="url"
 								/>
+								{/* hidden file input for client-side upload */}
+								<input
+									ref={fileInputRef}
+									type="file"
+									accept="image/*"
+									className="hidden"
+									onChange={handleFileChange}
+								/>
+								<GlassButton
+									variant="secondary"
+									className="mt-2"
+									onClick={handleUploadClick}
+									disabled={isUploading}
+								>
+									{isUploading ? (
+										<span>Uploading...</span>
+									) : (
+										<>
+											<Upload className="h-4 w-4 mr-2" aria-hidden />
+											Upload
+										</>
+									)}
+								</GlassButton>
 								<FormField
 									label="Description (optional)"
 									value={article.description ?? ""}
