@@ -2,6 +2,7 @@
 
 import type { NewsletterFormData } from "@/types/email-builder";
 import type { Preset } from "./utils/storage";
+import Confirm from "@/components/Confirm";
 import { GlassButton } from "@/components/GlassButton";
 import { useEffect, useState } from "react";
 import { ArticlesSection } from "./components/ArticlesSection";
@@ -24,6 +25,7 @@ export default function EmailBuilderPage() {
 	const [showPresetModal, setShowPresetModal] = useState(false);
 	const [presetName, setPresetName] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
+	const [showConfirm, setShowConfirm] = useState(false);
 
 	useEffect(() => {
 		const loadedData = loadFormData();
@@ -74,12 +76,17 @@ export default function EmailBuilderPage() {
 	};
 
 	const handleResetForm = () => {
-		// Temporary, might create custom component
-		// eslint-disable-next-line no-alert
-		if (globalThis.confirm("Are you sure you want to reset the form?")) {
-			clearFormData();
-			setFormData(defaultFormData);
-		}
+		setShowConfirm(true);
+	};
+
+	const handleConfirmReset = () => {
+		clearFormData();
+		setFormData(defaultFormData);
+		setShowConfirm(false);
+	};
+
+	const handleCancelReset = () => {
+		setShowConfirm(false);
 	};
 
 	if (isLoading) {
@@ -209,6 +216,17 @@ export default function EmailBuilderPage() {
 					</div>
 				</div>
 			)}
+
+			{/* Confirm modal for destructive actions */}
+			<Confirm
+				open={showConfirm}
+				title="Reset form?"
+				description="This will clear the form and cannot be undone."
+				confirmLabel="Reset"
+				cancelLabel="Cancel"
+				onConfirm={handleConfirmReset}
+				onCancel={handleCancelReset}
+			/>
 		</main>
 	);
 }
