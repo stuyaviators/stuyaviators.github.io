@@ -145,7 +145,7 @@ export default function Header() {
 								loading="lazy"
 								decoding="async"
 							/>
-							<span className="font-semibold text-base hidden sm:inline">
+							<span className="font-semibold text-base sm:inline">
 								StuyAviators
 							</span>
 						</a>
@@ -175,7 +175,7 @@ export default function Header() {
 						{/* Mobile nav toggle */}
 						<button
 							type="button"
-							className="inline-flex sm:hidden h-10 w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60"
+							className="inline-flex sm:hidden cursor-pointer h-10 w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60"
 							onClick={() => {
 								setNavOpen((v) => !v);
 							}}
@@ -189,12 +189,9 @@ export default function Header() {
 							href="https://epsilon.stuysu.org/stuyaviators"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="hidden sm:inline-flex group relative flex-col items-center justify-center gap-0.5 rounded-lg bg-linear-to-br from-ctp-overlay1/15 via-ctp-surface0/45 to-ctp-overlay0/15 px-5 py-3 text-sm font-semibold text-ctp-subtext0 backdrop-blur-xl border border-ctp-overlay1/60 shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_10px_18px_rgba(0,0,0,0.22)] transition-all hover:scale-[1.02] hover:-translate-y-px hover:ring-2 hover:ring-ctp-lavender/35 hover:shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_14px_24px_rgba(202,166,247,0.15)] focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
+							className="hidden sm:inline-flex group relative h-max flex-col items-center justify-center gap-0.5 rounded-lg bg-linear-to-br from-ctp-overlay1/15 via-ctp-surface0/45 to-ctp-overlay0/15 px-5 py-3 text-sm font-semibold text-ctp-subtext0 backdrop-blur-xl border border-ctp-overlay1/60 shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_10px_18px_rgba(0,0,0,0.22)] transition-all hover:scale-[1.02] hover:-translate-y-px hover:ring-2 hover:ring-ctp-lavender/35 hover:shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_14px_24px_rgba(202,166,247,0.15)] focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
 						>
 							<div className="absolute inset-0 rounded-lg ring-2 ring-ctp-overlay1/12 opacity-90 transition group-hover:opacity-100 group-hover:ring-ctp-overlay1/30" />
-							<span className="relative z-10 leading-none text-xs">
-								Join us on
-							</span>
 							<svg
 								aria-label="Epsilon"
 								className="relative z-10 h-5 w-20"
@@ -244,7 +241,8 @@ export default function Header() {
 								/>
 							</svg>
 						</a>
-						<div className="relative">
+						{/* TEMPORARILY DISABLED */}
+						<div className="relative hidden">
 							<button
 								type="button"
 								disabled={!mounted}

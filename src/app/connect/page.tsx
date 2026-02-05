@@ -11,6 +11,8 @@ import { siDiscord, siInstagram } from "simple-icons/icons";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import copy from "@/util/copy";
+
 const socials = [
 	{
 		label: "Discord",
@@ -45,7 +47,7 @@ const contacts = [
 	},
 ];
 
-const mapStyleByFlavor: Record<string, string> = {
+const mapStyles: Record<string, string> = {
 	latte: "mapbox://styles/webcubed/cmjeqj7mi006701qoegh3165c",
 	mocha: "mapbox://styles/webcubed/cmjeqn9mt001u01s1a3mzasqn",
 	macchiato: "mapbox://styles/webcubed/cmjeq8rau006601s8hpua6pht",
@@ -55,35 +57,8 @@ const mapStyleByFlavor: Record<string, string> = {
 const mapCoordinates: [number, number] = [-74.013_839_8, 40.717_985_7];
 const mapZoom = 15.5;
 
-async function copyValue(value: string) {
-	try {
-		if (
-			typeof navigator !== "undefined" &&
-			globalThis.window !== undefined &&
-			globalThis.isSecureContext &&
-			navigator.clipboard?.writeText
-		) {
-			await navigator.clipboard.writeText(value);
-			return true;
-		}
-	} catch {
-		// Continue to fallback paths
-	}
-
-	if (typeof navigator !== "undefined" && navigator.share) {
-		try {
-			await navigator.share({ text: value });
-			return true;
-		} catch {
-			// Sharing cancelled or unsupported
-		}
-	}
-
-	return false;
-}
-
 export default function Connect() {
-	const [mapStyleId, setMapStyleId] = useState(mapStyleByFlavor.mocha ?? "");
+	const [mapStyleId, setMapStyleId] = useState(mapStyles.mocha ?? "");
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<mapboxgl.Map | undefined>(null);
 	const markerRef = useRef<mapboxgl.Marker | undefined>(null);
@@ -91,7 +66,6 @@ export default function Connect() {
 	useEffect(() => {
 		const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 		if (!token) {
-			// No token, skip init to avoid runtime errors.
 			return undefined;
 		}
 
@@ -145,7 +119,7 @@ export default function Connect() {
 	useEffect(() => {
 		const computeStyle = () => {
 			const flavor = document.documentElement.dataset.catppuccin ?? "mocha";
-			const mapped = mapStyleByFlavor[flavor] ?? mapStyleByFlavor.mocha;
+			const mapped = mapStyles[flavor] ?? mapStyles.mocha;
 			setMapStyleId(mapped);
 		};
 
@@ -252,7 +226,7 @@ export default function Connect() {
 									onClick={async (event) => {
 										event.preventDefault();
 										event.stopPropagation();
-										await copyValue(value);
+										await copy(value);
 									}}
 									title="Copy to clipboard"
 									className="cursor-pointer inline-flex h-8 ml-2 sm:ml-5 sm:h-10 w-8 sm:w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60 shrink-0"
