@@ -30,7 +30,7 @@ export function Stagger({
 	children,
 	className,
 	duration = 0.4,
-	y = -12,
+	y = 12,
 }: {
 	children: React.ReactNode;
 	className?: string;
