@@ -24,6 +24,8 @@
 ### TODO
 
 - [ ] Rewrite header
+- [ ] Rewrite card
+- [ ] Investigate mobile layout
 - [ ] Invesigate implementation of theme switching
   - Automatic or + user choice?
 - [ ] Establish more components
