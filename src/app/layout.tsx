@@ -4,6 +4,7 @@ import { B612, Lexend } from "next/font/google";
 import "@/styles/globals.css";
 
 import Header from "@/components/Header";
+import TransitionProvider from "@/components/TransitionProvider";
 
 const lexend = Lexend({
 	variable: "--font-lexend",
@@ -38,7 +39,7 @@ export default function RootLayout({
 		>
 			<body className={`${lexend.variable} ${b612.variable} antialiased`}>
 				<Header />
-				{children}
+				<TransitionProvider>{children}</TransitionProvider>
 			</body>
 		</html>
 	);

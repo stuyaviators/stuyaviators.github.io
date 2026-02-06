@@ -172,24 +172,11 @@ export default function Header() {
 					</nav>
 					{/* Actions */}
 					<div className="shrink-0 flex items-center gap-2 sm:gap-3">
-						{/* Mobile nav toggle */}
-						<button
-							type="button"
-							className="inline-flex sm:hidden cursor-pointer h-10 w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60"
-							onClick={() => {
-								setNavOpen((v) => !v);
-							}}
-							aria-label="Toggle navigation"
-							aria-expanded={navOpen}
-							aria-controls="mobile-primary-navigation"
-						>
-							<Menu className="h-4 w-4" aria-hidden />
-						</button>
 						<a
 							href="https://epsilon.stuysu.org/stuyaviators"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="hidden sm:inline-flex group relative h-max flex-col items-center justify-center gap-0.5 rounded-lg bg-linear-to-br from-ctp-overlay1/15 via-ctp-surface0/45 to-ctp-overlay0/15 px-5 py-3 text-sm font-semibold text-ctp-subtext0 backdrop-blur-xl border border-ctp-overlay1/60 shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_10px_18px_rgba(0,0,0,0.22)] transition-all hover:scale-[1.02] hover:-translate-y-px hover:ring-2 hover:ring-ctp-lavender/35 hover:shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_14px_24px_rgba(202,166,247,0.15)] focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
+							className="sm:inline-flex group relative h-max flex-col items-center justify-center gap-0.5 rounded-lg bg-linear-to-br from-ctp-overlay1/15 via-ctp-surface0/45 to-ctp-overlay0/15 px-5 py-3 text-sm font-semibold text-ctp-subtext0 backdrop-blur-xl border border-ctp-overlay1/60 shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_10px_18px_rgba(0,0,0,0.22)] transition-all hover:scale-[1.02] hover:-translate-y-px hover:ring-2 hover:ring-ctp-lavender/35 hover:shadow-[inset_0px_1px_3px_rgba(255,255,255,0.3),inset_0px_-3px_8px_rgba(0,0,0,0.12),0px_14px_24px_rgba(202,166,247,0.15)] focus-visible:outline-2 focus-visible:outline-ctp-lavender/60 cursor-pointer"
 						>
 							<div className="absolute inset-0 rounded-lg ring-2 ring-ctp-overlay1/12 opacity-90 transition group-hover:opacity-100 group-hover:ring-ctp-overlay1/30" />
 							<svg
@@ -240,7 +227,20 @@ export default function Header() {
 									fill={`url(#wordmarkGradient-${flavor})`}
 								/>
 							</svg>
-						</a>
+						</a>{" "}
+						{/* Mobile nav toggle */}
+						<button
+							type="button"
+							className="inline-flex sm:hidden cursor-pointer h-10 w-10 items-center justify-center rounded-lg border border-ctp-overlay1/60 bg-ctp-surface1/60 text-ctp-subtext1 shadow-[0px_6px_12px_rgba(0,0,0,0.18)] transition duration-150 hover:-translate-y-px hover:border-ctp-lavender/60 hover:bg-ctp-surface1/90 hover:text-ctp-text hover:shadow-[0px_10px_18px_rgba(0,0,0,0.22)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ctp-lavender/60"
+							onClick={() => {
+								setNavOpen((v) => !v);
+							}}
+							aria-label="Toggle navigation"
+							aria-expanded={navOpen}
+							aria-controls="mobile-primary-navigation"
+						>
+							<Menu className="h-4 w-4" aria-hidden />
+						</button>
 						{/* TEMPORARILY DISABLED */}
 						<div className="relative hidden">
 							<button

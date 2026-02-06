@@ -27,3 +27,4 @@
 - [ ] Invesigate implementation of theme switching
   - Automatic or + user choice?
 - [ ] Establish more components
+- [ ] Reduced-motion support (TransitionProvider)
