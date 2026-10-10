@@ -15,8 +15,8 @@ import williamVongphanith from "@/assets/crew/william-vongphanith.jpg";
 import yunusGubrud from "@/assets/crew/yunus-gubrud.jpg";
 
 /*
- * 2026–27 roster. Andrew Zhang and Alexander Smelyansky are co-presidents;
- * the class of 2026 moved to the past sections. Becomes dashboard-managed in
+ * 2026–27 roster, matching officer roles on Epsilon. The class of 2026 and
+ * former officers moved to the past sections. Becomes dashboard-managed in
  * Phase 4. People without a supplied photo get an initials placeholder.
  */
 export type CrewMember = {
@@ -38,6 +38,8 @@ export const crewGroups: CrewGroup[] = [
 		id: "current",
 		title: "Current Leadership",
 		introKey: "current",
+		// Roles from the club's Epsilon page (Oct 2026). Class years and photos
+		// for newer officers still to be supplied.
 		members: [
 			{
 				name: "Andrew Zhang",
@@ -51,23 +53,9 @@ export const crewGroups: CrewGroup[] = [
 				role: "Captain (Co-President)",
 				photo: alexanderSmelyansky,
 			},
-			{
-				name: "Allyson Win",
-				classOf: "'27",
-				role: "Flight Engineer (Secretary)",
-				photo: allysonWin,
-			},
-			{
-				name: "Andrew Archvadze",
-				classOf: "'28",
-				role: "Flight Engineer (Secretary)",
-			},
-			{
-				name: "Evan Ye",
-				classOf: "'27",
-				role: "Aircraft Mechanic (Treasurer)",
-				photo: evanYe,
-			},
+			{ name: "Caleb Paugh", role: "First Officer (Vice President)" },
+			{ name: "Sheng Yue Huang", role: "Flight Engineer (Secretary)" },
+			{ name: "Nathan Lai", role: "Flight Technician (IT)" },
 		],
 	},
 	{
@@ -113,6 +101,23 @@ export const crewGroups: CrewGroup[] = [
 				classOf: "'26",
 				role: "Air Traffic Controller (Outreach)",
 				photo: chloeTam,
+			},
+			{
+				name: "Allyson Win",
+				classOf: "'27",
+				role: "Flight Engineer (Secretary)",
+				photo: allysonWin,
+			},
+			{
+				name: "Andrew Archvadze",
+				classOf: "'28",
+				role: "Flight Engineer (Secretary)",
+			},
+			{
+				name: "Evan Ye",
+				classOf: "'27",
+				role: "Aircraft Mechanic (Treasurer)",
+				photo: evanYe,
 			},
 			{
 				name: "William Vongphanith",
