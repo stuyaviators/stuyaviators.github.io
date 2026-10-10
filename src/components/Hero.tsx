@@ -1,10 +1,10 @@
 import { photos } from "@/content/photos";
 import { site } from "@/content/site";
+import HeroMedia from "./HeroMedia";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
-import { Stagger } from "./TransitionProvider";
-import { ButtonLink } from "./ui/Button";
-import { Container } from "./ui/Section";
+import { Stagger } from "./TransitionProvider.tsx";
+import { ButtonLink } from "./ui/Button.tsx";
+import { Container } from "./ui/Section.tsx";
 
 /*
  * Homepage hero. The one "hero moment": a contrail line draws across under
@@ -68,19 +68,9 @@ export default function Hero() {
 					</Stagger>
 				</div>
 				<Stagger className="relative">
-					<div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-hairline bg-surface-2 shadow-card">
-						<Image
-							src={photo.src}
-							alt={photo.alt}
-							fill
-							priority
-							placeholder="blur"
-							sizes="(min-width: 1024px) 45vw, 100vw"
-							className="object-cover"
-						/>
-					</div>
+					<HeroMedia poster={photo.src} posterAlt={photo.alt} />
 					<p className="label absolute -bottom-3 left-4 rounded-sm border border-hairline bg-surface px-2 py-1 text-muted">
-						Member flight training
+						Club video · muted
 					</p>
 				</Stagger>
 			</Container>
