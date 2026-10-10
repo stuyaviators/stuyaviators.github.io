@@ -38,8 +38,8 @@ export function BoardingPass({
 						{stubTitle}
 					</div>
 				) : null}
-				{stub.map((field) => (
-					<div key={field.label}>
+				{stub.map((field, index) => (
+					<div key={`${field.label}-${index}`}>
 						<dt className="label text-[0.68rem] text-muted">{field.label}</dt>
 						<dd className="mt-0.5 font-mono text-sm text-text">
 							{field.value}
