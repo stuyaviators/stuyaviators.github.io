@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Light is the default; dark follows the OS unless the visitor
+ * picked a theme (data-theme on <html>, set pre-paint by the inline script in
+ * layout.tsx). Club palette: navy #0F1B32, ice #DDEBFF, brand blue #0B64A9.
+ * All text pairs meet WCAG AA; see /brand.
+ */
+:root {
+	color-scheme: light;
+	--bg: #f6f9ff;
+	--surface: #ffffff;
+	--surface-2: #eaf2ff;
+	--ice: #ddebff;
+	--navy: #0f1b32;
+	--text: #0f1b32;
+	--muted: #475670;
+	--brand: #0b64a9;
+	--brand-ink: #ffffff;
+	--accent: #0b64a9;
+	--accent-ink: #ffffff;
+	--accent-text: #0b64a9;
+	--field: #6e84a3;
+	--hairline: #d3deee;
+	--board-bg: #081226;
+	--board-text: #ddebff;
+	--board-dim: #6f8bb8;
+	--danger: #b42318;
+	--success: #1e7a46;
+	--shadow: 0 1px 2px rgb(15 27 50 / 6%), 0 8px 24px rgb(15 27 50 / 7%);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--bg: #0f1b32;
+		--surface: #172a4d;
+		--surface-2: #1e355e;
+		--ice: #ddebff;
+		--navy: #0f1b32;
+		--text: #eef4ff;
+		--muted: #a9bedd;
+		--brand: #8dbdf2;
+		--brand-ink: #0f1b32;
+		--accent: #ddebff;
+		--accent-ink: #0f1b32;
+		--accent-text: #8dbdf2;
+		--field: #5f7ca8;
+		--hairline: #243b63;
+		--danger: #ff8a80;
+		--success: #6fd39b;
+		--shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 25%);
+	}
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--bg: #0f1b32;
+	--surface: #172a4d;
+	--surface-2: #1e355e;
+	--ice: #ddebff;
+	--navy: #0f1b32;
+	--text: #eef4ff;
+	--muted: #a9bedd;
+	--brand: #8dbdf2;
+	--brand-ink: #0f1b32;
+	--accent: #ddebff;
+	--accent-ink: #0f1b32;
+	--accent-text: #8dbdf2;
+	--field: #5f7ca8;
+	--hairline: #243b63;
+	--danger: #ff8a80;
+	--success: #6fd39b;
+	--shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 25%);
+}
+
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-ice: var(--ice);
+	--color-navy: var(--navy);
+	--color-text: var(--text);
+	--color-muted: var(--muted);
+	--color-brand: var(--brand);
+	--color-brand-ink: var(--brand-ink);
+	--color-accent: var(--accent);
+	--color-accent-ink: var(--accent-ink);
+	--color-accent-text: var(--accent-text);
+	--color-field: var(--field);
+	--color-hairline: var(--hairline);
+	--color-board-bg: var(--board-bg);
+	--color-board-text: var(--board-text);
+	--color-board-dim: var(--board-dim);
+	--color-danger: var(--danger);
+	--color-success: var(--success);
+	--font-sans: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+	--font-label: var(--font-b612), ui-sans-serif, system-ui, sans-serif;
+	--font-mono: var(--font-b612-mono), ui-monospace, monospace;
+	--shadow-card: var(--shadow);
+}
+
+@layer base {
+	html {
+		background: var(--bg);
+		color: var(--text);
+		-webkit-text-size-adjust: 100%;
+		scroll-padding-top: 6rem;
+	}
+
+	body {
+		background: var(--bg);
+		color: var(--text);
+		font-family: var(--font-sans);
+		font-size: 1.0625rem;
+		line-height: 1.6;
+		overflow-x: clip;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		line-height: 1.15;
+		letter-spacing: -0.015em;
+		font-weight: 600;
+		text-wrap: balance;
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	a {
+		color: inherit;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--brand);
+		outline-offset: 3px;
+		border-radius: 4px;
+	}
+
+	::selection {
+		background: var(--ice);
+		color: var(--navy);
+	}
+}
+
+@layer components {
+	/* B612 uppercase label used by flight strips, badges and data captions. */
+	.label {
+		font-family: var(--font-label);
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.prose-club {
+		max-width: 70ch;
+	}
+
+	.prose-club > * + * {
+		margin-top: 1em;
+	}
+
+	.prose-club a {
+		color: var(--brand);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.prose-club h3 {
+		margin-top: 2em;
+		font-size: 1.25rem;
+	}
+
+	.prose-club ul {
+		list-style: disc;
+		padding-left: 1.25em;
+	}
+
+	.prose-club ol {
+		list-style: decimal;
+		padding-left: 1.25em;
+	}
+
+	.prose-club li + li {
+		margin-top: 0.4em;
+	}
+
+	/* Runway centerline: dashed line between threshold bars. */
+	.runway {
+		height: 12px;
+		background:
+			linear-gradient(var(--accent), var(--accent)) left center / 3px 100%
+				no-repeat,
+			linear-gradient(var(--accent), var(--accent)) right center / 3px 100%
+				no-repeat,
+			repeating-linear-gradient(
+					90deg,
+					var(--accent) 0 28px,
+					transparent 28px 52px
+				)
+				center / calc(100% - 24px) 2px no-repeat;
+		opacity: 0.85;
+	}
+
+	/* Perforation between a boarding pass body and its stub. */
+	.perforation {
+		background-image: radial-gradient(
+			circle,
+			var(--field) 1.5px,
+			transparent 1.75px
+		);
+		background-size: 10px 10px;
+		background-position: center;
+		opacity: 0.6;
+	}
+}
+
+/* Stagger entrance (ported from recode's TransitionProvider). Pure CSS, so
+   content is visible without JS and reduced-motion disables it entirely. */
+@keyframes stagger-rise {
+	from {
+		opacity: 0;
+		transform: translateY(var(--stagger-y, 12px));
+	}
+}
+
+.stagger {
+	animation: stagger-rise var(--stagger-duration, 0.4s) ease-out both;
+	animation-delay: calc(var(--stagger-index, 0) * var(--stagger-step, 60ms));
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.stagger {
+		animation: none;
+	}
+
+	*,
+	*::before,
+	*::after {
+		scroll-behavior: auto !important;
+	}
+}

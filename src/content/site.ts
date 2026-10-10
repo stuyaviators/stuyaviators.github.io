@@ -1,0 +1,170 @@
+export const site = {
+	name: "StuyAviators",
+	url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://stuyaviators.vercel.app",
+	tagline:
+		"Bringing aviation to life at Stuyvesant High School, making the skies inclusive and accessible, and inspiring today’s youth to become tomorrow’s aviation leaders.",
+	eyebrow: "Stuyvesant High School’s Aviation Club",
+	founded: "2022-11-19",
+	epsilonUrl: "https://epsilon.stuysu.org/stuyaviators",
+	instagramHandle: "stuyaviators",
+	address: {
+		line: "345 Chambers St, New York, NY 10282",
+		school: "Stuyvesant High School",
+		query: "345 Chambers St, New York, NY 10282",
+	},
+} as const;
+
+export type NavLink = { href: string; label: string; description?: string };
+export type NavGroup = { label: string; links: NavLink[] };
+
+export const nav: Array<NavGroup | NavLink> = [
+	{
+		label: "About",
+		links: [
+			{
+				href: "/about",
+				label: "Mission & Skylab",
+				description: "What we do and why",
+			},
+			{ href: "/story", label: "Our Story", description: "Since 2022" },
+			{
+				href: "/charter",
+				label: "Charter & Rules",
+				description: "How the club runs",
+			},
+		],
+	},
+	{
+		label: "Explore",
+		links: [
+			{
+				href: "/meetings",
+				label: "Meetings",
+				description: "Upcoming and meeting types",
+			},
+			{
+				href: "/opportunities",
+				label: "Opportunities",
+				description: "Programs and internships",
+			},
+			{
+				href: "/scholarships",
+				label: "Scholarships",
+				description: "Funding for school and flight",
+			},
+			{
+				href: "/careers",
+				label: "Careers",
+				description: "Every path in aviation",
+			},
+		],
+	},
+	{
+		label: "Community",
+		links: [
+			{
+				href: "/flight-crew",
+				label: "Flight Crew",
+				description: "Leadership and positions",
+			},
+			{ href: "/gallery", label: "Gallery", description: "Photos from members" },
+			{
+				href: "/stories",
+				label: "Member Stories",
+				description: "Journeys into flight",
+			},
+		],
+	},
+	{ href: "/connect", label: "Connect" },
+];
+
+export function isNavGroup(item: NavGroup | NavLink): item is NavGroup {
+	return "links" in item;
+}
+
+export type Contact = {
+	label: string;
+	value: string;
+	href: string;
+	note?: string;
+};
+
+export const contacts: Contact[] = [
+	{
+		label: "School",
+		value: "aviators-outreach@stuy.edu",
+		href: "mailto:aviators-outreach@stuy.edu",
+		note: "General questions and story submissions",
+	},
+	{
+		label: "Media",
+		value: "aviators-media@stuy.edu",
+		href: "mailto:aviators-media@stuy.edu",
+		note: "Photo and video submissions",
+	},
+	{
+		label: "Leadership",
+		value: "aviators-exec@stuy.edu",
+		href: "mailto:aviators-exec@stuy.edu",
+		note: "Permissions and leadership team",
+	},
+	{
+		label: "Other",
+		value: "stuyaviators@gmail.com",
+		href: "mailto:stuyaviators@gmail.com",
+	},
+];
+
+export type SocialKey =
+	| "instagram"
+	| "discord"
+	| "youtube"
+	| "facebook"
+	| "epsilon";
+
+export type Social = {
+	key: SocialKey;
+	label: string;
+	href: string;
+	action: string;
+};
+
+export const socials: Social[] = [
+	{
+		key: "instagram",
+		label: "Instagram",
+		href: "https://www.instagram.com/stuyaviators",
+		action: "Follow us",
+	},
+	{
+		key: "discord",
+		label: "Discord",
+		href: "https://discord.gg/PCywWHervk",
+		action: "Join our server",
+	},
+	{
+		key: "youtube",
+		label: "YouTube",
+		href: "https://www.youtube.com/@stuyaviators",
+		action: "Watch",
+	},
+	{
+		key: "facebook",
+		label: "Facebook",
+		href: "https://www.facebook.com/groups/stuyaviators",
+		action: "Join our group",
+	},
+	{
+		key: "epsilon",
+		label: "Epsilon",
+		href: "https://epsilon.stuysu.org/stuyaviators",
+		action: "Join the club",
+	},
+];
+
+export const mapsLinks = {
+	open: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Stuyvesant High School, 345 Chambers St, New York, NY 10282")}`,
+	directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent("Stuyvesant High School, 345 Chambers St, New York, NY 10282")}`,
+	embed:
+		"https://www.google.com/maps?q=Stuyvesant+High+School,+345+Chambers+St,+New+York,+NY+10282&output=embed",
+};
