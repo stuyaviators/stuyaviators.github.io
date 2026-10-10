@@ -1,0 +1,13 @@
+**/*.md
+!docs/index.md
+pnpm-lock.yaml
+.turbo
+.cache
+next-env.d.ts
+.next/
+.next/**
+.next/types/
+.next/types/**
+legacy/
+drizzle/
+public/
