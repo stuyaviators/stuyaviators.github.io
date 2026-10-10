@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { ImageResponse } from "next/og";
 
 /*
@@ -10,9 +9,6 @@ import { ImageResponse } from "next/og";
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
 
-const root = process.cwd();
-const load = async (relative: string) => readFile(path.join(root, relative));
-
 export async function renderOg({
 	title,
 	eyebrow,
@@ -21,18 +17,20 @@ export async function renderOg({
 }: {
 	title: string;
 	eyebrow: string;
-	/**
-	File name in src/assets/photos (without extension).
-	*/
-	photo?: string;
+	/** Photo bytes, read by the caller with a static path. */
+	photo?: Uint8Array;
 	detail?: string;
 }) {
-	const [lexend, b612, logo, background] = await Promise.all([
-		load("src/assets/fonts/lexend-latin-600-normal.woff"),
-		load("src/assets/fonts/b612-latin-700-normal.woff"),
-		load("src/assets/brand/logo.png"),
-		photo ? load(`src/assets/photos/${photo}.jpg`) : Promise.resolve(undefined),
+	const [lexend, b612, logo] = await Promise.all([
+		readFile(
+			new URL("../assets/fonts/lexend-latin-600-normal.woff", import.meta.url)
+		),
+		readFile(
+			new URL("../assets/fonts/b612-latin-700-normal.woff", import.meta.url)
+		),
+		readFile(new URL("../assets/brand/logo.png", import.meta.url)),
 	]);
+	const background = photo;
 	const dataUri = (buffer: Uint8Array, type: string) =>
 		`data:${type};base64,${Buffer.from(buffer).toString("base64")}`;
 

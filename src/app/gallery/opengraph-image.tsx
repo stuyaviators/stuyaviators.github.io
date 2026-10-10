@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { renderOg } from "@/lib/og";
 
 export const alt = "Community Highlights · StuyAviators";
@@ -6,7 +7,12 @@ export default async function Image() {
 	return renderOg({
 		title: "Community Highlights",
 		eyebrow: "Community · Gallery",
-		photo: "gallery-strut-coastline",
+		photo: await readFile(
+			new URL(
+				"../../assets/photos/gallery-strut-coastline.jpg",
+				import.meta.url
+			)
+		),
 	});
 }
 

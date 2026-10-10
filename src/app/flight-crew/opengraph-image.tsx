@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { renderOg } from "@/lib/og";
 
 export const alt = "The Flight Crew · StuyAviators";
@@ -6,7 +7,9 @@ export default async function Image() {
 	return renderOg({
 		title: "The Flight Crew",
 		eyebrow: "Community",
-		photo: "hero-classroom-meeting",
+		photo: await readFile(
+			new URL("../../assets/photos/hero-classroom-meeting.jpg", import.meta.url)
+		),
 	});
 }
 
