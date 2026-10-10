@@ -17,7 +17,9 @@ export async function renderOg({
 }: {
 	title: string;
 	eyebrow: string;
-	/** Photo bytes, read by the caller with a static path. */
+	/**
+	Photo bytes, read by the caller with a static path.
+	*/
 	photo?: Uint8Array;
 	detail?: string;
 }) {
