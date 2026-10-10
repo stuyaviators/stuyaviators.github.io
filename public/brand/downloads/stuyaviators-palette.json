@@ -1,0 +1,46 @@
+[
+  {
+    "id": "navy",
+    "name": "Night Navy",
+    "hex": "#0F1B32",
+    "rgb": [
+      15,
+      27,
+      50
+    ],
+    "use": "Primary dark: backgrounds, body text on light"
+  },
+  {
+    "id": "blue",
+    "name": "Stuy Blue",
+    "hex": "#0B64A9",
+    "rgb": [
+      11,
+      100,
+      169
+    ],
+    "use": "Logo, links, buttons"
+  },
+  {
+    "id": "ice",
+    "name": "Ice",
+    "hex": "#DDEBFF",
+    "rgb": [
+      221,
+      235,
+      255
+    ],
+    "use": "Light backgrounds, highlights, text on navy"
+  },
+  {
+    "id": "white",
+    "name": "White",
+    "hex": "#FFFFFF",
+    "rgb": [
+      255,
+      255,
+      255
+    ],
+    "use": "Cards and logo fill"
+  }
+]

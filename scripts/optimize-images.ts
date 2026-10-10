@@ -4,7 +4,7 @@
  *
  * - Photos: longest edge ≤ 1920 px, progressive JPEG (mozjpeg) → src/assets/photos
  * - Headshots: 800×800 attention crop → src/assets/crew
- * - Brand: logo PNGs → src/assets/brand and public/brand (absolute URLs for email)
+ * Logos come from the official Figma SVGs instead: see scripts/brand-assets.ts.
  */
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -107,10 +107,8 @@ const crew: Record<string, string> = {
 async function run() {
 	const photoDir = path.resolve("src/assets/photos");
 	const crewDir = path.resolve("src/assets/crew");
-	const brandDir = path.resolve("src/assets/brand");
-	const publicBrand = path.resolve("public/brand");
 	await Promise.all(
-		[photoDir, crewDir, brandDir, publicBrand].map(async (dir) =>
+		[photoDir, crewDir].map(async (dir) =>
 			mkdir(dir, { recursive: true })
 		)
 	);
@@ -138,28 +136,8 @@ async function run() {
 			.toFile(path.join(crewDir, `${name}.jpg`));
 	}
 
-	const logo = path.join(source, "frame-1.png");
-	await sharp(logo)
-		.resize(512, 512)
-		.png({ compressionLevel: 9, palette: true })
-		.toFile(path.join(brandDir, "logo.png"));
-	await sharp(logo)
-		.resize(256, 256)
-		.png({ compressionLevel: 9, palette: true })
-		.toFile(path.join(publicBrand, "logo-256.png"));
-	// Square app icons with the logo on a white disc, for favicon/apple-touch.
-	await sharp(logo)
-		.resize(180, 180)
-		.flatten({ background: "#ffffff" })
-		.png({ compressionLevel: 9 })
-		.toFile(path.resolve("src/app/apple-icon.png"));
-	await sharp(logo)
-		.resize(96, 96)
-		.png({ compressionLevel: 9, palette: true })
-		.toFile(path.resolve("src/app/icon.png"));
-
 	console.log(
-		`Wrote ${Object.keys(photos).length} photos, ${Object.keys(crew).length} headshots, brand assets.`
+		`Wrote ${Object.keys(photos).length} photos, ${Object.keys(crew).length} headshots.`
 	);
 }
 
