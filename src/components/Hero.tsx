@@ -1,7 +1,7 @@
 import { photos } from "@/content/photos";
 import { site } from "@/content/site";
-import HeroMedia from "./HeroMedia";
 import { ArrowRight } from "lucide-react";
+import HeroMedia from "./HeroMedia.tsx";
 import { Stagger } from "./TransitionProvider.tsx";
 import { ButtonLink } from "./ui/Button.tsx";
 import { Container } from "./ui/Section.tsx";

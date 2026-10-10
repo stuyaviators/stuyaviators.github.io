@@ -48,7 +48,6 @@ export default function BrandPage() {
 									className="flex items-center justify-center border-b border-hairline p-8"
 									style={{ backgroundColor: variant.preview }}
 								>
-									{/* eslint-disable-next-line @next/next/no-img-element */}
 									<img
 										src={`${base}/stuyaviators-logo-${variant.id}-${variant.widths[0]}.png`}
 										alt={`StuyAviators ${variant.name.toLowerCase()} logo`}

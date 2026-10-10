@@ -30,7 +30,6 @@ function Flap({
 		<span className={className} aria-label={text}>
 			{[...text.toUpperCase()].map((char, index) => (
 				<span
-					// eslint-disable-next-line react/no-array-index-key
 					key={index}
 					aria-hidden
 					className="flap"

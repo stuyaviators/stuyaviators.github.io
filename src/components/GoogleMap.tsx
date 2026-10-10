@@ -1,10 +1,10 @@
 import { MapPin, Navigation } from "lucide-react";
-import { buttonClasses } from "./ui/Button";
-import { FlightStrip } from "./ui/FlightStrip";
+import { buttonClasses } from "./ui/Button.tsx";
+import { FlightStrip } from "./ui/FlightStrip.tsx";
 
 /**
- * Keyless Google Maps embed (no API key, no billing). Fixed aspect ratio so it
- * doesn't shift layout; the buttons keep it useful if the iframe is blocked.
+ Keyless Google Maps embed (no API key, no billing). Fixed aspect ratio so it
+ doesn't shift layout; the buttons keep it useful if the iframe is blocked.
  */
 export default function GoogleMap({
 	embedUrl,

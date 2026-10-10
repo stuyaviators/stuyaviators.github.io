@@ -18,7 +18,9 @@ function SimpleIcon({ path, ...props }: IconProps & { readonly path: string }) {
 	);
 }
 
-/** Epsilon wordmark, path ported from recode's svgPaths.ts. */
+/**
+Epsilon wordmark, path ported from recode's svgPaths.ts.
+*/
 export function EpsilonWordmark(props: IconProps) {
 	return (
 		<svg viewBox="0 0 888 299" fill="currentColor" role="img" {...props}>

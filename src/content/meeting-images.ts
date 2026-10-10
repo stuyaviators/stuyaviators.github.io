@@ -1,7 +1,9 @@
-import type { Photo } from "./photos";
-import { photos } from "./photos";
+import type { Photo } from "./photos.ts";
+import { photos } from "./photos.ts";
 
-/** Photos for meetings.types, in the same order as the legacy page. */
+/**
+Photos for meetings.types, in the same order as the legacy page.
+*/
 export const meetingImages: Photo[] = [
 	photos.meetingFsd,
 	photos.meetingPresentation,

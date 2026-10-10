@@ -1,8 +1,6 @@
-import { ogContentType, ogSize, renderOg } from "@/lib/og";
+import { renderOg } from "@/lib/og";
 
 export const alt = "Opportunities · StuyAviators";
-export const size = ogSize;
-export const contentType = ogContentType;
 
 export default async function Image() {
 	return renderOg({
@@ -12,3 +10,5 @@ export default async function Image() {
 		detail: "Programs, internships and experiences",
 	});
 }
+
+export { ogContentType as contentType, ogSize as size } from "@/lib/og";

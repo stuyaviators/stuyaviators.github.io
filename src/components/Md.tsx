@@ -1,8 +1,8 @@
 import { renderInline, renderMarkdown } from "@/lib/markdown";
 
 /**
- * Renders club copy that contains markdown links/emphasis. markdown-it runs
- * with HTML disabled, so output is safe to inject.
+ Renders club copy that contains markdown links/emphasis. markdown-it runs
+ with HTML disabled, so output is safe to inject.
  */
 export function Md({
 	children,
@@ -17,7 +17,6 @@ export function Md({
 		return (
 			<div
 				className={className}
-				// eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={{ __html: renderMarkdown(children) }}
 			/>
 		);
@@ -26,7 +25,6 @@ export function Md({
 	return (
 		<span
 			className={className}
-			// eslint-disable-next-line react/no-danger
 			dangerouslySetInnerHTML={{ __html: renderInline(children) }}
 		/>
 	);

@@ -61,28 +61,36 @@ function isBeholdImage(url: string) {
 	}
 }
 
-/** "157,145,140" → "rgb(157 145 140)" for the tile's loading background. */
+/**
+"157,145,140" → "rgb(157 145 140)" for the tile's loading background.
+*/
 export function paletteColor(value?: string): string {
 	const parts = value?.split(",").map((n) => Number(n.trim()));
-	if (parts?.length !== 3 || parts.some((n) => !Number.isFinite(n))) {
-		return "var(--surface-2)";
-	}
-
-	return `rgb(${parts.join(" ")})`;
+	return parts?.length !== 3 || parts.some((n) => !Number.isFinite(n))
+		? "var(--surface-2)"
+		: `rgb(${parts.join(" ")})`;
 }
 
-/** Validates the payload; unknown fields are ignored, bad posts are skipped. */
+/**
+Validates the payload; unknown fields are ignored, bad posts are skipped.
+*/
 export function parseFeed(data: unknown): BeholdFeed | undefined {
 	const parsed = feed.safeParse(data);
-	if (!parsed.success) return undefined;
+	if (!parsed.success) {
+		return undefined;
+	}
+
 	const posts: BeholdPost[] = [];
 	for (const raw of parsed.data.posts) {
 		const result = post.safeParse(raw);
-		if (!result.success) continue;
+		if (!result.success) {
+			continue;
+		}
+
 		const { sizes } = result.data;
 		if (
-			![sizes.small, sizes.medium, sizes.large, sizes.full].every((s) =>
-				isBeholdImage(s.mediaUrl)
+			[sizes.small, sizes.medium, sizes.large, sizes.full].some(
+				(s) => !isBeholdImage(s.mediaUrl)
 			)
 		) {
 			continue;
@@ -109,18 +117,26 @@ export function parseFeed(data: unknown): BeholdFeed | undefined {
 	};
 }
 
-/** Returns undefined on any failure so callers can hide the section. */
+/**
+Returns undefined on any failure so callers can hide the section.
+*/
 export async function getInstagramFeed(): Promise<BeholdFeed | undefined> {
 	const url =
 		process.env.BEHOLD_FEED_URL ??
 		"https://feeds.behold.so/CDSpFlcqkbtsbwbH8PR1";
-	if (!url) return undefined;
+	if (!url) {
+		return undefined;
+	}
+
 	try {
 		const response = await fetch(url, {
 			next: { revalidate: 3600, tags: ["instagram"] },
 			signal: AbortSignal.timeout(4000),
 		});
-		if (!response.ok) return undefined;
+		if (!response.ok) {
+			return undefined;
+		}
+
 		const result = parseFeed(await response.json());
 		return result && result.posts.length > 0 ? result : undefined;
 	} catch {

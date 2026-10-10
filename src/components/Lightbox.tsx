@@ -7,14 +7,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type LightboxImage = { src: StaticImageData; alt: string };
 
-/** Photo grid with an accessible <dialog> lightbox (arrow keys, Escape). */
+/**
+Photo grid with an accessible <dialog> lightbox (arrow keys, Escape).
+*/
 export default function Lightbox({
 	images,
 }: {
 	readonly images: LightboxImage[];
 }) {
 	const dialogRef = useRef<HTMLDialogElement>(null);
-	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const triggerRef = useRef<HTMLButtonElement | undefined>(null);
 	const [index, setIndex] = useState<number | undefined>(undefined);
 
 	const open = (i: number, trigger: HTMLButtonElement) => {
@@ -34,10 +36,16 @@ export default function Lightbox({
 
 	useEffect(() => {
 		const dialog = dialogRef.current;
-		if (!dialog) return;
+		if (!dialog) {
+			return;
+		}
+
 		const onKey = (event: KeyboardEvent) => {
-			if (event.key === "ArrowRight") step(1);
-			if (event.key === "ArrowLeft") step(-1);
+			if (event.key === "ArrowRight") {
+				step(1);
+			} else if (event.key === "ArrowLeft") {
+				step(-1);
+			}
 		};
 
 		const onClose = () => {
@@ -83,7 +91,9 @@ export default function Lightbox({
 				aria-label={current ? current.alt : "Photo viewer"}
 				className="m-auto max-h-[92dvh] w-[min(96vw,1200px)] bg-transparent p-0 backdrop:bg-navy/90"
 				onClick={(event) => {
-					if (event.target === event.currentTarget) dialogRef.current?.close();
+					if (event.target === event.currentTarget) {
+						dialogRef.current?.close();
+					}
 				}}
 			>
 				{current ? (

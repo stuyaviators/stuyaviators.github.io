@@ -4,8 +4,8 @@ import { sql } from "drizzle-orm";
 export type RateLimitResult = { allowed: boolean; count: number };
 
 /**
- * Fixed-window counter in Postgres (no Redis). One atomic upsert: starts a new
- * window when the old one has expired, otherwise increments.
+ Fixed-window counter in Postgres (no Redis). One atomic upsert: starts a new
+ window when the old one has expired, otherwise increments.
  */
 export async function hitRateLimit(
 	db: Database,

@@ -35,15 +35,19 @@ export default function HeroMedia({
 		}
 
 		const onMessage = (event: MessageEvent) => {
-			if (!/^https:\/\/www\.youtube(-nocookie)?\.com$/v.test(event.origin))
+			if (!/^https:\/\/www\.youtube(?:-nocookie)?\.com$/v.test(event.origin)) {
 				return;
+			}
+
 			try {
 				const data = (
 					typeof event.data === "string" ? JSON.parse(event.data) : event.data
 				) as {
 					info?: { playerState?: number };
 				};
-				if (data.info?.playerState === 1) setIsVisible(true);
+				if (data.info?.playerState === 1) {
+					setIsVisible(true);
+				}
 			} catch {}
 		};
 
@@ -59,10 +63,10 @@ export default function HeroMedia({
 	}, [isPlaying]);
 
 	useEffect(() => {
-		const reduced = globalThis.matchMedia(
+		const isReduced = globalThis.matchMedia(
 			"(prefers-reduced-motion: reduce)"
 		).matches;
-		setIsPlaying(!reduced);
+		setIsPlaying(!isReduced);
 	}, []);
 
 	return (

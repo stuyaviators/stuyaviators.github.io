@@ -9,7 +9,9 @@ export type ListingKind = Listing["kind"];
 export const listingsTag = "listings";
 export const closingSoonDays = 14;
 
-/** Days from today (America/New_York) until the deadline; negative = past. */
+/**
+Days from today (America/New_York) until the deadline; negative = past.
+*/
 export function daysUntil(deadline: string, now = new Date()): number {
 	const today = new Intl.DateTimeFormat("en-CA", {
 		timeZone: "America/New_York",
@@ -31,16 +33,24 @@ export function isClosingSoon(
 	listing: Pick<Listing, "deadline">,
 	now = new Date()
 ) {
-	if (!listing.deadline) return false;
+	if (!listing.deadline) {
+		return false;
+	}
+
 	const days = daysUntil(listing.deadline, now);
 	return days >= 0 && days <= closingSoonDays;
 }
 
-/** Published, not deleted; ordered by sort order then deadline. */
+/**
+Published, not deleted; ordered by sort order then deadline.
+*/
 export const getPublishedListings = unstable_cache(
 	async (kind: ListingKind): Promise<Listing[]> => {
 		const db = getDb();
-		if (!db) return [];
+		if (!db) {
+			return [];
+		}
+
 		try {
 			return await db
 				.select()

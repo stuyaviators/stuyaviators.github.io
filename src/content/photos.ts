@@ -70,7 +70,9 @@ import storyYunusGubrudImg from "@/assets/photos/story-yunus-gubrud.jpg";
 
 export type Photo = { src: StaticImageData; alt: string };
 
-/** Club photos with descriptive alt text (empty alt = decorative). */
+/**
+Club photos with descriptive alt text (empty alt = decorative).
+*/
 export const photos = {
 	meetingChallenge: {
 		src: meetingChallengeImg,
@@ -345,7 +347,9 @@ export const photos = {
 
 export type PhotoKey = keyof typeof photos;
 
-/** Order matches the legacy Highlights page. */
+/**
+Order matches the legacy Highlights page.
+*/
 export const galleryPhotos: PhotoKey[] = [
 	"galleryE2Hawkeye",
 	"galleryBomberFlyby",
@@ -381,7 +385,9 @@ export const galleryPhotos: PhotoKey[] = [
 	"galleryRunwayApproach",
 ];
 
-/** Former "Story Spotlights" photos from the Share Your Story page. */
+/**
+Former "Story Spotlights" photos from the Share Your Story page.
+*/
 export const spotlightPhotos: PhotoKey[] = [
 	"spotlightCoastInlet",
 	"spotlightFlightSuitCessna",

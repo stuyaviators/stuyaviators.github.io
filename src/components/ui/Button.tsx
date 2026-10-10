@@ -54,7 +54,7 @@ export function ButtonLink({
 	readonly children: ReactNode;
 	readonly external?: boolean;
 }) {
-	const isExternal = external ?? /^(https?:|mailto:)/.test(href);
+	const isExternal = external ?? /^(?:https?:|mailto:)/v.test(href);
 	if (isExternal) {
 		return (
 			<a

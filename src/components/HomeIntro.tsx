@@ -13,8 +13,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import Hero from "./Hero";
-import { buttonClasses } from "./ui/Button";
+import Hero from "./Hero.tsx";
+import { buttonClasses } from "./ui/Button.tsx";
 
 /*
  * Apple-style homepage intro.
@@ -142,7 +142,10 @@ export default function HomeIntro({
 		}
 
 		const onMessage = (event: MessageEvent) => {
-			if (!youtubeOrigin.test(event.origin)) return;
+			if (!youtubeOrigin.test(event.origin)) {
+				return;
+			}
+
 			try {
 				const data = (
 					typeof event.data === "string" ? JSON.parse(event.data) : event.data
@@ -168,7 +171,9 @@ export default function HomeIntro({
 	}, [isPlaying]);
 
 	// Reduced motion: the static split hero (no scroll-linked animation).
-	if (isReducedMotion) return <Hero />;
+	if (isReducedMotion) {
+		return <Hero />;
+	}
 
 	return (
 		<section

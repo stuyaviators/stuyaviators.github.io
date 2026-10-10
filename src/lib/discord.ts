@@ -14,11 +14,18 @@ const labels: Record<string, string> = {
 };
 
 export async function notifyDiscord(
-	submission: { type: string; name?: string | null; message?: string | null },
+	submission: {
+		type: string;
+		name?: string | undefined;
+		message?: string | undefined;
+	},
 	fetcher: typeof fetch = fetch
 ): Promise<void> {
 	const url = process.env.DISCORD_WEBHOOK_URL;
-	if (!url) return;
+	if (!url) {
+		return;
+	}
+
 	const site =
 		process.env.NEXT_PUBLIC_SITE_URL ?? "https://stuyaviators.vercel.app";
 	const preview = (submission.message ?? "").slice(0, 300);

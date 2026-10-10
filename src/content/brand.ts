@@ -4,11 +4,15 @@ export type BrandColor = {
 	hex: string;
 	rgb: [number, number, number];
 	use: string;
-	/** Text color that passes WCAG AA on this swatch. */
+	/**
+	Text color that passes WCAG AA on this swatch.
+	*/
 	onColor: string;
 };
 
-/** Official StuyAviators palette. */
+/**
+Official StuyAviators palette.
+*/
 export const palette: BrandColor[] = [
 	{
 		id: "navy",
@@ -48,14 +52,20 @@ export type LogoVariant = {
 	id: string;
 	name: string;
 	use: string;
-	/** Background to preview the logo on. */
+	/**
+	Background to preview the logo on.
+	*/
 	preview: string;
-	/** PNG export widths in px. */
+	/**
+	PNG export widths in px.
+	*/
 	widths: number[];
 	aspect: "square" | "banner";
 };
 
-/** Official logos from the StuyAviators Figma file. */
+/**
+Official logos from the StuyAviators Figma file.
+*/
 export const logoVariants: LogoVariant[] = [
 	{
 		id: "circle",

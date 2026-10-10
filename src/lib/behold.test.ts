@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paletteColor, parseFeed } from "./behold";
+import { paletteColor, parseFeed } from "./behold.ts";
 
 const size = (host = "behold.pictures") => ({
 	width: 400,

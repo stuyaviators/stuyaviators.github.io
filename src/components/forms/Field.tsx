@@ -38,11 +38,11 @@ function Wrapper({
 				) : null}
 			</label>
 			{children}
-			{hint ? (
+			{hint === undefined ? null : (
 				<p id={`${id}-hint`} className="mt-1.5 text-sm text-muted">
 					{hint}
 				</p>
-			) : null}
+			)}
 			<div id={`${id}-error`} aria-live="polite">
 				{error ? (
 					<p className="mt-1.5 text-sm font-medium text-danger">{error}</p>
@@ -53,9 +53,9 @@ function Wrapper({
 	);
 }
 
-function describedBy(id: string, hint: unknown, error: unknown) {
+function describedBy(id: string, hasHint: boolean, hasError: boolean) {
 	return (
-		[hint ? `${id}-hint` : "", error ? `${id}-error` : ""]
+		[hasHint ? `${id}-hint` : "", hasError ? `${id}-error` : ""]
 			.filter(Boolean)
 			.join(" ") || undefined
 	);
@@ -76,7 +76,7 @@ export function TextField({
 			<input
 				id={id}
 				aria-invalid={error ? true : undefined}
-				aria-describedby={describedBy(id, hint, error)}
+				aria-describedby={describedBy(id, hint !== undefined, Boolean(error))}
 				className={cn(inputClass, className)}
 				{...props}
 			/>
@@ -100,7 +100,7 @@ export function TextAreaField({
 				id={id}
 				rows={5}
 				aria-invalid={error ? true : undefined}
-				aria-describedby={describedBy(id, hint, error)}
+				aria-describedby={describedBy(id, hint !== undefined, Boolean(error))}
 				className={cn(inputClass, "resize-y", className)}
 				{...props}
 			/>
@@ -108,7 +108,9 @@ export function TextAreaField({
 	);
 }
 
-/** Visually hidden trap field; humans never see or fill it. */
+/**
+Visually hidden trap field; humans never see or fill it.
+*/
 export function Honeypot() {
 	return (
 		<div

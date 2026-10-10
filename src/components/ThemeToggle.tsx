@@ -18,15 +18,24 @@ function readTheme(): Theme {
 
 function applyTheme(theme: Theme) {
 	const root = document.documentElement;
-	if (theme === "system") delete root.dataset.theme;
-	else root.dataset.theme = theme;
+	if (theme === "system") {
+		delete root.dataset.theme;
+	} else {
+		root.dataset.theme = theme;
+	}
+
 	try {
-		if (theme === "system") localStorage.removeItem(storageKey);
-		else localStorage.setItem(storageKey, theme);
+		if (theme === "system") {
+			localStorage.removeItem(storageKey);
+		} else {
+			localStorage.setItem(storageKey, theme);
+		}
 	} catch {}
 }
 
-/** Inline, pre-paint script so the chosen theme never flashes. */
+/**
+Inline, pre-paint script so the chosen theme never flashes.
+*/
 export const themeScript = `(function(){try{var t=localStorage.getItem("${storageKey}");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()`;
 
 export default function ThemeToggle() {

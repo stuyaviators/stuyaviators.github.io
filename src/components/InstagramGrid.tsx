@@ -25,12 +25,15 @@ export default function InstagramGrid({
 			)}
 		>
 			{posts.slice(0, 6).map((post, index) => {
-				const featured = variant === "grid" && index === 0;
-				const size = featured ? post.sizes.large : post.sizes.medium;
+				const isFeatured = variant === "grid" && index === 0;
+				const size = isFeatured ? post.sizes.large : post.sizes.medium;
 				const caption =
 					post.prunedCaption || "Instagram post from @stuyaviators";
 				return (
-					<li key={post.id} className={cn(featured && "col-span-2 row-span-2")}>
+					<li
+						key={post.id}
+						className={cn(isFeatured && "col-span-2 row-span-2")}
+					>
 						<a
 							href={post.permalink}
 							target="_blank"
@@ -44,7 +47,7 @@ export default function InstagramGrid({
 								fill
 								unoptimized
 								sizes={
-									featured
+									isFeatured
 										? "(min-width: 640px) 66vw, 100vw"
 										: "(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
 								}

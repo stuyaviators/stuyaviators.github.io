@@ -6,7 +6,7 @@ import { initialFormState } from "@/lib/form-state";
 import { validateStuyEmail } from "@/lib/mailing-list";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState, useState } from "react";
-import { Honeypot, TextField } from "./Field";
+import { Honeypot, TextField } from "./Field.tsx";
 
 export default function UnsubscribeForm() {
 	const [state, action, pending] = useActionState(
@@ -15,7 +15,6 @@ export default function UnsubscribeForm() {
 	);
 	const [email, setEmail] = useState("");
 	const [touched, setTouched] = useState(false);
-	const error = validateStuyEmail(email);
 
 	if (state.status === "success") {
 		return (
@@ -29,6 +28,8 @@ export default function UnsubscribeForm() {
 		);
 	}
 
+	const error = validateStuyEmail(email);
+
 	return (
 		<form
 			noValidate
@@ -36,7 +37,9 @@ export default function UnsubscribeForm() {
 			className="relative grid max-w-md gap-4"
 			onSubmit={(event) => {
 				setTouched(true);
-				if (error) event.preventDefault();
+				if (error) {
+					event.preventDefault();
+				}
 			}}
 		>
 			<Honeypot />

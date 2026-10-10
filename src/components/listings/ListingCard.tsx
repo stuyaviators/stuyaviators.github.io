@@ -18,31 +18,33 @@ export function formatDate(value: string) {
 }
 
 function stubFields(listing: Listing): PassField[] {
-	const fields: PassField[] = [];
-	if (listing.deadline)
-		fields.push({ label: "Deadline", value: formatDate(listing.deadline) });
-	if (listing.kind === "scholarship" && listing.amount) {
-		fields.push({ label: "Amount", value: listing.amount });
+	const isOpportunity = listing.kind === "opportunity";
+	let dates: string | undefined;
+	if (isOpportunity && listing.startDate) {
+		dates = listing.endDate
+			? `${formatDate(listing.startDate)} – ${formatDate(listing.endDate)}`
+			: formatDate(listing.startDate);
 	}
 
-	if (listing.kind === "opportunity") {
-		if (listing.startDate) {
-			fields.push({
-				label: "Dates",
-				value: listing.endDate
-					? `${formatDate(listing.startDate)} – ${formatDate(listing.endDate)}`
-					: formatDate(listing.startDate),
-			});
-		}
-
-		if (listing.location)
-			fields.push({ label: "Where", value: listing.location });
-	}
-
-	if (listing.eligibility)
-		fields.push({ label: "Eligibility", value: listing.eligibility });
-	if (fields.length === 0) fields.push({ label: "Deadline", value: "Rolling" });
-	return fields;
+	const fields: Array<PassField | undefined> = [
+		listing.deadline
+			? { label: "Deadline", value: formatDate(listing.deadline) }
+			: undefined,
+		listing.kind === "scholarship" && listing.amount
+			? { label: "Amount", value: listing.amount }
+			: undefined,
+		dates ? { label: "Dates", value: dates } : undefined,
+		isOpportunity && listing.location
+			? { label: "Where", value: listing.location }
+			: undefined,
+		listing.eligibility
+			? { label: "Eligibility", value: listing.eligibility }
+			: undefined,
+	];
+	const present = fields.filter((field) => field !== undefined);
+	return present.length > 0
+		? present
+		: [{ label: "Deadline", value: "Rolling" }];
 }
 
 export default function ListingCard({
@@ -52,7 +54,7 @@ export default function ListingCard({
 	readonly listing: Listing;
 	readonly preview?: boolean;
 }) {
-	const closing = isClosingSoon(listing);
+	const isClosing = isClosingSoon(listing);
 	const days = listing.deadline ? daysUntil(listing.deadline) : undefined;
 	return (
 		<BoardingPass
@@ -66,7 +68,7 @@ export default function ListingCard({
 						Featured
 					</span>
 				) : null}
-				{closing ? (
+				{isClosing ? (
 					<span className="label inline-flex items-center gap-1 rounded-sm bg-danger px-2 py-0.5 text-bg">
 						<Clock aria-hidden className="size-3" />
 						Closing soon
@@ -90,7 +92,6 @@ export default function ListingCard({
 					</summary>
 					<div
 						className="prose-club mt-3 text-sm"
-						// eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={{
 							__html: renderMarkdown(listing.description),
 						}}

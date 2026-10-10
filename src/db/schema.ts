@@ -17,7 +17,9 @@ export const listingKind = pgEnum("listing_kind", [
 ]);
 export const listingStatus = pgEnum("listing_status", ["draft", "published"]);
 
-/** Opportunities and scholarships (one table, `kind` tells them apart). */
+/**
+Opportunities and scholarships (one table, `kind` tells them apart).
+*/
 export const listings = pgTable(
 	"listings",
 	{
@@ -61,7 +63,9 @@ export const submissionStatus = pgEnum("submission_status", [
 	"archived",
 ]);
 
-/** Everything the public forms collect; shown in the dashboard inbox. */
+/**
+Everything the public forms collect; shown in the dashboard inbox.
+*/
 export const submissions = pgTable(
 	"submissions",
 	{
@@ -79,7 +83,9 @@ export const submissions = pgTable(
 	(table) => [index("submissions_status_idx").on(table.status, table.createdAt)]
 );
 
-/** Fixed-window rate limiting keyed by a salted hash of IP + route. */
+/**
+Fixed-window rate limiting keyed by a salted hash of IP + route.
+*/
 export const rateLimits = pgTable("rate_limits", {
 	key: text().primaryKey(),
 	count: integer().notNull(),

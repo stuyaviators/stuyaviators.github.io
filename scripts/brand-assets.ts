@@ -1,14 +1,16 @@
 /**
- * Builds the brand kit and site logo files from the official vector logos
- * exported from the StuyAviators Figma file (scripts/source/*.svg, optimized
- * with svgo). Run with `pnpm brand`.
- *
- * Outputs:
- * - public/brand/downloads: SVG + PNG per variant, palette files, and a zip
- * - src/assets/brand: logos used by next/image in the site
- * - src/app/icon.png, src/app/apple-icon.png: favicon + touch icon
- * - public/brand/logo-256.png: absolute-URL logo for emails
+ Builds the brand kit and site logo files from the official vector logos
+ exported from the StuyAviators Figma file (scripts/source/*.svg, optimized
+ with svgo). Run with `pnpm brand`.
+ 
+ Outputs:
+ - public/brand/downloads: SVG + PNG per variant, palette files, and a zip
+ - src/assets/brand: logos used by next/image in the site
+ - src/app/icon.png, src/app/apple-icon.png: favicon + touch icon
+ - public/brand/logo-256.png: absolute-URL logo for emails
  */
+
+/* eslint-disable no-await-in-loop -- sequential on purpose to keep memory low. */
 
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -28,21 +30,24 @@ async function rasterize(svg: string, width: number) {
 		.toBuffer();
 }
 
+/* eslint-disable no-bitwise -- CRC-32 is defined in terms of bit operations. */
 // Minimal deflate ZIP writer so the kit needs no extra dependency.
 function crc32(buf: Uint8Array) {
 	let crc = ~0;
 	for (const byte of buf) {
 		crc ^= byte;
-		for (let k = 0; k < 8; k++)
+		for (let k = 0; k < 8; k++) {
 			crc = (crc >>> 1) ^ (0xed_b8_83_20 & -(crc & 1));
+		}
 	}
 
 	return ~crc >>> 0;
 }
+/* eslint-enable no-bitwise */
 
-function zip(files: Array<{ name: string; data: Buffer }>) {
-	const chunks: Buffer[] = [];
-	const central: Buffer[] = [];
+function zip(files: Array<{ name: string; data: Uint8Array }>) {
+	const chunks: Uint8Array[] = [];
+	const central: Uint8Array[] = [];
 	let offset = 0;
 	for (const file of files) {
 		const name = Buffer.from(file.name);
@@ -85,7 +90,7 @@ async function run() {
 	await Promise.all(
 		[downloads, siteBrand].map(async (dir) => mkdir(dir, { recursive: true }))
 	);
-	const kit: Array<{ name: string; data: Buffer }> = [];
+	const kit: Array<{ name: string; data: Uint8Array }> = [];
 
 	for (const variant of logoVariants) {
 		const svgPath = path.join(sourceDir, `logo-${variant.id}.svg`);
@@ -94,10 +99,8 @@ async function run() {
 		await copyFile(svgPath, path.join(downloads, `${base}.svg`));
 		kit.push({ name: `logos/${base}.svg`, data: svg });
 		for (const width of variant.widths) {
-			// eslint-disable-next-line no-await-in-loop
 			const png = await rasterize(svgPath, width);
 			const name = `${base}-${width}.png`;
-			// eslint-disable-next-line no-await-in-loop
 			await writeFile(path.join(downloads, name), png);
 			kit.push({ name: `logos/${name}`, data: png });
 		}

@@ -1,6 +1,8 @@
 // Ported from the recode branch's xo.config.mjs (webcubed), converted to
 // XO 5's array format (global ignores must be their own item).
-/** @type {import("xo").FlatXoConfig} */
+/**
+@type {import("xo").FlatXoConfig}
+*/
 const xoConfig = [
 	{
 		ignores: [
@@ -11,6 +13,8 @@ const xoConfig = [
 			"legacy/**",
 			"drizzle/**",
 			"public/**",
+			// Tailwind v4 CSS syntax (@theme, @custom-variant) isn't standard CSS.
+			"**/*.css",
 		],
 	},
 	{
@@ -35,6 +39,22 @@ const xoConfig = [
 			"import-x/extensions": "off",
 			"unicorn/prefer-node-protocol": "off",
 			"n/prefer-global/process": "off",
+			// Project choices for idiomatic React/Next code:
+			// - `cond ? <A /> : null` and `if (value)` on optional strings/objects.
+			"@typescript-eslint/strict-boolean-expressions": [
+				"error",
+				{
+					allowString: true,
+					allowNumber: false,
+					allowNullableObject: true,
+					allowNullableBoolean: true,
+					allowNullableString: true,
+				},
+			],
+			// - Node's Buffer global is fine in server code and build scripts.
+			"n/prefer-global/buffer": "off",
+			// Prettier removes "redundant" parentheses, so this rule fights it.
+			"@stylistic/no-mixed-operators": "off",
 		},
 	},
 ];

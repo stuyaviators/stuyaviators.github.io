@@ -12,7 +12,9 @@ export type BrowserItem = {
 	node: ReactNode;
 };
 
-/** Text search + tag filter over server-rendered listing cards. */
+/**
+Text search + tag filter over server-rendered listing cards.
+*/
 export default function ListingBrowser({
 	items,
 	past,
@@ -27,7 +29,7 @@ export default function ListingBrowser({
 	const [tag, setTag] = useState<string | undefined>(undefined);
 	const tags = useMemo(
 		() =>
-			[...new Set(items.flatMap((item) => item.tags))].sort((a, b) =>
+			[...new Set(items.flatMap((item) => item.tags))].toSorted((a, b) =>
 				a.localeCompare(b)
 			),
 		[items]

@@ -1,15 +1,17 @@
 import type { ListingKind } from "@/lib/listings";
-import type { BrowserItem } from "./ListingBrowser";
+import type { BrowserItem } from "./ListingBrowser.tsx";
 import { Stagger } from "@/components/TransitionProvider";
 import { buttonClasses } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { getPublishedListings, isExpired } from "@/lib/listings";
 import { Bell, Compass } from "lucide-react";
 import Link from "next/link";
-import ListingBrowser from "./ListingBrowser";
-import ListingCard from "./ListingCard";
+import ListingBrowser from "./ListingBrowser.tsx";
+import ListingCard from "./ListingCard.tsx";
 
-/** Shared body for /opportunities and /scholarships. */
+/**
+Shared body for /opportunities and /scholarships.
+*/
 export default async function ListingsSection({
 	kind,
 	intro,
@@ -38,8 +40,12 @@ export default async function ListingsSection({
 			.toLowerCase(),
 		node: <ListingCard listing={listing} />,
 	});
-	const current = listings.filter((listing) => !isExpired(listing)).map(toItem);
-	const past = listings.filter((listing) => isExpired(listing)).map(toItem);
+	const current = listings
+		.filter((listing) => !isExpired(listing))
+		.map((listing) => toItem(listing));
+	const past = listings
+		.filter((listing) => isExpired(listing))
+		.map((listing) => toItem(listing));
 
 	return (
 		<Section

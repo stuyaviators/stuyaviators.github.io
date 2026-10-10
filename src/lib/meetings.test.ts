@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { manualMeetings, parseEpsilonMeetings } from "./meetings";
+import { manualMeetings, parseEpsilonMeetings } from "./meetings.ts";
 
 describe("parseEpsilonMeetings", () => {
 	it("maps Epsilon meetings and skips private ones", () => {

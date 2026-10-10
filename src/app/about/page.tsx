@@ -95,15 +95,15 @@ export default function AboutPage() {
 				<Waypoints
 					items={about.objectives.stages.map((summary, index) => ({
 						key: summary,
-						label: stageLabels[index]!,
+						label: stageLabels[index],
 						content: (
 							<>
 								<p className="text-xl font-semibold">{summary}</p>
-								{stageDetails[index] ? (
+								{stageDetails.at(index) === undefined ? null : (
 									<p className="mt-3 max-w-3xl text-muted">
-										{stageDetails[index]}
+										{stageDetails.at(index)}
 									</p>
-								) : null}
+								)}
 							</>
 						),
 					}))}

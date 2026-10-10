@@ -3,11 +3,13 @@
  * navigator.share fallback (surprising for a copy button) with the
  * hidden-textarea execCommand fallback for older/insecure contexts.
  */
-export default async function copy(value: string): Promise<boolean> {
+export type CopyResult = "copied" | "failed";
+
+export default async function copy(value: string): Promise<CopyResult> {
 	try {
-		if (globalThis.isSecureContext && navigator.clipboard?.writeText) {
+		if (globalThis.isSecureContext && "clipboard" in navigator) {
 			await navigator.clipboard.writeText(value);
-			return true;
+			return "copied";
 		}
 	} catch {}
 
@@ -20,10 +22,10 @@ export default async function copy(value: string): Promise<boolean> {
 		document.body.append(textarea);
 		textarea.select();
 		// eslint-disable-next-line @typescript-eslint/no-deprecated
-		const ok = document.execCommand("copy");
+		const isOk = document.execCommand("copy");
 		textarea.remove();
-		return ok;
+		return isOk ? "copied" : "failed";
 	} catch {
-		return false;
+		return "failed";
 	}
 }

@@ -5,7 +5,7 @@ import { contacts, isNavGroup, nav, site, socials } from "@/content/site";
 import { signupFormConfig } from "@/lib/google-forms";
 import Image from "next/image";
 import Link from "next/link";
-import { Container } from "./ui/Section";
+import { Container } from "./ui/Section.tsx";
 
 export default function Footer() {
 	const year = new Date().getFullYear();

@@ -21,7 +21,9 @@ export async function renderOg({
 }: {
 	title: string;
 	eyebrow: string;
-	/** File name in src/assets/photos (without extension). */
+	/**
+	File name in src/assets/photos (without extension).
+	*/
 	photo?: string;
 	detail?: string;
 }) {
@@ -31,8 +33,8 @@ export async function renderOg({
 		load("src/assets/brand/logo.png"),
 		photo ? load(`src/assets/photos/${photo}.jpg`) : Promise.resolve(undefined),
 	]);
-	const dataUri = (buffer: Buffer, type: string) =>
-		`data:${type};base64,${buffer.toString("base64")}`;
+	const dataUri = (buffer: Uint8Array, type: string) =>
+		`data:${type};base64,${Buffer.from(buffer).toString("base64")}`;
 
 	return new ImageResponse(
 		<div
@@ -46,7 +48,6 @@ export async function renderOg({
 			}}
 		>
 			{background ? (
-				// eslint-disable-next-line @next/next/no-img-element
 				<img
 					src={dataUri(background, "image/jpeg")}
 					alt=""
@@ -85,7 +86,6 @@ export async function renderOg({
 				}}
 			>
 				<div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={dataUri(logo, "image/png")} alt="" width={76} height={76} />
 					<span
 						style={{

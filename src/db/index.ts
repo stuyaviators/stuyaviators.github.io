@@ -1,24 +1,34 @@
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "./schema";
+import * as schema from "./schema.ts";
 
 export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 
-/** The Vercel ↔ Neon integration prefixes variables with the store name. */
+/**
+The Vercel ↔ Neon integration prefixes variables with the store name.
+*/
 export function databaseUrl(): string | undefined {
 	return process.env.DATABASE_URL ?? process.env.stuyaviators_DATABASE_URL;
 }
 
 let cached: Database | undefined;
 
-/** Returns undefined when no database is configured (e.g. a fresh clone). */
+/**
+Returns undefined when no database is configured (e.g. a fresh clone).
+*/
 export function getDb(): Database | undefined {
-	if (cached) return cached;
+	if (cached) {
+		return cached;
+	}
+
 	const url = databaseUrl();
-	if (!url) return undefined;
+	if (!url) {
+		return undefined;
+	}
+
 	cached = drizzle({ client: neon(url), schema, casing: "snake_case" });
 	return cached;
 }
 
-export { schema };
+export * as schema from "./schema.ts";

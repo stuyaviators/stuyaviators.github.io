@@ -1,8 +1,8 @@
 import { cn } from "@/lib/cn";
 
 /**
- * Section label styled like an ATC flight progress strip: amber bar, sequence
- * number, title, and a right-aligned code.
+ Section label styled like an ATC flight progress strip: amber bar, sequence
+ number, title, and a right-aligned code.
  */
 export function FlightStrip({
 	index,

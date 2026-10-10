@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { initialFormState } from "@/lib/form-state";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState } from "react";
-import { Honeypot, TextAreaField, TextField } from "./Field";
+import { Honeypot, TextAreaField, TextField } from "./Field.tsx";
 
 export type FieldSpec = {
 	name: string;
@@ -19,8 +19,8 @@ export type FieldSpec = {
 };
 
 /**
- * Generic inbox form (contact, story, photo, meeting idea). Server Action does
- * the real validation; native `required`/`type` give instant feedback.
+ Generic inbox form (contact, story, photo, meeting idea). Server Action does
+ the real validation; native `required`/`type` give instant feedback.
  */
 export default function SubmissionForm({
 	type,

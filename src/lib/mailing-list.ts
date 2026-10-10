@@ -20,29 +20,35 @@ export const messages = {
 		"Your Stuy email should include your last name, e.g. pstuyvesant60@stuy.edu.",
 } as const;
 
-const allowedNameCharacters = /^[\p{L}\p{M}\s'’.-]+$/u;
-const stuyLocalPart = /^[a-z]+\d+$/;
-const emailShape = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const allowedNameCharacters = /^[\s\p{Letter}\p{Mark}'\-.’]+$/v;
+const stuyLocalPart = /^[a-z]+\d+$/v;
+const emailShape = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/v;
 
-/** Trim and collapse runs of whitespace. */
+/**
+Trim and collapse runs of whitespace.
+*/
 export function cleanName(raw: string): string {
-	return raw.trim().replaceAll(/\s+/g, " ");
+	return raw.trim().replaceAll(/\s+/gv, " ");
 }
 
 export function cleanEmail(raw: string): string {
 	return raw.trim().toLowerCase();
 }
 
-/** Lowercase, strip accents, and drop everything but a–z. */
+/**
+Lowercase, strip accents, and drop everything but a–z.
+*/
 export function normalizeNamePart(part: string): string {
 	return part
 		.normalize("NFD")
-		.replaceAll(/\p{M}/gu, "")
+		.replaceAll(/\p{Mark}/gv, "")
 		.toLowerCase()
-		.replaceAll(/[^a-z]/g, "");
+		.replaceAll(/[^a-z]/gv, "");
 }
 
-/** Everything after the first word, split on spaces and hyphens. */
+/**
+Everything after the first word, split on spaces and hyphens.
+*/
 export function lastNameParts(fullName: string): string[] {
 	const words = cleanName(fullName).split(" ");
 	return words
@@ -52,56 +58,73 @@ export function lastNameParts(fullName: string): string[] {
 		.filter(Boolean);
 }
 
-/** Letters before the digits, minus the (unchecked) first initial. */
+/**
+Letters before the digits, minus the (unchecked) first initial.
+*/
 export function emailLastName(email: string): string {
-	const local = cleanEmail(email).split("@")[0] ?? "";
-	const letters = /^[a-z]+/.exec(local)?.[0] ?? "";
+	const local = cleanEmail(email).split("@", 1)[0] ?? "";
+	const letters = /^[a-z]+/v.exec(local)?.[0] ?? "";
 	return letters.slice(1);
 }
 
-export function lastNameMatchesEmail(fullName: string, email: string): boolean {
+export function isLastNameMatch(fullName: string, email: string): boolean {
 	const parts = lastNameParts(fullName);
 	const fromEmail = emailLastName(email);
-	if (parts.length === 0 || !fromEmail) return false;
-	if (parts.length === 1) return fromEmail === parts[0];
+	if (!fromEmail || parts.length === 0) {
+		return false;
+	}
+
+	if (parts.length === 1) {
+		return fromEmail === parts[0];
+	}
+
 	// Loose match for multi-part names (middle names, "De La Cruz", "Smith-Jones").
 	// Short particles like "de" or "la" can't match on their own.
 	return (
-		parts.some((part) => part.length >= 3 && fromEmail.includes(part)) ||
-		fromEmail === parts.join("")
+		fromEmail === parts.join("") ||
+		parts.some((part) => part.length >= 3 && fromEmail.includes(part))
 	);
 }
 
 /**
- * Capitalize each name part (split on spaces, hyphens and apostrophes), keeping
- * the rest as typed ("McDonald" stays) unless the part was typed in all caps.
+ Capitalize each name part (split on spaces, hyphens and apostrophes), keeping
+ the rest as typed ("McDonald" stays) unless the part was typed in all caps.
  */
 export function formatName(raw: string): string {
 	return cleanName(raw)
-		.split(/([\s'’-]+)/u)
+		.split(/(?<separator>[\s'\-’]+)/v)
 		.map((token) => {
-			if (!token || /^[\s'’-]+$/u.test(token)) return token;
+			if (!token || /^[\s'\-’]+$/v.test(token)) {
+				return token;
+			}
+
 			const [first = "", ...rest] = [...token];
 			const tail = rest.join("");
-			const allCaps =
+			const isAllCaps =
 				token === token.toUpperCase() && token !== token.toLowerCase();
-			return first.toUpperCase() + (allCaps ? tail.toLowerCase() : tail);
+			return first.toUpperCase() + (isAllCaps ? tail.toLowerCase() : tail);
 		})
 		.join("");
 }
 
 export function validateFullName(raw: string): string | undefined {
 	const name = cleanName(raw);
-	if (!name) return messages.nameRequired;
-	if (!allowedNameCharacters.test(name)) return messages.nameCharacters;
-	if (name.split(" ").length < 2 || lastNameParts(name).length === 0) {
+	if (!name) {
 		return messages.nameRequired;
 	}
 
-	return undefined;
+	if (!allowedNameCharacters.test(name)) {
+		return messages.nameCharacters;
+	}
+
+	return name.split(" ").length < 2 || lastNameParts(name).length === 0
+		? messages.nameRequired
+		: undefined;
 }
 
-/** Domain + digits checks only (used alone by the unsubscribe form). */
+/**
+Domain + digits checks only (used alone by the unsubscribe form).
+*/
 export function validateStuyEmail(raw: string): string | undefined {
 	const email = cleanEmail(raw);
 	if (!emailShape.test(email) || !email.endsWith("@stuy.edu")) {
@@ -109,14 +132,15 @@ export function validateStuyEmail(raw: string): string | undefined {
 	}
 
 	const local = email.slice(0, -"@stuy.edu".length);
-	if (!stuyLocalPart.test(local)) return messages.emailDigits;
-	return undefined;
+	return stuyLocalPart.test(local) ? undefined : messages.emailDigits;
 }
 
 export type SignupErrors = {
 	fullName?: string;
 	email?: string;
-	/** True when the only problem is the last-name match (show escape hatch). */
+	/**
+	True when the only problem is the last-name match (show escape hatch).
+	*/
 	lastNameMismatch?: boolean;
 };
 
@@ -131,18 +155,27 @@ export function validateSignup(input: {
 	const errors: SignupErrors = {};
 	const nameError = validateFullName(input.fullName);
 	const emailError = validateStuyEmail(input.email);
-	if (nameError) errors.fullName = nameError;
-	if (emailError) errors.email = emailError;
+	if (nameError) {
+		errors.fullName = nameError;
+	}
+
+	if (emailError) {
+		errors.email = emailError;
+	}
+
 	if (
 		!nameError &&
 		!emailError &&
-		!lastNameMatchesEmail(input.fullName, input.email)
+		!isLastNameMatch(input.fullName, input.email)
 	) {
 		errors.email = messages.emailLastName;
 		errors.lastNameMismatch = true;
 	}
 
-	if (errors.fullName ?? errors.email) return { success: false, errors };
+	if (errors.fullName ?? errors.email) {
+		return { success: false, errors };
+	}
+
 	return {
 		success: true,
 		data: {
@@ -152,7 +185,9 @@ export function validateSignup(input: {
 	};
 }
 
-/** Zod schema wrapping the same rules, for Server Actions. */
+/**
+Zod schema wrapping the same rules, for Server Actions.
+*/
 export const signupSchema = z
 	.object({
 		fullName: z.string().max(120),
@@ -160,7 +195,10 @@ export const signupSchema = z
 	})
 	.superRefine((value, context) => {
 		const result = validateSignup(value);
-		if (result.success) return;
+		if (result.success) {
+			return;
+		}
+
 		if (result.errors.fullName) {
 			context.addIssue({
 				code: "custom",

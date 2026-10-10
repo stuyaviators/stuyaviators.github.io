@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
 	formatName,
-	lastNameMatchesEmail,
+	isLastNameMatch,
 	messages,
 	signupSchema,
 	unsubscribeSchema,
 	validateSignup,
-} from "./mailing-list";
+} from "./mailing-list.ts";
 
 type Row = {
 	name: string;
@@ -153,10 +153,13 @@ describe("validateSignup", () => {
 			const result = validateSignup({ fullName: row.name, email: row.email });
 			expect(result.success).toBe(row.ok);
 			if (result.success) {
-				if (row.submits?.fullName)
+				if (row.submits?.fullName) {
 					expect(result.data.fullName).toBe(row.submits.fullName);
-				if (row.submits?.email)
+				}
+
+				if (row.submits?.email) {
 					expect(result.data.email).toBe(row.submits.email);
+				}
 			} else if (row.error) {
 				expect(result.errors.email).toBe(row.error);
 			}
@@ -180,7 +183,9 @@ describe("validateSignup", () => {
 			email: "jsmith61@stuy.edu",
 		});
 		expect(result.success).toBe(false);
-		if (!result.success) expect(result.errors.lastNameMismatch).toBe(true);
+		if (!result.success) {
+			expect(result.errors.lastNameMismatch).toBe(true);
+		}
 	});
 
 	it("rejects a one-word name with the first-and-last message", () => {
@@ -189,8 +194,9 @@ describe("validateSignup", () => {
 			email: "pstuyvesant60@stuy.edu",
 		});
 		expect(result.success).toBe(false);
-		if (!result.success)
+		if (!result.success) {
 			expect(result.errors.fullName).toBe(messages.nameRequired);
+		}
 	});
 
 	it("rejects disallowed characters in names", () => {
@@ -199,8 +205,9 @@ describe("validateSignup", () => {
 			email: "pstuyvesant60@stuy.edu",
 		});
 		expect(result.success).toBe(false);
-		if (!result.success)
+		if (!result.success) {
 			expect(result.errors.fullName).toBe(messages.nameCharacters);
+		}
 	});
 
 	it("trims and collapses whitespace", () => {
@@ -215,7 +222,7 @@ describe("validateSignup", () => {
 	});
 
 	it("matches all-short multi-part names by concatenation", () => {
-		expect(lastNameMatchesEmail("Tran Le Ng", "tleng5@stuy.edu")).toBe(true);
+		expect(isLastNameMatch("Tran Le Ng", "tleng5@stuy.edu")).toBe(true);
 	});
 });
 

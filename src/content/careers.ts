@@ -8,9 +8,13 @@ export type Career = {
 	name: string;
 	what: string;
 	path: string;
-	/** Licenses or certificates, if any. */
+	/**
+	Licenses or certificates, if any.
+	*/
 	credential?: string;
-	/** Fields of study or degrees that help. */
+	/**
+	Fields of study or degrees that help.
+	*/
 	study: string[];
 };
 
@@ -18,9 +22,13 @@ export type CareerFamily = {
 	id: string;
 	name: string;
 	summary: string;
-	/** Fields of study that help across the family. */
+	/**
+	Fields of study that help across the family.
+	*/
 	studies: string[];
-	/** StuyAviators meetings that give a taste of this work. */
+	/**
+	StuyAviators meetings that give a taste of this work.
+	*/
 	tryIt?: string;
 	sources: Array<{ label: string; url: string }>;
 	careers: Career[];

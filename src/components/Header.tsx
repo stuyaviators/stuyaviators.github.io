@@ -10,8 +10,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import ThemeToggle from "./ThemeToggle";
-import { buttonClasses } from "./ui/Button";
+import ThemeToggle from "./ThemeToggle.tsx";
+import { buttonClasses } from "./ui/Button.tsx";
 
 /*
  * Hide-on-scroll and mobile-menu logic ported from recode's Header.tsx
@@ -42,28 +42,38 @@ function NavDropdown({
 	readonly pathname: string;
 	readonly open: boolean;
 	readonly onToggle: () => void;
-	readonly onClose: (returnFocus: boolean) => void;
+	readonly onClose: (shouldReturnFocus: boolean) => void;
 }) {
 	const panelId = useId();
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLUListElement>(null);
-	const groupActive = group.links.some((link) => isActive(pathname, link.href));
+	const isGroupActive = group.links.some((link) =>
+		isActive(pathname, link.href)
+	);
 
 	const focusLink = (index: number) => {
 		const links = panelRef.current?.querySelectorAll<HTMLAnchorElement>("a");
-		if (!links?.length) return;
+		if (!links || links.length === 0) {
+			return;
+		}
+
 		const next = (index + links.length) % links.length;
 		links[next]?.focus();
 	};
 
 	const onButtonKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
-		if (event.key === "ArrowDown") {
-			event.preventDefault();
-			if (!open) onToggle();
-			requestAnimationFrame(() => {
-				focusLink(0);
-			});
+		if (event.key !== "ArrowDown") {
+			return;
 		}
+
+		event.preventDefault();
+		if (!open) {
+			onToggle();
+		}
+
+		requestAnimationFrame(() => {
+			focusLink(0);
+		});
 	};
 
 	const onPanelKeyDown = (event: ReactKeyboardEvent<HTMLUListElement>) => {
@@ -127,7 +137,7 @@ function NavDropdown({
 				onKeyDown={onButtonKeyDown}
 				className={cn(
 					"flex min-h-11 items-center gap-1 rounded-md px-3 text-sm font-medium transition-colors hover:text-brand motion-reduce:transition-none",
-					groupActive ? "text-brand" : "text-text"
+					isGroupActive ? "text-brand" : "text-text"
 				)}
 			>
 				{group.label}
@@ -188,8 +198,11 @@ export default function Header() {
 
 	// Hide on scroll down, show on scroll up.
 	useEffect(() => {
-		if (!headerScrollConfig.enabled) return;
-		let lastY = window.scrollY || 0;
+		if (!headerScrollConfig.enabled) {
+			return;
+		}
+
+		let lastY = window.scrollY;
 		let accumDown = 0;
 		let accumUp = 0;
 		let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -198,7 +211,7 @@ export default function Header() {
 		);
 
 		const onScroll = () => {
-			const y = window.scrollY || 0;
+			const y = window.scrollY;
 			const delta = y - lastY;
 			if (delta > 0) {
 				accumDown += delta;
@@ -217,7 +230,10 @@ export default function Header() {
 				}
 			}
 
-			if (y <= headerScrollConfig.minTop) setHidden(false);
+			if (y <= headerScrollConfig.minTop) {
+				setHidden(false);
+			}
+
 			lastY = y;
 		};
 
@@ -227,27 +243,36 @@ export default function Header() {
 				return;
 			}
 
-			globalThis.clearTimeout(timeout);
-			timeout = globalThis.setTimeout(onScroll, headerScrollConfig.debounceMs);
+			clearTimeout(timeout);
+			timeout = setTimeout(onScroll, headerScrollConfig.debounceMs);
 		};
 
 		window.addEventListener("scroll", debounced, { passive: true });
 		return () => {
 			window.removeEventListener("scroll", debounced);
-			if (timeout) globalThis.clearTimeout(timeout);
+			if (timeout) {
+				clearTimeout(timeout);
+			}
 		};
 	}, []);
 
-	const closeMobile = useCallback((returnFocus: boolean) => {
+	const closeMobile = useCallback((shouldReturnFocus: boolean) => {
 		setNavOpen(false);
-		if (returnFocus) toggleRef.current?.focus();
+		if (shouldReturnFocus) {
+			toggleRef.current?.focus();
+		}
 	}, []);
 
 	// Escape closes the mobile sheet; lock page scroll while it's open.
 	useEffect(() => {
-		if (!navOpen) return;
+		if (!navOpen) {
+			return;
+		}
+
 		const onKey = (event: KeyboardEvent) => {
-			if (event.key === "Escape") closeMobile(true);
+			if (event.key === "Escape") {
+				closeMobile(true);
+			}
 		};
 
 		document.addEventListener("keydown", onKey);
@@ -261,7 +286,10 @@ export default function Header() {
 
 	// Outside click closes desktop dropdowns.
 	useEffect(() => {
-		if (!openGroup) return;
+		if (!openGroup) {
+			return;
+		}
+
 		const onPointer = (event: PointerEvent) => {
 			if (!headerRef.current?.contains(event.target as Node)) {
 				setOpenGroup(undefined);
@@ -274,7 +302,7 @@ export default function Header() {
 		};
 	}, [openGroup]);
 
-	const visible = !hidden || navOpen || openGroup !== undefined;
+	const isVisible = !hidden || navOpen || openGroup !== undefined;
 
 	return (
 		<>
@@ -288,7 +316,7 @@ export default function Header() {
 				ref={headerRef}
 				className={cn(
 					"fixed inset-x-0 top-3 z-40 mx-3 transition-[translate,opacity] duration-200 motion-reduce:transition-none sm:mx-auto sm:max-w-6xl sm:px-6 lg:px-8",
-					visible
+					isVisible
 						? "translate-y-0 opacity-100"
 						: "pointer-events-none -translate-y-[150%] opacity-0"
 				)}

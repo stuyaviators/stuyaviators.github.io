@@ -16,7 +16,9 @@ export type MeetingStatus = "scheduled" | "cancelled" | "moved";
 export type Meeting = {
 	id: string;
 	title: string;
-	/** Meeting-type code from the Meetings page (FSD, CLP, PCI, ATC, SLC). */
+	/**
+	Meeting-type code from the Meetings page (FSD, CLP, PCI, ATC, SLC).
+	*/
 	code?: string;
 	start: string; // ISO 8601
 	end?: string;
@@ -25,7 +27,9 @@ export type Meeting = {
 	description?: string;
 };
 
-/** Hand-entered meetings, used when Epsilon can't be reached. */
+/**
+Hand-entered meetings, used when Epsilon can't be reached.
+*/
 export const manualMeetings: Meeting[] = [
 	{
 		id: "epsilon-10069",
@@ -49,29 +53,36 @@ const epsilonMeeting = z.object({
 	rooms: z.object({ name: z.string() }).nullable().optional(),
 });
 
-const epsilonResponse = z.array(
-	z.object({ meetings: z.array(z.unknown()).default([]) })
-);
+const meetingList = z.array(z.unknown()).default([]);
+const epsilonResponse = z.array(z.object({ meetings: meetingList }));
 
 const codes = ["FSD", "CLP", "PCI", "ATC", "SLC"];
 
 export function parseEpsilonMeetings(data: unknown): Meeting[] {
 	const parsed = epsilonResponse.safeParse(data);
-	if (!parsed.success) throw new Error("Unexpected Epsilon response");
+	if (!parsed.success) {
+		throw new Error("Unexpected Epsilon response");
+	}
+
 	const meetings: Meeting[] = [];
 	for (const raw of parsed.data[0]?.meetings ?? []) {
 		const result = epsilonMeeting.safeParse(raw);
-		if (!result.success || result.data.is_public === false) continue;
+		if (!result.success || result.data.is_public === false) {
+			continue;
+		}
+
 		const meeting = result.data;
 		const title = meeting.title.trim();
 		meetings.push({
 			id: `epsilon-${meeting.id}`,
 			title,
-			code: codes.find((code) => new RegExp(`\\b${code}\\b`).test(title)),
+			code: codes.find((code) =>
+				new RegExp(String.raw`\b${code}\b`, "v").test(title)
+			),
 			start: meeting.start_time,
 			end: meeting.end_time ?? undefined,
 			room: meeting.rooms?.name,
-			status: /cancel/i.test(title) ? "cancelled" : "scheduled",
+			status: /cancel/iv.test(title) ? "cancelled" : "scheduled",
 			description: meeting.description ?? undefined,
 		});
 	}
@@ -81,7 +92,10 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 
 async function fetchEpsilonMeetings(): Promise<Meeting[]> {
 	const token = process.env.EPSILON_ACCESS_TOKEN;
-	if (!token) throw new Error("EPSILON_ACCESS_TOKEN not set");
+	if (!token) {
+		throw new Error("EPSILON_ACCESS_TOKEN not set");
+	}
+
 	const base = process.env.EPSILON_API_URL ?? "https://base.stuysu.org";
 	// Epsilon's public "anon" key, shipped in its own web app.
 	const apiKey =
@@ -99,7 +113,10 @@ async function fetchEpsilonMeetings(): Promise<Meeting[]> {
 		next: { revalidate: 900, tags: ["meetings"] },
 		signal: AbortSignal.timeout(5000),
 	});
-	if (!response.ok) throw new Error(`Epsilon responded ${response.status}`);
+	if (!response.ok) {
+		throw new Error(`Epsilon responded ${response.status}`);
+	}
+
 	return parseEpsilonMeetings(await response.json());
 }
 
@@ -116,6 +133,6 @@ export async function getUpcomingMeetings(
 
 	return meetings
 		.filter((meeting) => new Date(meeting.end ?? meeting.start) >= now)
-		.sort((a, b) => a.start.localeCompare(b.start))
+		.toSorted((a, b) => a.start.localeCompare(b.start))
 		.slice(0, limit);
 }

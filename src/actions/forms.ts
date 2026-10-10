@@ -29,10 +29,15 @@ function isBot(formData: FormData) {
 	return text(formData, honeypotField) !== "";
 }
 
-/** Returns false when this IP has hit the limit for `route`. */
-async function allowed(route: string): Promise<boolean> {
+/**
+Returns false when this IP has hit the limit for `route`.
+*/
+async function isAllowed(route: string): Promise<boolean> {
 	const db = getDb();
-	if (!db) return true; // Local dev without a database.
+	if (!db) {
+		return true;
+	} // Local dev without a database.
+
 	try {
 		const result = await hitRateLimit(
 			db,
@@ -52,14 +57,19 @@ const tooMany: FormState = {
 	message: "Too many submissions from your connection. Please try again later.",
 };
 
-/** Mailing-list sign-up (footer, Connect page, home). */
+/**
+Mailing-list sign-up (footer, Connect page, home).
+*/
 export async function signUpForMailingList(
 	_previous: FormState,
 	formData: FormData
 ): Promise<FormState> {
-	const config = signupFormConfig();
 	// Never reveal the honeypot: look successful, do nothing.
-	if (isBot(formData)) return { status: "success" };
+	if (isBot(formData)) {
+		return { status: "success" };
+	}
+
+	const config = signupFormConfig();
 
 	// 1. Same validation as the client.
 	const result = validateSignup({
@@ -70,8 +80,8 @@ export async function signUpForMailingList(
 		return {
 			status: "error",
 			fieldErrors: {
-				...(result.errors.fullName ? { fullName: result.errors.fullName } : {}),
-				...(result.errors.email ? { email: result.errors.email } : {}),
+				...(result.errors.fullName && { fullName: result.errors.fullName }),
+				...(result.errors.email && { email: result.errors.email }),
 			},
 			lastNameMismatch: result.errors.lastNameMismatch,
 			fallbackUrl: result.errors.lastNameMismatch
@@ -81,11 +91,13 @@ export async function signUpForMailingList(
 	}
 
 	// 2. Rate limit.
-	if (!(await allowed("mailing-list"))) return tooMany;
+	if (!(await isAllowed("mailing-list"))) {
+		return tooMany;
+	}
 
 	// 3–4. Normalized values, posted server-side; only 2xx counts.
-	const ok = await submitGoogleForm(config, result.data);
-	if (!ok) {
+	const outcome = await submitGoogleForm(config, result.data);
+	if (outcome === "failed") {
 		return {
 			status: "error",
 			message: "We couldn’t add you right now.",
@@ -112,7 +124,9 @@ export async function signUpForMailingList(
 	return { status: "success", joinedMailingList: true };
 }
 
-/** Contact, story, photo and meeting-idea forms → dashboard inbox. */
+/**
+Contact, story, photo and meeting-idea forms → dashboard inbox.
+*/
 export async function submitForm(
 	type: SubmissionType,
 	_previous: FormState,
@@ -122,7 +136,9 @@ export async function submitForm(
 		return { status: "error", message: "Unknown form." };
 	}
 
-	if (isBot(formData)) return { status: "success" };
+	if (isBot(formData)) {
+		return { status: "success" };
+	}
 
 	const schema = submissionSchemas[type];
 	const parsed = schema.safeParse(Object.fromEntries(formData));
@@ -136,7 +152,9 @@ export async function submitForm(
 		return { status: "error", fieldErrors };
 	}
 
-	if (!(await allowed(`form:${type}`))) return tooMany;
+	if (!(await isAllowed(`form:${type}`))) {
+		return tooMany;
+	}
 
 	const db = getDb();
 	if (!db) {
@@ -157,9 +175,7 @@ export async function submitForm(
 	let mailingList: "submitted" | "failed" | "skipped" = "skipped";
 	const signup = validateSignup({ fullName: name, email });
 	if (signup.success) {
-		mailingList = (await submitGoogleForm(signupFormConfig(), signup.data))
-			? "submitted"
-			: "failed";
+		mailingList = await submitGoogleForm(signupFormConfig(), signup.data);
 	}
 
 	try {
@@ -184,7 +200,9 @@ export async function submitForm(
 	return { status: "success", joinedMailingList: mailingList === "submitted" };
 }
 
-/** Unsubscribe → second Google Form when configured, otherwise mailto. */
+/**
+Unsubscribe → second Google Form when configured, otherwise mailto.
+*/
 export async function unsubscribe(
 	_previous: FormState,
 	formData: FormData
@@ -198,7 +216,10 @@ export async function unsubscribe(
 		};
 	}
 
-	if (isBot(formData)) return { status: "success" };
+	if (isBot(formData)) {
+		return { status: "success" };
+	}
+
 	const parsed = unsubscribeSchema.safeParse({
 		email: text(formData, "email"),
 	});
@@ -211,9 +232,12 @@ export async function unsubscribe(
 		};
 	}
 
-	if (!(await allowed("unsubscribe"))) return tooMany;
-	const ok = await submitGoogleForm(config, parsed.data);
-	return ok
+	if (!(await isAllowed("unsubscribe"))) {
+		return tooMany;
+	}
+
+	const outcome = await submitGoogleForm(config, parsed.data);
+	return outcome === "submitted"
 		? { status: "success" }
 		: {
 				status: "error",

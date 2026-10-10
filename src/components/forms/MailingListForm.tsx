@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { initialFormState } from "@/lib/form-state";
 import {
-	lastNameMatchesEmail,
+	isLastNameMatch,
 	messages,
 	validateFullName,
 	validateStuyEmail,
 } from "@/lib/mailing-list";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState, useState } from "react";
-import { Honeypot, TextField } from "./Field";
+import { Honeypot, TextField } from "./Field.tsx";
 
 /*
  * Native, on-brand sign-up that submits through a Server Action to the club's
@@ -35,23 +35,6 @@ export default function MailingListForm({
 	const [values, setValues] = useState({ fullName: "", email: "" });
 	const [touched, setTouched] = useState({ fullName: false, email: false });
 
-	const nameError = validateFullName(values.fullName);
-	const formatError = validateStuyEmail(values.email);
-	const mismatch =
-		!nameError &&
-		!formatError &&
-		!lastNameMatchesEmail(values.fullName, values.email);
-	const emailError =
-		formatError ?? (mismatch ? messages.emailLastName : undefined);
-	const valid = !nameError && !emailError;
-
-	const shownNameError = touched.fullName
-		? nameError
-		: state.fieldErrors?.fullName;
-	const shownEmailError = touched.email ? emailError : state.fieldErrors?.email;
-	const showEscapeHatch =
-		shownEmailError === messages.emailLastName || state.lastNameMismatch;
-
 	if (state.status === "success") {
 		return (
 			<div
@@ -73,6 +56,23 @@ export default function MailingListForm({
 		);
 	}
 
+	const nameError = validateFullName(values.fullName);
+	const formatError = validateStuyEmail(values.email);
+	const isMismatch =
+		!nameError &&
+		!formatError &&
+		!isLastNameMatch(values.fullName, values.email);
+	const emailError =
+		formatError ?? (isMismatch ? messages.emailLastName : undefined);
+	const isValid = !nameError && !emailError;
+
+	const shownNameError = touched.fullName
+		? nameError
+		: state.fieldErrors?.fullName;
+	const shownEmailError = touched.email ? emailError : state.fieldErrors?.email;
+	const showEscapeHatch =
+		shownEmailError === messages.emailLastName || state.lastNameMismatch;
+
 	return (
 		<form
 			noValidate
@@ -80,7 +80,9 @@ export default function MailingListForm({
 			className={cn("relative", className)}
 			onSubmit={(event) => {
 				setTouched({ fullName: true, email: true });
-				if (!valid) event.preventDefault();
+				if (!isValid) {
+					event.preventDefault();
+				}
 			}}
 		>
 			<Honeypot />
@@ -132,7 +134,7 @@ export default function MailingListForm({
 				/>
 			</div>
 			<div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-				<Button type="submit" variant="accent" disabled={!valid || pending}>
+				<Button type="submit" variant="accent" disabled={!isValid || pending}>
 					{pending ? "Signing up…" : "Sign up"}
 				</Button>
 				<div aria-live="polite" className="text-sm">

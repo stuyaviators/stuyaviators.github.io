@@ -21,14 +21,17 @@ const fetchMock = vi.fn<typeof fetch>();
 vi.stubGlobal("fetch", fetchMock);
 
 const { signUpForMailingList, submitForm, unsubscribe } =
-	await import("./forms");
+	await import("./forms.ts");
 
 const formAction =
 	"https://docs.google.com/forms/d/e/1FAIpQLScbjyhaEiBhMZPDi8TNQJZemMCSR9xfpChoRN0RP_sDhfS-ag/formResponse";
 
 function form(values: Record<string, string>) {
 	const data = new FormData();
-	for (const [key, value] of Object.entries(values)) data.set(key, value);
+	for (const [key, value] of Object.entries(values)) {
+		data.set(key, value);
+	}
+
 	return data;
 }
 
@@ -40,7 +43,7 @@ async function flushAfter() {
 }
 
 function googleCalls() {
-	return fetchMock.mock.calls.filter(([url]) => String(url) === formAction);
+	return fetchMock.mock.calls.filter(([url]) => url === formAction);
 }
 
 beforeEach(async () => {
@@ -65,13 +68,16 @@ describe("signUpForMailingList", () => {
 		expect(state).toEqual({ status: "success", joinedMailingList: true });
 		const calls = googleCalls();
 		expect(calls).toHaveLength(1);
-		const [, init] = calls[0]!;
+		const [, init] = calls[0];
 		expect(init?.method).toBe("POST");
 		expect(new Headers(init?.headers).get("content-type")).toBe(
 			"application/x-www-form-urlencoded"
 		);
-		const body = new URLSearchParams(String(init?.body));
-		expect([...body.keys()]).toEqual(["entry.1248809368", "entry.1701037871"]);
+		const body = new URLSearchParams(init?.body as string);
+		expect(body.keys().toArray()).toEqual([
+			"entry.1248809368",
+			"entry.1701037871",
+		]);
 		expect(body.get("entry.1248809368")).toBe("Peter Stuyvesant");
 		expect(body.get("entry.1701037871")).toBe("pstuyvesant60@stuy.edu");
 	});
@@ -93,7 +99,7 @@ describe("signUpForMailingList", () => {
 			form({
 				fullName: "Peter Stuyvesant",
 				email: "pstuyvesant60@stuy.edu",
-				[honeypotField]: "http://spam.example",
+				[honeypotField]: "https://spam.example",
 			})
 		);
 		expect(state.status).toBe("success");
@@ -103,8 +109,8 @@ describe("signUpForMailingList", () => {
 	it("rate-limits repeated submissions from one IP", async () => {
 		const states = [];
 		for (let i = 0; i < 6; i++) {
-			// eslint-disable-next-line no-await-in-loop
 			states.push(
+				// eslint-disable-next-line no-await-in-loop
 				await signUpForMailingList(
 					initialFormState,
 					form({
@@ -117,7 +123,7 @@ describe("signUpForMailingList", () => {
 
 		expect(states.slice(0, 5).every((s) => s.status === "success")).toBe(true);
 		expect(states[5]?.status).toBe("error");
-		expect(states[5]?.message).toMatch(/too many/i);
+		expect(states[5]?.message).toMatch(/too many/iv);
 		expect(googleCalls()).toHaveLength(5);
 	});
 
@@ -155,9 +161,9 @@ describe("signUpForMailingList", () => {
 			mailingList: "submitted",
 		});
 		const discord = fetchMock.mock.calls.find(
-			([url]) => String(url) === "https://discord.test/webhook"
+			([url]) => url === "https://discord.test/webhook"
 		);
-		const payload = JSON.parse(String(discord?.[1]?.body)) as {
+		const payload = JSON.parse(discord?.[1]?.body as string) as {
 			allowed_mentions: { parse: unknown[] };
 		};
 		expect(payload.allowed_mentions).toEqual({ parse: [] });
@@ -204,10 +210,15 @@ describe("submitForm", () => {
 		const state = await submitForm(
 			"photo",
 			initialFormState,
-			form({ name: "", email: "x", link: "javascript:alert(1)", message: "" })
+			form({
+				name: "",
+				email: "x",
+				link: ["javascript", "alert(1)"].join(":"),
+				message: "",
+			})
 		);
 		expect(state.status).toBe("error");
-		expect(Object.keys(state.fieldErrors ?? {}).sort()).toEqual([
+		expect(Object.keys(state.fieldErrors ?? {}).toSorted()).toEqual([
 			"email",
 			"link",
 			"message",
@@ -248,7 +259,7 @@ describe("unsubscribe", () => {
 		);
 		expect(state.status).toBe("success");
 		const body = new URLSearchParams(
-			String(fetchMock.mock.calls[0]?.[1]?.body)
+			fetchMock.mock.calls[0]?.[1]?.body as string
 		);
 		expect(body.get("entry.42")).toBe("jsmith61@stuy.edu");
 	});

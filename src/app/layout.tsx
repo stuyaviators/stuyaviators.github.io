@@ -61,7 +61,6 @@ export default function RootLayout({
 			className={`${lexend.variable} ${b612.variable} ${b612Mono.variable}`}
 		>
 			<head>
-				{/* eslint-disable-next-line react/no-danger */}
 				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
 			</head>
 			<body className="flex min-h-dvh flex-col antialiased">

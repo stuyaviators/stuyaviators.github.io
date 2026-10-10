@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { Stagger } from "./TransitionProvider";
+import { Stagger } from "./TransitionProvider.tsx";
 
-/** Dashed flight path with diamond waypoints linking timeline items. */
+/**
+Dashed flight path with diamond waypoints linking timeline items.
+*/
 export default function Waypoints({
 	items,
 }: {

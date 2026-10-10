@@ -4,8 +4,8 @@ import { cn } from "@/lib/cn";
 export type PassField = { label: string; value: ReactNode };
 
 /**
- * Boarding-pass card: main body plus a perforated stub of data fields.
- * Stacks vertically on narrow screens.
+ Boarding-pass card: main body plus a perforated stub of data fields.
+ Stacks vertically on narrow screens.
  */
 export function BoardingPass({
 	children,

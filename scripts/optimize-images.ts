@@ -1,11 +1,13 @@
 /**
- * Re-encodes the legacy Mobirise images into right-sized, descriptively named
- * files. Run with `pnpm images`. Originals stay untouched in legacy/assets/images.
- *
- * - Photos: longest edge ≤ 1920 px, progressive JPEG (mozjpeg) → src/assets/photos
- * - Headshots: 800×800 attention crop → src/assets/crew
- * Logos come from the official Figma SVGs instead: see scripts/brand-assets.ts.
+ Re-encodes the legacy Mobirise images into right-sized, descriptively named
+ files. Run with `pnpm images`. Originals stay untouched in legacy/assets/images.
+ 
+ - Photos: longest edge ≤ 1920 px, progressive JPEG (mozjpeg) → src/assets/photos
+ - Headshots: 800×800 attention crop → src/assets/crew
+ Logos come from the official Figma SVGs instead: see scripts/brand-assets.ts.
  */
+
+/* eslint-disable no-await-in-loop -- sequential on purpose to keep memory low. */
 
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -116,7 +118,6 @@ async function run() {
 	);
 
 	for (const [file, name] of Object.entries(photos)) {
-		// eslint-disable-next-line no-await-in-loop
 		await sharp(path.join(source, file))
 			.rotate()
 			.resize({
@@ -130,7 +131,6 @@ async function run() {
 	}
 
 	for (const [file, name] of Object.entries(crew)) {
-		// eslint-disable-next-line no-await-in-loop
 		await sharp(path.join(source, file))
 			.rotate()
 			.resize(800, 800, { fit: "cover", position: sharp.strategy.attention })

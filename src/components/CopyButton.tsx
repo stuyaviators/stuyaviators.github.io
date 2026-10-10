@@ -4,7 +4,9 @@ import copy from "@/lib/copy";
 import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
-/** Copy-to-clipboard with visible and announced feedback. */
+/**
+Copy-to-clipboard with visible and announced feedback.
+*/
 export default function CopyButton({
 	value,
 	label,
@@ -15,7 +17,10 @@ export default function CopyButton({
 	const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
 	useEffect(() => {
-		if (status === "idle") return;
+		if (status === "idle") {
+			return;
+		}
+
 		const timer = setTimeout(() => {
 			setStatus("idle");
 		}, 2000);
@@ -31,8 +36,8 @@ export default function CopyButton({
 				title={`Copy ${label}`}
 				aria-label={`Copy ${label}`}
 				className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-hairline text-muted hover:border-brand hover:text-brand"
-				onClick={async () => {
-					setStatus((await copy(value)) ? "copied" : "failed");
+				onClick={() => {
+					void copy(value).then(setStatus);
 				}}
 			>
 				{status === "copied" ? (

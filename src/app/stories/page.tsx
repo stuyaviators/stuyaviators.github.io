@@ -43,7 +43,7 @@ export default function StoriesPage() {
 				</p>
 				<div className="space-y-10">
 					{storiesCopy.stories.map((story, index) => {
-						const photo = storyPhotos[index]!;
+						const photo = storyPhotos[index];
 						return (
 							<Stagger key={story.name}>
 								<article className="grid overflow-hidden rounded-lg border border-hairline bg-surface md:grid-cols-[18rem_1fr]">

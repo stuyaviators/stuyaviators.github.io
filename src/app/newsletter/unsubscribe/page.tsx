@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default function UnsubscribePage() {
-	const configured = Boolean(unsubscribeFormConfig());
+	const isConfigured = Boolean(unsubscribeFormConfig());
 	return (
 		<Container className="py-16 sm:py-24">
 			<p className="label text-accent-text">Mailing list</p>
 			<h1 className="mt-3 text-4xl">Unsubscribe</h1>
-			{configured ? (
+			{isConfigured ? (
 				<>
 					<p className="mt-4 max-w-xl text-lg text-muted">
 						Enter the Stuy email you signed up with and we’ll take you off the

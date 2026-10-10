@@ -1,6 +1,8 @@
 import { cn } from "@/lib/cn";
 
-/** Neutral placeholder used where a real photo hasn't been supplied. */
+/**
+Neutral placeholder used where a real photo hasn't been supplied.
+*/
 export function Initials({
 	name,
 	className,
@@ -9,8 +11,8 @@ export function Initials({
 	readonly className?: string;
 }) {
 	const initials = name
-		.split(/\s+/)
-		.filter((part) => /^\p{L}/u.test(part))
+		.split(/\s+/v)
+		.filter((part) => /\p{Letter}/v.test(part.charAt(0)))
 		.map((part) => part[0])
 		.slice(0, 2)
 		.join("")
@@ -29,7 +31,9 @@ export function Initials({
 	);
 }
 
-/** Generic image placeholder (no AI-generated imagery). */
+/**
+Generic image placeholder (no AI-generated imagery).
+*/
 export function ImagePlaceholder({
 	label,
 	className,

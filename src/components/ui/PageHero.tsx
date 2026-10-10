@@ -2,12 +2,12 @@ import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import { Stagger } from "@/components/TransitionProvider";
 import Image from "next/image";
-import { Container } from "./Section";
+import { Container } from "./Section.tsx";
 
 /**
- * Interior page header. With an image, the photo fills the header and the
- * text sits on a navy scrim (left-weighted on desktop, even on mobile) so it
- * keeps AA contrast over any photo.
+ Interior page header. With an image, the photo fills the header and the
+ text sits on a navy scrim (left-weighted on desktop, even on mobile) so it
+ keeps AA contrast over any photo.
  */
 export function PageHero({
 	eyebrow,
@@ -32,16 +32,16 @@ export function PageHero({
 			<Stagger>
 				<h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
 			</Stagger>
-			{intro ? (
+			{intro === undefined ? null : (
 				<Stagger>
 					<div className="mt-5 max-w-2xl text-lg text-muted">{intro}</div>
 				</Stagger>
-			) : null}
-			{children ? (
+			)}
+			{children === undefined ? null : (
 				<Stagger>
 					<div className="mt-7 flex flex-wrap gap-3">{children}</div>
 				</Stagger>
-			) : null}
+			)}
 		</>
 	);
 

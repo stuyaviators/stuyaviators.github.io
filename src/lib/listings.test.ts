@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysUntil, isClosingSoon, isExpired } from "./listings";
+import { daysUntil, isClosingSoon, isExpired } from "./listings.ts";
 
 const now = new Date("2026-10-10T16:00:00Z"); // Noon in New York
 

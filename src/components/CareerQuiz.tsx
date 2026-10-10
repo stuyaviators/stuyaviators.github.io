@@ -42,10 +42,12 @@ export default function CareerQuiz({
 				return {
 					family,
 					score: total,
-					percent: Math.round((total / (max.get(family.id) || 1)) * 100),
+					percent: Math.round((total / (max.get(family.id) ?? 1)) * 100),
 				};
 			})
-			.sort((a, b) => b.percent - a.percent || b.score - a.score)
+			.toSorted((a, b) =>
+				b.percent === a.percent ? b.score - a.score : b.percent - a.percent
+			)
 			.slice(0, 3);
 		setResults(ranked);
 		requestAnimationFrame(() => {
@@ -73,13 +75,13 @@ export default function CareerQuiz({
 								</legend>
 								<div className="mt-3 flex flex-wrap gap-2">
 									{quizAnswers.map((answer) => {
-										const checked = answers[question.id] === answer.value;
+										const isChecked = answers[question.id] === answer.value;
 										return (
 											<label
 												key={answer.label}
 												className={cn(
 													"flex min-h-10 cursor-pointer items-center rounded-md border px-3 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand",
-													checked
+													isChecked
 														? "border-brand bg-brand text-brand-ink"
 														: "border-field hover:border-brand"
 												)}
@@ -88,7 +90,7 @@ export default function CareerQuiz({
 													type="radio"
 													name={question.id}
 													value={answer.value}
-													checked={checked}
+													checked={isChecked}
 													className="sr-only"
 													onChange={() => {
 														setAnswers((current) => ({

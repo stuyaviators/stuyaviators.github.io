@@ -200,7 +200,7 @@ export default async function ConnectPage() {
 							</div>
 						</div>
 						<div className="flex items-center gap-6">
-							{feed.followersCount ? (
+							{typeof feed.followersCount === "number" ? (
 								<div>
 									<p className="label text-muted">Followers</p>
 									<p className="font-mono text-3xl font-bold text-brand">

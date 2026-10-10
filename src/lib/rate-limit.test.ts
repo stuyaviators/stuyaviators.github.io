@@ -2,7 +2,7 @@ import type { Database } from "@/db";
 import { createTestDb } from "@/test/pglite";
 import { sql } from "drizzle-orm";
 import { beforeAll, describe, expect, it } from "vitest";
-import { hitRateLimit } from "./rate-limit";
+import { hitRateLimit } from "./rate-limit.ts";
 
 let db: Database;
 beforeAll(async () => {
@@ -22,13 +22,16 @@ describe("hitRateLimit (Postgres)", () => {
 	});
 
 	it("keeps separate counters per key", async () => {
-		expect((await hitRateLimit(db, "ip-b", 1, 60)).allowed).toBe(true);
-		expect((await hitRateLimit(db, "ip-c", 1, 60)).allowed).toBe(true);
+		const first = await hitRateLimit(db, "ip-b", 1, 60);
+		const second = await hitRateLimit(db, "ip-c", 1, 60);
+		expect(first.allowed).toBe(true);
+		expect(second.allowed).toBe(true);
 	});
 
 	it("starts a new window once the old one expires", async () => {
 		await hitRateLimit(db, "ip-d", 1, 60);
-		expect((await hitRateLimit(db, "ip-d", 1, 60)).allowed).toBe(false);
+		const blocked = await hitRateLimit(db, "ip-d", 1, 60);
+		expect(blocked.allowed).toBe(false);
 		await db.execute(
 			sql`update rate_limits set window_start = now() - interval '2 minutes' where key = 'ip-d'`
 		);

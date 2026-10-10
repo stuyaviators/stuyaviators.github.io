@@ -57,7 +57,7 @@ export default async function MeetingsPage() {
 			>
 				<ul className="grid gap-6 md:grid-cols-2">
 					{meetings.types.map((type, index) => {
-						const photo = meetingImages[index]!;
+						const photo = meetingImages[index];
 						return (
 							<Stagger as="li" key={type.name}>
 								<article

@@ -1,8 +1,6 @@
-import { ogContentType, ogSize, renderOg } from "@/lib/og";
+import { renderOg } from "@/lib/og";
 
 export const alt = "Meetings · StuyAviators";
-export const size = ogSize;
-export const contentType = ogContentType;
 
 export default async function Image() {
 	return renderOg({
@@ -12,3 +10,5 @@ export default async function Image() {
 		detail: "Flight sims, crash labs, ATC and more",
 	});
 }
+
+export { ogContentType as contentType, ogSize as size } from "@/lib/og";

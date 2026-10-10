@@ -1,8 +1,6 @@
-import { ogContentType, ogSize, renderOg } from "@/lib/og";
+import { renderOg } from "@/lib/og";
 
 export const alt = "Member Stories · StuyAviators";
-export const size = ogSize;
-export const contentType = ogContentType;
 
 export default async function Image() {
 	return renderOg({
@@ -11,3 +9,5 @@ export default async function Image() {
 		photo: "hero-cessna-backseat",
 	});
 }
+
+export { ogContentType as contentType, ogSize as size } from "@/lib/og";

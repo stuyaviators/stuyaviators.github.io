@@ -133,12 +133,10 @@ export default function CareersPage() {
 										as="div"
 										className="h-full"
 										stubTitle="Study"
-										stub={career.study
-											.slice(0, 3)
-											.map((study, i) => ({
-												label: i === 0 ? "Helpful" : "Also",
-												value: study,
-											}))}
+										stub={career.study.slice(0, 3).map((study, i) => ({
+											label: i === 0 ? "Helpful" : "Also",
+											value: study,
+										}))}
 									>
 										<h3 className="text-lg">{career.name}</h3>
 										<p className="mt-2">{career.what}</p>
