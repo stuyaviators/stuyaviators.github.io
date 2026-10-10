@@ -244,3 +244,14 @@ review on request.
 | P1 | Merge Charter + Rules into one page | Yes |
 | P2 | Real drag-and-drop in the newsletter builder (adds `@dnd-kit`) vs up/down buttons | Up/down + keyboard; add drag only if wanted |
 | P3 | Which Phase 4 features to build | #1–#6 |
+
+---
+
+## 6. Decisions log
+
+| Date | # | Decision |
+|---|---|---|
+| 2026-10-10 | D8 | Andrew Zhang ('27) and Alexander Smelyansky ('27) are the new co-presidents. Rest of the 2026–27 roster TBD (editable in the dashboard). |
+| 2026-10-10 | D13 | Giveaway is **not** running. Mailing-list copy becomes "Join the mailing list" with a neutral success message. |
+| 2026-10-10 | Meetings | Meeting data will come from an **API** (details to come). The departure board and calendar read from a `getUpcomingMeetings()` adapter so the source can be plugged in later. Phase 4 #1 (meetings CRUD) is on hold until the API is known. |
+| 2026-10-10 | P3 | Phase 4 approved: submissions inbox, flight crew in dashboard, announcement banner, events calendar (page + `.ics`), analytics, testimonials + gallery in dashboard, deadline digest, newsletter archive. **Not** building: activity log. OG images: pending explanation. |
