@@ -255,3 +255,71 @@ review on request.
 | 2026-10-10 | D13 | Giveaway is **not** running. Mailing-list copy becomes "Join the mailing list" with a neutral success message. |
 | 2026-10-10 | Meetings | Meeting data will come from an **API** (details to come). The departure board and calendar read from a `getUpcomingMeetings()` adapter so the source can be plugged in later. Phase 4 #1 (meetings CRUD) is on hold until the API is known. |
 | 2026-10-10 | P3 | Phase 4 approved: submissions inbox, flight crew in dashboard, announcement banner, events calendar (page + `.ics`), analytics, testimonials + gallery in dashboard, deadline digest, newsletter archive. **Not** building: activity log. OG images: pending explanation. |
+| 2026-10-10 | D8 | Co-president title: **"Captain (Co-President)"**. All '26 members move to Past Leadership / Past Helpers (Esther Lee to past Alliance). |
+| 2026-10-10 | D2 | Keep the relevant copy, cut the filler (my judgment, list below). Cut text stays in `legacy/`. |
+| 2026-10-10 | D7 | **Keep Careers.** Static page written by Claude covering every major aviation/aerospace career family. **Not** dashboard-managed. Outline in §7. |
+| 2026-10-10 | D16 | All four emails stay public: outreach@, media@, exec@ (stuy.edu) and stuyaviators@gmail.com. |
+| 2026-10-10 | Notify | Approved service: **Discord webhook** for new-submission alerts. URL lives only in the `DISCORD_WEBHOOK_URL` env var, never in the repo. Messages disable all @mentions. |
+| 2026-10-10 | #11 | OG images approved: static per-page images **and** dynamic `next/og` images for opportunities, scholarships and newsletters. |
+
+### D2: what's cut vs kept
+
+| Text | Verdict |
+|---|---|
+| Home slogan carousel ("Dream • Create • Inspire"…) | Cut |
+| Home "Our members share their experiences…" | Cut |
+| Mission Impact & Benefits: Educational Enrichment, Skill Development | Cut (generic) |
+| Mission Impact & Benefits: Inclusivity & Accessibility, Career Pathways | **Keep** (specific: free simulator access; links to Careers) |
+| Mission Objectives intro paragraph | Cut (repeats the stages) |
+| Story closing paragraph ("set the foundation for future growth…") | Cut |
+| Charter "Our sophisticated appointment procedures…" | **Keep as written** (no rewording without approval) |
+| Share Your Story "Behind every face is a story worth sharing…" | Cut |
+| Highlights "Features is the place…" and "Featured Moments" intros | Cut |
+| Opportunities / Scholarships "Explore…" intros and "Coming Soon!" blocks | Cut (replaced by designed empty state) |
+| Contact intro "Reach out to StuyAviators…" | **Keep** (page meta description) |
+| Hero subtitles on every page | **Keep** (used as page intros and meta descriptions) |
+| Mobirise badges, "Learn More" scroll buttons | Cut |
+
+---
+
+## 7. Careers page outline
+
+Static content in `src/content/careers.ts`. Each career has: what the job is, a typical path from
+high school, the key credential(s), and a link to an official source (FAA, BLS Occupational Outlook
+Handbook, NTSB, NASA, armed-services recruiting). No salary figures (they go stale); BLS links cover
+that. A "Try it at StuyAviators" tag maps careers to meeting types (FSD → pilots, ATC sim →
+controllers, PCI → investigators, CLP/SLC → instructors). Filter chips by family plus text search.
+
+1. **Flying:** airline pilot · cargo pilot · corporate/business-jet pilot · charter/air-taxi
+   pilot · flight instructor (CFI) · helicopter pilot (EMS, offshore, news, tours) · agricultural
+   pilot · aerial firefighting pilot · bush pilot · banner-tow/aerial survey/photography pilot ·
+   ferry pilot · test pilot · military aviator
+2. **Uncrewed & remote:** commercial drone (Part 107) operator · military UAS pilot · drone
+   inspection/mapping specialist
+3. **In the cabin:** flight attendant · purser/lead · corporate flight attendant
+4. **Air traffic & airspace:** air traffic controller (tower, TRACON, en-route center) · flight
+   service specialist · airspace/procedure designer · traffic flow management specialist
+5. **Flight operations:** aircraft dispatcher · operations control/crew scheduling · load planner ·
+   aviation meteorologist
+6. **Maintenance & technicians:** A&P mechanic · avionics technician · inspector (IA) · NDT
+   technician · composites/sheet-metal technician · engine overhaul technician · simulator
+   technician
+7. **Engineering:** aerospace/aeronautical · astronautical · propulsion · structures & stress ·
+   aerodynamics/CFD · avionics & electrical · guidance, navigation & control · flight software ·
+   systems · flight test engineer · materials · human factors · manufacturing/quality engineer
+8. **Space:** astronaut · mission/flight controller · launch operations · spacecraft operations ·
+   satellite engineer · space systems operator (Space Force)
+9. **Airports:** airport manager/operations · ARFF firefighter · ramp/ground handling · fueler ·
+   wildlife biologist · airport planner/engineer · security
+10. **Safety, investigation & regulation:** accident investigator (NTSB) · FAA aviation safety
+    inspector · safety management/quality auditor · aviation attorney · policy/regulatory analyst
+11. **Business of aviation:** airline network planning · revenue management · aircraft
+    sales/leasing/finance · aviation insurance · air cargo & logistics · program manager · customer
+    service/gate agent
+12. **Military & public service:** USAF · Navy/Marine Corps · Army aviation · Coast Guard ·
+    Space Force · Civil Air Patrol (cadet program) · law-enforcement aviation · search and rescue
+13. **Health, education & media:** aviation medical examiner/flight surgeon · flight nurse/paramedic
+    · aviation educator · museum curator · aviation journalist/photographer · aviation cybersecurity
+
+Closing section: "Start now" with free/low-cost first steps that already appear in club copy
+(flight sims, guest speakers, Civil Air Patrol cadets, Part 107 for 16+, discovery flights).
