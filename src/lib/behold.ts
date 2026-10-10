@@ -80,7 +80,11 @@ export function parseFeed(data: unknown): BeholdFeed | undefined {
 		const result = post.safeParse(raw);
 		if (!result.success) continue;
 		const { sizes } = result.data;
-		if (![sizes.small, sizes.medium, sizes.large, sizes.full].every((s) => isBeholdImage(s.mediaUrl))) {
+		if (
+			![sizes.small, sizes.medium, sizes.large, sizes.full].every((s) =>
+				isBeholdImage(s.mediaUrl)
+			)
+		) {
 			continue;
 		}
 
@@ -96,7 +100,8 @@ export function parseFeed(data: unknown): BeholdFeed | undefined {
 		username: parsed.data.username,
 		biography: parsed.data.biography,
 		profilePictureUrl:
-			parsed.data.profilePictureUrl && isBeholdImage(parsed.data.profilePictureUrl)
+			parsed.data.profilePictureUrl &&
+			isBeholdImage(parsed.data.profilePictureUrl)
 				? parsed.data.profilePictureUrl
 				: undefined,
 		followersCount: parsed.data.followersCount,
@@ -106,7 +111,9 @@ export function parseFeed(data: unknown): BeholdFeed | undefined {
 
 /** Returns undefined on any failure so callers can hide the section. */
 export async function getInstagramFeed(): Promise<BeholdFeed | undefined> {
-	const url = process.env.BEHOLD_FEED_URL ?? "https://feeds.behold.so/CDSpFlcqkbtsbwbH8PR1";
+	const url =
+		process.env.BEHOLD_FEED_URL ??
+		"https://feeds.behold.so/CDSpFlcqkbtsbwbH8PR1";
 	if (!url) return undefined;
 	try {
 		const response = await fetch(url, {

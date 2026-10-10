@@ -1,7 +1,5 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
-import { useActionState, useState } from "react";
 import { signUpForMailingList } from "@/actions/forms";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -12,6 +10,8 @@ import {
 	validateFullName,
 	validateStuyEmail,
 } from "@/lib/mailing-list";
+import { CheckCircle2 } from "lucide-react";
+import { useActionState, useState } from "react";
 import { Honeypot, TextField } from "./Field";
 
 /*
@@ -38,8 +38,11 @@ export default function MailingListForm({
 	const nameError = validateFullName(values.fullName);
 	const formatError = validateStuyEmail(values.email);
 	const mismatch =
-		!nameError && !formatError && !lastNameMatchesEmail(values.fullName, values.email);
-	const emailError = formatError ?? (mismatch ? messages.emailLastName : undefined);
+		!nameError &&
+		!formatError &&
+		!lastNameMatchesEmail(values.fullName, values.email);
+	const emailError =
+		formatError ?? (mismatch ? messages.emailLastName : undefined);
 	const valid = !nameError && !emailError;
 
 	const shownNameError = touched.fullName
@@ -58,7 +61,10 @@ export default function MailingListForm({
 					className
 				)}
 			>
-				<CheckCircle2 aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
+				<CheckCircle2
+					aria-hidden
+					className="mt-0.5 size-5 shrink-0 text-success"
+				/>
 				<p>
 					<span className="font-semibold">You’re on the list.</span> Thanks for
 					signing up for the StuyAviators mailing list!
@@ -148,8 +154,8 @@ export default function MailingListForm({
 				</div>
 			</div>
 			<p className="mt-3 text-sm text-muted">
-				We only use your email for StuyAviators news and events. To
-				unsubscribe, use the link at the bottom of any newsletter.
+				We only use your email for StuyAviators news and events. To unsubscribe,
+				use the link at the bottom of any newsletter.
 			</p>
 		</form>
 	);

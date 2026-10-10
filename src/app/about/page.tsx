@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Paragraphs } from "@/components/Md";
 import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
@@ -9,6 +8,7 @@ import Waypoints from "@/components/Waypoints";
 import { about } from "@/content/about";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
+import Image from "next/image";
 
 export const metadata: Metadata = {
 	title: "Our Mission & Project Skylab",
@@ -16,7 +16,11 @@ export const metadata: Metadata = {
 	alternates: { canonical: "/about" },
 };
 
-const stageLabels = ["Stage 01 · Community", "Stage 02 · Growth", "Stage 03 · The Skylab"];
+const stageLabels = [
+	"Stage 01 · Community",
+	"Stage 02 · Growth",
+	"Stage 03 · The Skylab",
+];
 
 export default function AboutPage() {
 	const [intro, ...stageDetails] = about.objectives.paragraphs;
@@ -30,10 +34,18 @@ export default function AboutPage() {
 				imageAlt={photos.heroSimDisplay.alt}
 			/>
 
-			<Section id="skylab" index={1} label="Project Skylab" title={about.skylab.heading}>
+			<Section
+				id="skylab"
+				index={1}
+				label="Project Skylab"
+				title={about.skylab.heading}
+			>
 				<div className="grid gap-10 lg:grid-cols-[1.3fr_1fr]">
 					<Stagger>
-						<Paragraphs items={about.skylab.paragraphs} className="prose-club text-lg" />
+						<Paragraphs
+							items={about.skylab.paragraphs}
+							className="prose-club text-lg"
+						/>
 					</Stagger>
 					<Stagger className="relative aspect-[3/4] overflow-hidden rounded-lg border border-hairline bg-surface-2">
 						<Image
@@ -50,7 +62,12 @@ export default function AboutPage() {
 
 			<RunwayDivider />
 
-			<Section id="impact" index={2} label="Impact & benefits" title={about.impact.heading}>
+			<Section
+				id="impact"
+				index={2}
+				label="Impact & benefits"
+				title={about.impact.heading}
+			>
 				<div className="grid gap-6 sm:grid-cols-2">
 					{about.impact.items.map((item, index) => (
 						<Stagger key={item.title}>
@@ -66,7 +83,12 @@ export default function AboutPage() {
 				</div>
 			</Section>
 
-			<Section id="objectives" index={3} label="Flight plan" title={about.objectives.heading}>
+			<Section
+				id="objectives"
+				index={3}
+				label="Flight plan"
+				title={about.objectives.heading}
+			>
 				<Stagger>
 					<p className="mb-10 max-w-3xl text-lg text-muted">{intro}</p>
 				</Stagger>
@@ -78,15 +100,21 @@ export default function AboutPage() {
 							<>
 								<p className="text-xl font-semibold">{summary}</p>
 								{stageDetails[index] ? (
-									<p className="mt-3 max-w-3xl text-muted">{stageDetails[index]}</p>
+									<p className="mt-3 max-w-3xl text-muted">
+										{stageDetails[index]}
+									</p>
 								) : null}
 							</>
 						),
 					}))}
 				/>
 				<div className="mt-12 flex flex-wrap gap-3">
-					<ButtonLink href="/story" variant="secondary">Read our story</ButtonLink>
-					<ButtonLink href="/charter" variant="ghost">Club charter</ButtonLink>
+					<ButtonLink href="/story" variant="secondary">
+						Read our story
+					</ButtonLink>
+					<ButtonLink href="/charter" variant="ghost">
+						Club charter
+					</ButtonLink>
 				</div>
 			</Section>
 		</>

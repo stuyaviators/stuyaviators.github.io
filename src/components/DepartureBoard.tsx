@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Meeting } from "@/lib/meetings";
+import Link from "next/link";
 
 /*
  * Split-flap style departure board for upcoming meetings. Characters flip in
@@ -19,7 +19,13 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 	month: "short",
 });
 
-function Flap({ text, className }: { readonly text: string; readonly className?: string }) {
+function Flap({
+	text,
+	className,
+}: {
+	readonly text: string;
+	readonly className?: string;
+}) {
 	return (
 		<span className={className} aria-label={text}>
 			{[...text.toUpperCase()].map((char, index) => (
@@ -60,11 +66,27 @@ export default function DepartureBoard({
 				<caption className="sr-only">Upcoming StuyAviators meetings</caption>
 				<thead className="label text-[0.68rem] text-board-dim">
 					<tr>
-						<th scope="col" className="px-4 py-2 font-normal sm:px-6">Time</th>
-						<th scope="col" className="px-2 py-2 font-normal">Date</th>
-						<th scope="col" className="px-2 py-2 font-normal">Meeting</th>
-						<th scope="col" className="hidden px-2 py-2 font-normal sm:table-cell">Room</th>
-						<th scope="col" className="px-4 py-2 text-right font-normal sm:px-6">Status</th>
+						<th scope="col" className="px-4 py-2 font-normal sm:px-6">
+							Time
+						</th>
+						<th scope="col" className="px-2 py-2 font-normal">
+							Date
+						</th>
+						<th scope="col" className="px-2 py-2 font-normal">
+							Meeting
+						</th>
+						<th
+							scope="col"
+							className="hidden px-2 py-2 font-normal sm:table-cell"
+						>
+							Room
+						</th>
+						<th
+							scope="col"
+							className="px-4 py-2 text-right font-normal sm:px-6"
+						>
+							Status
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -81,7 +103,9 @@ export default function DepartureBoard({
 									</td>
 									<td className="px-2 py-3">
 										{meeting.code ? (
-											<span className="mr-2 text-board-dim">{meeting.code}</span>
+											<span className="mr-2 text-board-dim">
+												{meeting.code}
+											</span>
 										) : null}
 										<Flap text={meeting.title} />
 									</td>
@@ -108,7 +132,9 @@ export default function DepartureBoard({
 								<Flap text="Regular meetings" />
 							</td>
 							<td className="hidden px-2 py-4 sm:table-cell">TBA</td>
-							<td className="px-4 py-4 text-right text-board-dim sm:px-6">SEE DISCORD</td>
+							<td className="px-4 py-4 text-right text-board-dim sm:px-6">
+								SEE DISCORD
+							</td>
 						</tr>
 					)}
 				</tbody>
@@ -120,7 +146,10 @@ export default function DepartureBoard({
 							? "Times shown in New York time."
 							: "Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."}
 					</p>
-					<Link href="/meetings" className="font-label text-xs tracking-[0.08em] uppercase underline underline-offset-4">
+					<Link
+						href="/meetings"
+						className="font-label text-xs tracking-[0.08em] uppercase underline underline-offset-4"
+					>
 						All meetings →
 					</Link>
 				</div>

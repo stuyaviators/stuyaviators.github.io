@@ -1,13 +1,18 @@
 "use client";
 
+import type { StaticImageData } from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type LightboxImage = { src: StaticImageData; alt: string };
 
 /** Photo grid with an accessible <dialog> lightbox (arrow keys, Escape). */
-export default function Lightbox({ images }: { readonly images: LightboxImage[] }) {
+export default function Lightbox({
+	images,
+}: {
+	readonly images: LightboxImage[];
+}) {
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const triggerRef = useRef<HTMLButtonElement | null>(null);
 	const [index, setIndex] = useState<number | undefined>(undefined);
@@ -20,7 +25,9 @@ export default function Lightbox({ images }: { readonly images: LightboxImage[] 
 
 	const step = useCallback(
 		(delta: number) => {
-			setIndex((i) => (i === undefined ? i : (i + delta + images.length) % images.length));
+			setIndex((i) =>
+				i === undefined ? i : (i + delta + images.length) % images.length
+			);
 		},
 		[images.length]
 	);
@@ -94,13 +101,33 @@ export default function Lightbox({ images }: { readonly images: LightboxImage[] 
 							</span>
 						</figcaption>
 						<div className="absolute top-2 right-2 flex gap-2">
-							<button type="button" aria-label="Previous photo" className="rounded-md bg-navy/80 p-2 text-white" onClick={() => { step(-1); }}>
+							<button
+								type="button"
+								aria-label="Previous photo"
+								className="rounded-md bg-navy/80 p-2 text-white"
+								onClick={() => {
+									step(-1);
+								}}
+							>
 								<ChevronLeft aria-hidden className="size-5" />
 							</button>
-							<button type="button" aria-label="Next photo" className="rounded-md bg-navy/80 p-2 text-white" onClick={() => { step(1); }}>
+							<button
+								type="button"
+								aria-label="Next photo"
+								className="rounded-md bg-navy/80 p-2 text-white"
+								onClick={() => {
+									step(1);
+								}}
+							>
 								<ChevronRight aria-hidden className="size-5" />
 							</button>
-							<button type="button" aria-label="Close" autoFocus className="rounded-md bg-navy/80 p-2 text-white" onClick={() => dialogRef.current?.close()}>
+							<button
+								type="button"
+								aria-label="Close"
+								autoFocus
+								className="rounded-md bg-navy/80 p-2 text-white"
+								onClick={() => dialogRef.current?.close()}
+							>
 								<X aria-hidden className="size-5" />
 							</button>
 						</div>

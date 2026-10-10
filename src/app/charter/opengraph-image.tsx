@@ -5,5 +5,9 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default async function Image() {
-	return renderOg({ title: "Club Charter & Rules", eyebrow: "About", photo: "hero-sim-classroom" });
+	return renderOg({
+		title: "Club Charter & Rules",
+		eyebrow: "About",
+		photo: "hero-sim-classroom",
+	});
 }

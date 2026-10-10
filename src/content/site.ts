@@ -67,7 +67,11 @@ export const nav: Array<NavGroup | NavLink> = [
 				label: "Flight Crew",
 				description: "Leadership and positions",
 			},
-			{ href: "/gallery", label: "Gallery", description: "Photos from members" },
+			{
+				href: "/gallery",
+				label: "Gallery",
+				description: "Photos from members",
+			},
 			{
 				href: "/stories",
 				label: "Member Stories",
@@ -99,11 +103,7 @@ export const contacts: Contact[] = [
 ];
 
 export type SocialKey =
-	| "instagram"
-	| "discord"
-	| "youtube"
-	| "facebook"
-	| "epsilon";
+	"instagram" | "discord" | "youtube" | "facebook" | "epsilon";
 
 export type Social = {
 	key: SocialKey;

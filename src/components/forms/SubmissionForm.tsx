@@ -1,11 +1,11 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
-import { useActionState } from "react";
+import type { SubmissionType } from "@/lib/submission-schemas";
 import { submitForm } from "@/actions/forms";
 import { Button } from "@/components/ui/Button";
 import { initialFormState } from "@/lib/form-state";
-import type { SubmissionType } from "@/lib/submission-schemas";
+import { CheckCircle2 } from "lucide-react";
+import { useActionState } from "react";
 import { Honeypot, TextAreaField, TextField } from "./Field";
 
 export type FieldSpec = {
@@ -40,8 +40,14 @@ export default function SubmissionForm({
 
 	if (state.status === "success") {
 		return (
-			<div role="status" className="flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5">
-				<CheckCircle2 aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
+			<div
+				role="status"
+				className="flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5"
+			>
+				<CheckCircle2
+					aria-hidden
+					className="mt-0.5 size-5 shrink-0 text-success"
+				/>
 				<div>
 					<p className="font-semibold">{successMessage}</p>
 					{state.joinedMailingList ? (
@@ -94,8 +100,8 @@ export default function SubmissionForm({
 				</p>
 			</div>
 			<p className="text-sm text-muted">
-				If you use your Stuy email, we’ll also add you to our mailing list.
-				You can unsubscribe from any newsletter.
+				If you use your Stuy email, we’ll also add you to our mailing list. You
+				can unsubscribe from any newsletter.
 			</p>
 		</form>
 	);

@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Database } from "@/db";
 import { submissions } from "@/db/schema";
 import { honeypotField, initialFormState } from "@/lib/form-state";
 import { createTestDb } from "@/test/pglite";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // --- Mocks: no real network, no Next.js request context. --------------------
 let testDb: Database | undefined;
@@ -20,7 +20,8 @@ vi.mock("next/server", () => ({
 const fetchMock = vi.fn<typeof fetch>();
 vi.stubGlobal("fetch", fetchMock);
 
-const { signUpForMailingList, submitForm, unsubscribe } = await import("./forms");
+const { signUpForMailingList, submitForm, unsubscribe } =
+	await import("./forms");
 
 const formAction =
 	"https://docs.google.com/forms/d/e/1FAIpQLScbjyhaEiBhMZPDi8TNQJZemMCSR9xfpChoRN0RP_sDhfS-ag/formResponse";
@@ -56,7 +57,10 @@ describe("signUpForMailingList", () => {
 	it("posts exactly the two entries, normalized, to formResponse", async () => {
 		const state = await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "  peter   stuyvesant ", email: "PStuyvesant60@Stuy.edu" })
+			form({
+				fullName: "  peter   stuyvesant ",
+				email: "PStuyvesant60@Stuy.edu",
+			})
 		);
 		expect(state).toEqual({ status: "success", joinedMailingList: true });
 		const calls = googleCalls();
@@ -103,7 +107,10 @@ describe("signUpForMailingList", () => {
 			states.push(
 				await signUpForMailingList(
 					initialFormState,
-					form({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" })
+					form({
+						fullName: "Peter Stuyvesant",
+						email: "pstuyvesant60@stuy.edu",
+					})
 				)
 			);
 		}
@@ -143,7 +150,10 @@ describe("signUpForMailingList", () => {
 		await flushAfter();
 		const rows = await testDb!.select().from(submissions);
 		expect(rows).toHaveLength(1);
-		expect(rows[0]).toMatchObject({ type: "mailing_list", mailingList: "submitted" });
+		expect(rows[0]).toMatchObject({
+			type: "mailing_list",
+			mailingList: "submitted",
+		});
 		const discord = fetchMock.mock.calls.find(
 			([url]) => String(url) === "https://discord.test/webhook"
 		);
@@ -160,7 +170,11 @@ describe("submitForm", () => {
 		const state = await submitForm(
 			"contact",
 			initialFormState,
-			form({ name: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu", message: "Hello!" })
+			form({
+				name: "Peter Stuyvesant",
+				email: "pstuyvesant60@stuy.edu",
+				message: "Hello!",
+			})
 		);
 		expect(state).toEqual({ status: "success", joinedMailingList: true });
 		const rows = await testDb!.select().from(submissions);
@@ -225,14 +239,17 @@ describe("unsubscribe", () => {
 	});
 
 	it("posts to the unsubscribe form once configured", async () => {
-		process.env.GOOGLE_FORM_UNSUBSCRIBE_ACTION = "https://forms.test/formResponse";
+		process.env.GOOGLE_FORM_UNSUBSCRIBE_ACTION =
+			"https://forms.test/formResponse";
 		process.env.GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY = "entry.42";
 		const state = await unsubscribe(
 			initialFormState,
 			form({ email: "JSmith61@stuy.edu" })
 		);
 		expect(state.status).toBe("success");
-		const body = new URLSearchParams(String(fetchMock.mock.calls[0]?.[1]?.body));
+		const body = new URLSearchParams(
+			String(fetchMock.mock.calls[0]?.[1]?.body)
+		);
 		expect(body.get("entry.42")).toBe("jsmith61@stuy.edu");
 	});
 });

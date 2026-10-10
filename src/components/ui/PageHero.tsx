@@ -1,6 +1,7 @@
-import Image, { type StaticImageData } from "next/image";
+import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import { Stagger } from "@/components/TransitionProvider";
+import Image from "next/image";
 import { Container } from "./Section";
 
 /**

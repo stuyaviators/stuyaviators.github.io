@@ -63,7 +63,11 @@ export const crewGroups: CrewGroup[] = [
 		title: "Faculty Advisors",
 		introKey: "advisors",
 		members: [
-			{ name: "Mr. James Dillon", role: "(2024 - Present)", photo: jamesDillon },
+			{
+				name: "Mr. James Dillon",
+				role: "(2024 - Present)",
+				photo: jamesDillon,
+			},
 		],
 	},
 	{

@@ -20,7 +20,10 @@ export default function UnsubscribePage() {
 			<h1 className="mt-3 text-4xl">Unsubscribe</h1>
 			{configured ? (
 				<>
-					<p className="mt-4 max-w-xl text-lg text-muted">Enter the Stuy email you signed up with and we’ll take you off the list.</p>
+					<p className="mt-4 max-w-xl text-lg text-muted">
+						Enter the Stuy email you signed up with and we’ll take you off the
+						list.
+					</p>
 					<div className="mt-8">
 						<UnsubscribeForm />
 					</div>
@@ -28,9 +31,13 @@ export default function UnsubscribePage() {
 			) : (
 				<>
 					<p className="mt-4 max-w-xl text-lg text-muted">
-						Send us an email with the subject “Unsubscribe” from the address you signed up with, and we’ll remove you from the list.
+						Send us an email with the subject “Unsubscribe” from the address you
+						signed up with, and we’ll remove you from the list.
 					</p>
-					<a href={unsubscribeMailto} className={buttonClasses("accent", "mt-8")}>
+					<a
+						href={unsubscribeMailto}
+						className={buttonClasses("accent", "mt-8")}
+					>
 						Email stuyaviators@gmail.com
 					</a>
 				</>

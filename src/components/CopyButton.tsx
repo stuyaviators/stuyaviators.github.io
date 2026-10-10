@@ -1,8 +1,8 @@
 "use client";
 
+import copy from "@/lib/copy";
 import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
-import copy from "@/lib/copy";
 
 /** Copy-to-clipboard with visible and announced feedback. */
 export default function CopyButton({
@@ -42,7 +42,11 @@ export default function CopyButton({
 				)}
 			</button>
 			<span role="status" className="sr-only">
-				{status === "copied" ? `${label} copied` : status === "failed" ? "Couldn’t copy" : ""}
+				{status === "copied"
+					? `${label} copied`
+					: status === "failed"
+						? "Couldn’t copy"
+						: ""}
 			</span>
 		</>
 	);

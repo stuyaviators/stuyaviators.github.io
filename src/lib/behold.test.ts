@@ -21,7 +21,11 @@ const post = (overrides: Record<string, unknown> = {}) => ({
 
 describe("parseFeed", () => {
 	it("keeps valid posts and ignores unknown fields", () => {
-		const feed = parseFeed({ username: "stuyaviators", posts: [post()], extra: 1 });
+		const feed = parseFeed({
+			username: "stuyaviators",
+			posts: [post()],
+			extra: 1,
+		});
 		expect(feed?.posts).toHaveLength(1);
 		expect(feed?.posts[0]?.placeholder).toBe("rgb(157 145 140)");
 		expect(JSON.stringify(feed)).not.toContain("cdninstagram");
@@ -29,9 +33,16 @@ describe("parseFeed", () => {
 
 	it("drops posts whose sizes aren't on behold.pictures", () => {
 		const bad = post({
-			sizes: { small: size("evil.example"), medium: size(), large: size(), full: size() },
+			sizes: {
+				small: size("evil.example"),
+				medium: size(),
+				large: size(),
+				full: size(),
+			},
 		});
-		expect(parseFeed({ username: "x", posts: [bad, post({ id: "2" })] })?.posts).toHaveLength(1);
+		expect(
+			parseFeed({ username: "x", posts: [bad, post({ id: "2" })] })?.posts
+		).toHaveLength(1);
 	});
 
 	it("returns undefined for malformed payloads", () => {

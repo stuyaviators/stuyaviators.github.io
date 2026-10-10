@@ -5,5 +5,8 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default async function Image() {
-	return renderOg({ title: "Brand Guidelines", eyebrow: "Logos, colors & type" });
+	return renderOg({
+		title: "Brand Guidelines",
+		eyebrow: "Logos, colors & type",
+	});
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import SubmissionForm from "@/components/forms/SubmissionForm";
 import Lightbox from "@/components/Lightbox";
 import { Md } from "@/components/Md";
-import SubmissionForm from "@/components/forms/SubmissionForm";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { galleryCopy } from "@/content/gallery";
@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default function GalleryPage() {
-	const images = [...galleryPhotos, ...spotlightPhotos].map((key) => photos[key]);
+	const images = [...galleryPhotos, ...spotlightPhotos].map(
+		(key) => photos[key]
+	);
 	return (
 		<>
 			<PageHero
@@ -25,14 +27,28 @@ export default function GalleryPage() {
 				image={photos.galleryStrutCoastline.src}
 				imageAlt={photos.galleryStrutCoastline.alt}
 			/>
-			<Section id="features" index={1} label={galleryCopy.featuresHeading} title={galleryCopy.momentsHeading} intro={galleryCopy.momentsIntro}>
-				<p className="-mt-4 mb-10 max-w-3xl text-muted">{galleryCopy.featuresIntro}</p>
+			<Section
+				id="features"
+				index={1}
+				label={galleryCopy.featuresHeading}
+				title={galleryCopy.momentsHeading}
+				intro={galleryCopy.momentsIntro}
+			>
+				<p className="-mt-4 mb-10 max-w-3xl text-muted">
+					{galleryCopy.featuresIntro}
+				</p>
 				<Lightbox images={images} />
 			</Section>
-			<Section id="submit" index={2} label="Submit" title={galleryCopy.submitHeading}>
+			<Section
+				id="submit"
+				index={2}
+				label="Submit"
+				title={galleryCopy.submitHeading}
+			>
 				<div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
 					<p className="text-lg text-muted">
-						<Md>{galleryCopy.submitBody}</Md> Or use the form to send us a link to your photos or videos.
+						<Md>{galleryCopy.submitBody}</Md> Or use the form to send us a link
+						to your photos or videos.
 					</p>
 					<SubmissionForm
 						type="photo"
@@ -40,9 +56,24 @@ export default function GalleryPage() {
 						successMessage="Thanks! Our media team will take a look."
 						fields={[
 							{ name: "name", label: "Full name", autoComplete: "name" },
-							{ name: "email", label: "Email", type: "email", autoComplete: "email" },
-							{ name: "link", label: "Link to your photos or videos", type: "url", placeholder: "https://drive.google.com/…", hint: "Google Drive, Google Photos, YouTube or Instagram link. Make sure it’s shared publicly." },
-							{ name: "message", label: "What are the photos or videos about?", type: "textarea" },
+							{
+								name: "email",
+								label: "Email",
+								type: "email",
+								autoComplete: "email",
+							},
+							{
+								name: "link",
+								label: "Link to your photos or videos",
+								type: "url",
+								placeholder: "https://drive.google.com/…",
+								hint: "Google Drive, Google Photos, YouTube or Instagram link. Make sure it’s shared publicly.",
+							},
+							{
+								name: "message",
+								label: "What are the photos or videos about?",
+								type: "textarea",
+							},
 						]}
 					/>
 				</div>

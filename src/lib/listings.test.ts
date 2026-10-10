@@ -18,9 +18,15 @@ describe("listing dates", () => {
 	});
 
 	it("expires the day after the deadline (or end date)", () => {
-		expect(isExpired({ deadline: "2026-10-10", endDate: null }, now)).toBe(false);
-		expect(isExpired({ deadline: "2026-10-09", endDate: null }, now)).toBe(true);
-		expect(isExpired({ deadline: null, endDate: "2026-10-01" }, now)).toBe(true);
+		expect(isExpired({ deadline: "2026-10-10", endDate: null }, now)).toBe(
+			false
+		);
+		expect(isExpired({ deadline: "2026-10-09", endDate: null }, now)).toBe(
+			true
+		);
+		expect(isExpired({ deadline: null, endDate: "2026-10-01" }, now)).toBe(
+			true
+		);
 		expect(isExpired({ deadline: null, endDate: null }, now)).toBe(false);
 	});
 });

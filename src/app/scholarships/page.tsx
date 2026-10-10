@@ -16,8 +16,18 @@ export const metadata: Metadata = {
 export default function ScholarshipsPage() {
 	return (
 		<>
-			<PageHero eyebrow="Explore · Scholarships" title="Scholarships" intro={pageIntros.scholarships.intro} image={photos.heroCessnaSunset.src} imageAlt={photos.heroCessnaSunset.alt} />
-			<ListingsSection kind="scholarship" intro={listingCopy.scholarships.intro} emptyText={listingCopy.scholarships.empty} />
+			<PageHero
+				eyebrow="Explore · Scholarships"
+				title="Scholarships"
+				intro={pageIntros.scholarships.intro}
+				image={photos.heroCessnaSunset.src}
+				imageAlt={photos.heroCessnaSunset.alt}
+			/>
+			<ListingsSection
+				kind="scholarship"
+				intro={listingCopy.scholarships.intro}
+				emptyText={listingCopy.scholarships.empty}
+			/>
 		</>
 	);
 }

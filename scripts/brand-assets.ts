@@ -9,6 +9,7 @@
  * - src/app/icon.png, src/app/apple-icon.png: favicon + touch icon
  * - public/brand/logo-256.png: absolute-URL logo for emails
  */
+
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { deflateRawSync } from "node:zlib";
@@ -32,7 +33,8 @@ function crc32(buf: Uint8Array) {
 	let crc = ~0;
 	for (const byte of buf) {
 		crc ^= byte;
-		for (let k = 0; k < 8; k++) crc = (crc >>> 1) ^ (0xed_b8_83_20 & -(crc & 1));
+		for (let k = 0; k < 8; k++)
+			crc = (crc >>> 1) ^ (0xed_b8_83_20 & -(crc & 1));
 	}
 
 	return ~crc >>> 0;
@@ -104,7 +106,10 @@ async function run() {
 	// Site assets.
 	const circle = path.join(sourceDir, "logo-circle.svg");
 	const square = path.join(sourceDir, "logo-square.svg");
-	await writeFile(path.join(siteBrand, "logo.png"), await rasterize(circle, 192));
+	await writeFile(
+		path.join(siteBrand, "logo.png"),
+		await rasterize(circle, 192)
+	);
 	await writeFile(
 		path.join(siteBrand, "banner-blue.png"),
 		await rasterize(path.join(sourceDir, "logo-banner-blue.svg"), 1200)
@@ -113,7 +118,10 @@ async function run() {
 		path.join(siteBrand, "banner-white.png"),
 		await rasterize(path.join(sourceDir, "logo-banner-white.svg"), 1200)
 	);
-	await writeFile(path.resolve("src/app/icon.png"), await rasterize(circle, 96));
+	await writeFile(
+		path.resolve("src/app/icon.png"),
+		await rasterize(circle, 96)
+	);
 	await writeFile(
 		path.resolve("src/app/apple-icon.png"),
 		await rasterize(square, 180)

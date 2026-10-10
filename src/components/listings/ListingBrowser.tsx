@@ -1,8 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
-import { type ReactNode, useId, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { Search } from "lucide-react";
+import { useId, useMemo, useState } from "react";
 
 export type BrowserItem = {
 	id: string;
@@ -25,12 +26,16 @@ export default function ListingBrowser({
 	const [query, setQuery] = useState("");
 	const [tag, setTag] = useState<string | undefined>(undefined);
 	const tags = useMemo(
-		() => [...new Set(items.flatMap((item) => item.tags))].sort((a, b) => a.localeCompare(b)),
+		() =>
+			[...new Set(items.flatMap((item) => item.tags))].sort((a, b) =>
+				a.localeCompare(b)
+			),
 		[items]
 	);
 	const q = query.trim().toLowerCase();
 	const visible = items.filter(
-		(item) => (!tag || item.tags.includes(tag)) && (!q || item.searchText.includes(q))
+		(item) =>
+			(!tag || item.tags.includes(tag)) && (!q || item.searchText.includes(q))
 	);
 
 	return (
@@ -40,7 +45,10 @@ export default function ListingBrowser({
 					Search {noun}
 				</label>
 				<div className="relative flex-1">
-					<Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
+					<Search
+						aria-hidden
+						className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
+					/>
 					<input
 						id={searchId}
 						type="search"
@@ -53,7 +61,11 @@ export default function ListingBrowser({
 					/>
 				</div>
 				{tags.length > 0 ? (
-					<div role="group" aria-label="Filter by tag" className="flex flex-wrap gap-2">
+					<div
+						role="group"
+						aria-label="Filter by tag"
+						className="flex flex-wrap gap-2"
+					>
 						{[undefined, ...tags].map((value) => (
 							<button
 								key={value ?? "all"}
@@ -64,7 +76,9 @@ export default function ListingBrowser({
 								}}
 								className={cn(
 									"label min-h-9 rounded-sm border px-3",
-									tag === value ? "border-brand bg-brand text-brand-ink" : "border-hairline text-muted hover:text-text"
+									tag === value
+										? "border-brand bg-brand text-brand-ink"
+										: "border-hairline text-muted hover:text-text"
 								)}
 							>
 								{value ?? "All"}

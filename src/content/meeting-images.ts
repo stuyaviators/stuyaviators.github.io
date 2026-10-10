@@ -1,4 +1,5 @@
-import { type Photo, photos } from "./photos";
+import type { Photo } from "./photos";
+import { photos } from "./photos";
 
 /** Photos for meetings.types, in the same order as the legacy page. */
 export const meetingImages: Photo[] = [

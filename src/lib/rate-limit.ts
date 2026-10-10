@@ -1,5 +1,5 @@
-import { sql } from "drizzle-orm";
 import type { Database } from "@/db";
+import { sql } from "drizzle-orm";
 
 export type RateLimitResult = { allowed: boolean; count: number };
 

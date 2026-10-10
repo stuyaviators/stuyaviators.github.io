@@ -1,20 +1,15 @@
 "use client";
 
+import type { NavGroup } from "@/content/site";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import logo from "@/assets/brand/logo.png";
+import { isNavGroup, nav } from "@/content/site";
+import { cn } from "@/lib/cn";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-	useCallback,
-	useEffect,
-	useId,
-	useRef,
-	useState,
-	type KeyboardEvent as ReactKeyboardEvent,
-} from "react";
-import logo from "@/assets/brand/logo.png";
-import { isNavGroup, nav, type NavGroup } from "@/content/site";
-import { cn } from "@/lib/cn";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { buttonClasses } from "./ui/Button";
 
@@ -356,7 +351,10 @@ export default function Header() {
 						<ThemeToggle />
 						<Link
 							href="/join"
-							className={buttonClasses("accent", "hidden min-h-10 sm:inline-flex")}
+							className={buttonClasses(
+								"accent",
+								"hidden min-h-10 sm:inline-flex"
+							)}
 						>
 							Join Now
 						</Link>

@@ -11,7 +11,10 @@ import {
 	uuid,
 } from "drizzle-orm/pg-core";
 
-export const listingKind = pgEnum("listing_kind", ["opportunity", "scholarship"]);
+export const listingKind = pgEnum("listing_kind", [
+	"opportunity",
+	"scholarship",
+]);
 export const listingStatus = pgEnum("listing_status", ["draft", "published"]);
 
 /** Opportunities and scholarships (one table, `kind` tells them apart). */

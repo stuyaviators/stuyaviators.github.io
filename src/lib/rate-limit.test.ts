@@ -1,7 +1,7 @@
-import { sql } from "drizzle-orm";
-import { beforeAll, describe, expect, it } from "vitest";
 import type { Database } from "@/db";
 import { createTestDb } from "@/test/pglite";
+import { sql } from "drizzle-orm";
+import { beforeAll, describe, expect, it } from "vitest";
 import { hitRateLimit } from "./rate-limit";
 
 let db: Database;

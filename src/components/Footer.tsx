@@ -1,10 +1,10 @@
-import Image from "next/image";
-import Link from "next/link";
 import bannerWhite from "@/assets/brand/banner-white.png";
 import MailingListForm from "@/components/forms/MailingListForm";
 import { SocialIcon } from "@/components/icons";
 import { contacts, isNavGroup, nav, site, socials } from "@/content/site";
 import { signupFormConfig } from "@/lib/google-forms";
+import Image from "next/image";
+import Link from "next/link";
 import { Container } from "./ui/Section";
 
 export default function Footer() {
@@ -71,7 +71,10 @@ export default function Footer() {
 						<ul className="mt-3 space-y-2 text-sm">
 							{contacts.map((contact) => (
 								<li key={contact.value}>
-									<a href={contact.href} className="break-all hover:text-[#8dbdf2]">
+									<a
+										href={contact.href}
+										className="break-all hover:text-[#8dbdf2]"
+									>
 										{contact.value}
 									</a>
 								</li>
@@ -87,8 +90,8 @@ export default function Footer() {
 
 				<div className="mt-10 flex flex-col gap-3 border-t border-[#243b63] pt-6 text-sm text-[#a9bedd] sm:flex-row sm:items-center sm:justify-between">
 					<p>
-						© {year} StuyAviators · Stuyvesant High School’s student-run aviation
-						club
+						© {year} StuyAviators · Stuyvesant High School’s student-run
+						aviation club
 					</p>
 					<p className="flex gap-4">
 						<Link href="/brand" className="hover:text-[#eef4ff]">
@@ -97,7 +100,11 @@ export default function Footer() {
 						<Link href="/connect" className="hover:text-[#eef4ff]">
 							Contact
 						</Link>
-						<Link href="/dashboard" className="hover:text-[#eef4ff]" prefetch={false}>
+						<Link
+							href="/dashboard"
+							className="hover:text-[#eef4ff]"
+							prefetch={false}
+						>
 							Officer login
 						</Link>
 					</p>

@@ -46,7 +46,9 @@ export function unsubscribeFormConfig(): GoogleFormConfig | undefined {
 
 /** The URL shown in "unsubscribe" links site-wide. */
 export function unsubscribeHref(): string {
-	return unsubscribeFormConfig() ? "/newsletter/unsubscribe" : unsubscribeMailto;
+	return unsubscribeFormConfig()
+		? "/newsletter/unsubscribe"
+		: unsubscribeMailto;
 }
 
 export async function submitGoogleForm(

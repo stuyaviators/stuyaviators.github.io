@@ -1,11 +1,6 @@
-import type { SVGProps } from "react";
-import {
-	siDiscord,
-	siFacebook,
-	siInstagram,
-	siYoutube,
-} from "simple-icons";
 import type { SocialKey } from "@/content/site";
+import type { SVGProps } from "react";
+import { siDiscord, siFacebook, siInstagram, siYoutube } from "simple-icons";
 
 type IconProps = SVGProps<SVGSVGElement>;
 

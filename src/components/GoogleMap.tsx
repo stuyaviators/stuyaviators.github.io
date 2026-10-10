@@ -1,4 +1,4 @@
-import { Navigation, MapPin } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 import { buttonClasses } from "./ui/Button";
 import { FlightStrip } from "./ui/FlightStrip";
 
@@ -35,10 +35,20 @@ export default function GoogleMap({
 				/>
 			</div>
 			<figcaption className="mt-3 flex flex-wrap gap-3">
-				<a href={openUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("secondary")}>
+				<a
+					href={openUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					className={buttonClasses("secondary")}
+				>
 					<MapPin aria-hidden className="size-4" /> Open in Google Maps
 				</a>
-				<a href={directionsUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("ghost")}>
+				<a
+					href={directionsUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					className={buttonClasses("ghost")}
+				>
 					<Navigation aria-hidden className="size-4" /> Get directions
 				</a>
 			</figcaption>

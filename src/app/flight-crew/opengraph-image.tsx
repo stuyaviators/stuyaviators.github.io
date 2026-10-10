@@ -5,5 +5,9 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default async function Image() {
-	return renderOg({ title: "The Flight Crew", eyebrow: "Community", photo: "hero-classroom-meeting" });
+	return renderOg({
+		title: "The Flight Crew",
+		eyebrow: "Community",
+		photo: "hero-classroom-meeting",
+	});
 }

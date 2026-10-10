@@ -6,6 +6,7 @@
  * - Headshots: 800×800 attention crop → src/assets/crew
  * Logos come from the official Figma SVGs instead: see scripts/brand-assets.ts.
  */
+
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -19,18 +20,21 @@ const photos: Record<string, string> = {
 	"20241019-94955.jpg": "event-aviation-hs-panel",
 	"494818665-729514952971067-7536190640402735232-n.jpg": "gallery-cap-cessna",
 	"494823383-24220791744193157-3271240099628374187-n.jpg": "gallery-e2-hawkeye",
-	"504334048-8137581963032019-6539964283957418142-n.jpg": "gallery-bomber-flyby",
+	"504334048-8137581963032019-6539964283957418142-n.jpg":
+		"gallery-bomber-flyby",
 	"504336398-1079732424037521-7943750798277191562-n.jpg":
 		"gallery-coast-guard-dolphin",
 	"504463674-9956540994464388-7790141839083400994-n.jpeg":
 		"gallery-strut-coastline",
-	"504532227-29890914470551821-68221955676414783-n.jpg": "gallery-glass-cockpit",
+	"504532227-29890914470551821-68221955676414783-n.jpg":
+		"gallery-glass-cockpit",
 	"505114239-1014907823742214-5198376822080830138-n.jpeg":
 		"spotlight-coast-inlet",
 	"505776236-1053485142946256-8452180448317189739-n.jpg":
 		"gallery-helicopter-hangar",
 	"505829763-1738645423670903-2811652975767958488-n.jpg": "gallery-jets-smoke",
-	"7129ba57-a757-416a-a7d8-3dabc1a12795-1-105-c.jpeg": "gallery-helicopter-marsh",
+	"7129ba57-a757-416a-a7d8-3dabc1a12795-1-105-c.jpeg":
+		"gallery-helicopter-marsh",
 	"clouds-2295189.jpg": "bg-high-altitude",
 	"ff992932-c439-455b-871e-b2ce2e66bb55.jpeg": "meeting-student-course",
 	"fullsizerender-4.png": "gallery-apron-mountains",
@@ -108,9 +112,7 @@ async function run() {
 	const photoDir = path.resolve("src/assets/photos");
 	const crewDir = path.resolve("src/assets/crew");
 	await Promise.all(
-		[photoDir, crewDir].map(async (dir) =>
-			mkdir(dir, { recursive: true })
-		)
+		[photoDir, crewDir].map(async (dir) => mkdir(dir, { recursive: true }))
 	);
 
 	for (const [file, name] of Object.entries(photos)) {

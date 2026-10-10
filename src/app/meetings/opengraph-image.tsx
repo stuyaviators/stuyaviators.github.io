@@ -5,5 +5,10 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default async function Image() {
-	return renderOg({ title: "Meetings", eyebrow: "Explore", photo: "hero-sim-setup", detail: "Flight sims, crash labs, ATC and more" });
+	return renderOg({
+		title: "Meetings",
+		eyebrow: "Explore",
+		photo: "hero-sim-setup",
+		detail: "Flight sims, crash labs, ATC and more",
+	});
 }

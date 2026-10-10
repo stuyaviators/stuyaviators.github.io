@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { B612, B612_Mono, Lexend } from "next/font/google";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { themeScript } from "@/components/ThemeToggle";
 import TransitionProvider from "@/components/TransitionProvider";
 import { site } from "@/content/site";
+import { B612, B612_Mono, Lexend } from "next/font/google";
+
 import "@/styles/globals.css";
 
 // Fonts ported from recode's layout: Lexend for text, B612 (designed for

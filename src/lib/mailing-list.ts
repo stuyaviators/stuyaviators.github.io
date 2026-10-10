@@ -14,7 +14,8 @@ export const messages = {
 	nameCharacters:
 		"Names can only use letters, spaces, hyphens, apostrophes, and periods.",
 	emailDomain: "Use your @stuy.edu email.",
-	emailDigits: "Your Stuy email should end in numbers, e.g. pstuyvesant60@stuy.edu.",
+	emailDigits:
+		"Your Stuy email should end in numbers, e.g. pstuyvesant60@stuy.edu.",
 	emailLastName:
 		"Your Stuy email should include your last name, e.g. pstuyvesant60@stuy.edu.",
 } as const;

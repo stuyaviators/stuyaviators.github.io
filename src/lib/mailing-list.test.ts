@@ -155,7 +155,8 @@ describe("validateSignup", () => {
 			if (result.success) {
 				if (row.submits?.fullName)
 					expect(result.data.fullName).toBe(row.submits.fullName);
-				if (row.submits?.email) expect(result.data.email).toBe(row.submits.email);
+				if (row.submits?.email)
+					expect(result.data.email).toBe(row.submits.email);
 			} else if (row.error) {
 				expect(result.errors.email).toBe(row.error);
 			}
@@ -183,9 +184,13 @@ describe("validateSignup", () => {
 	});
 
 	it("rejects a one-word name with the first-and-last message", () => {
-		const result = validateSignup({ fullName: "Peter", email: "pstuyvesant60@stuy.edu" });
+		const result = validateSignup({
+			fullName: "Peter",
+			email: "pstuyvesant60@stuy.edu",
+		});
 		expect(result.success).toBe(false);
-		if (!result.success) expect(result.errors.fullName).toBe(messages.nameRequired);
+		if (!result.success)
+			expect(result.errors.fullName).toBe(messages.nameRequired);
 	});
 
 	it("rejects disallowed characters in names", () => {
@@ -230,8 +235,14 @@ describe("formatName", () => {
 describe("schemas", () => {
 	it("signupSchema returns normalized values", () => {
 		expect(
-			signupSchema.parse({ fullName: "peter stuyvesant", email: "PStuyvesant60@Stuy.edu" })
-		).toEqual({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" });
+			signupSchema.parse({
+				fullName: "peter stuyvesant",
+				email: "PStuyvesant60@Stuy.edu",
+			})
+		).toEqual({
+			fullName: "Peter Stuyvesant",
+			email: "pstuyvesant60@stuy.edu",
+		});
 	});
 
 	it("signupSchema rejects invalid input with field paths", () => {
@@ -245,8 +256,8 @@ describe("schemas", () => {
 		expect(unsubscribeSchema.parse({ email: "JSmith61@stuy.edu" })).toEqual({
 			email: "jsmith61@stuy.edu",
 		});
-		expect(unsubscribeSchema.safeParse({ email: "jsmith@stuy.edu" }).success).toBe(
-			false
-		);
+		expect(
+			unsubscribeSchema.safeParse({ email: "jsmith@stuy.edu" }).success
+		).toBe(false);
 	});
 });

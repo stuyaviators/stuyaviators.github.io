@@ -1,8 +1,9 @@
 "use client";
 
-import { type ComponentProps, type ReactNode, useId } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { honeypotField } from "@/lib/form-state";
+import { useId } from "react";
 
 /*
  * Form field adapted from recode's FormField (webcubed): the label is now tied
@@ -110,10 +111,18 @@ export function TextAreaField({
 /** Visually hidden trap field; humans never see or fill it. */
 export function Honeypot() {
 	return (
-		<div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+		<div
+			aria-hidden
+			className="absolute -left-[9999px] h-px w-px overflow-hidden"
+		>
 			<label>
 				Leave this empty
-				<input type="text" name={honeypotField} tabIndex={-1} autoComplete="off" />
+				<input
+					type="text"
+					name={honeypotField}
+					tabIndex={-1}
+					autoComplete="off"
+				/>
 			</label>
 		</div>
 	);

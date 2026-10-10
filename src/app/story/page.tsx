@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Paragraphs } from "@/components/Md";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
@@ -7,6 +6,7 @@ import Waypoints from "@/components/Waypoints";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { story } from "@/content/story";
+import Image from "next/image";
 
 export const metadata: Metadata = {
 	title: "Our Story",
@@ -25,7 +25,12 @@ export default function StoryPage() {
 				image={photos.heroLandingChallenge.src}
 				imageAlt={photos.heroLandingChallenge.alt}
 			/>
-			<Section id="timeline" index={1} label="Flight log" title="From hobby to initiative">
+			<Section
+				id="timeline"
+				index={1}
+				label="Flight log"
+				title="From hobby to initiative"
+			>
 				<Waypoints
 					items={[
 						{
@@ -34,7 +39,10 @@ export default function StoryPage() {
 							content: (
 								<>
 									<h3 className="text-2xl">{story.founded}</h3>
-									<Paragraphs items={story.origin} className="prose-club mt-4" />
+									<Paragraphs
+										items={story.origin}
+										className="prose-club mt-4"
+									/>
 								</>
 							),
 						},
@@ -54,7 +62,10 @@ export default function StoryPage() {
 							content: (
 								<>
 									<h3 className="text-2xl">{story.skylabHeading}</h3>
-									<Paragraphs items={story.skylab} className="prose-club mt-4" />
+									<Paragraphs
+										items={story.skylab}
+										className="prose-club mt-4"
+									/>
 								</>
 							),
 						},
@@ -73,7 +84,9 @@ export default function StoryPage() {
 											className="object-cover"
 										/>
 									</div>
-									<figcaption className="mt-3 text-muted">{story.firstSpeakerCaption}</figcaption>
+									<figcaption className="mt-3 text-muted">
+										{story.firstSpeakerCaption}
+									</figcaption>
 								</figure>
 							),
 						},

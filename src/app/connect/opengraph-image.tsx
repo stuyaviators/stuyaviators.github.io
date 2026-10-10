@@ -5,5 +5,9 @@ export const size = ogSize;
 export const contentType = ogContentType;
 
 export default async function Image() {
-	return renderOg({ title: "Connect", eyebrow: "Socials & contact", photo: "hero-sim-ryanair" });
+	return renderOg({
+		title: "Connect",
+		eyebrow: "Socials & contact",
+		photo: "hero-sim-ryanair",
+	});
 }

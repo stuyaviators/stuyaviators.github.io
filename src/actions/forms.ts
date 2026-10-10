@@ -1,10 +1,11 @@
 "use server";
 
-import { after } from "next/server";
+import type { FormState } from "@/lib/form-state";
+import type { SubmissionType } from "@/lib/submission-schemas";
 import { getDb } from "@/db";
 import { submissions } from "@/db/schema";
 import { notifyDiscord } from "@/lib/discord";
-import { type FormState, honeypotField } from "@/lib/form-state";
+import { honeypotField } from "@/lib/form-state";
 import {
 	signupFormConfig,
 	submitGoogleForm,
@@ -14,11 +15,8 @@ import {
 import { unsubscribeSchema, validateSignup } from "@/lib/mailing-list";
 import { hitRateLimit } from "@/lib/rate-limit";
 import { clientIp, hashKey } from "@/lib/request";
-import {
-	type SubmissionType,
-	submissionSchemas,
-	submissionTypes,
-} from "@/lib/submission-schemas";
+import { submissionSchemas, submissionTypes } from "@/lib/submission-schemas";
+import { after } from "next/server";
 
 const rateLimit = { limit: 5, windowSeconds: 600 };
 
@@ -76,7 +74,9 @@ export async function signUpForMailingList(
 				...(result.errors.email ? { email: result.errors.email } : {}),
 			},
 			lastNameMismatch: result.errors.lastNameMismatch,
-			fallbackUrl: result.errors.lastNameMismatch ? config.fallbackUrl : undefined,
+			fallbackUrl: result.errors.lastNameMismatch
+				? config.fallbackUrl
+				: undefined,
 		};
 	}
 
@@ -199,11 +199,15 @@ export async function unsubscribe(
 	}
 
 	if (isBot(formData)) return { status: "success" };
-	const parsed = unsubscribeSchema.safeParse({ email: text(formData, "email") });
+	const parsed = unsubscribeSchema.safeParse({
+		email: text(formData, "email"),
+	});
 	if (!parsed.success) {
 		return {
 			status: "error",
-			fieldErrors: { email: parsed.error.issues[0]?.message ?? "Invalid email." },
+			fieldErrors: {
+				email: parsed.error.issues[0]?.message ?? "Invalid email.",
+			},
 		};
 	}
 

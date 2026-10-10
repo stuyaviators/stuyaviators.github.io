@@ -1,7 +1,7 @@
-import { Clapperboard, Images } from "lucide-react";
-import Image from "next/image";
 import type { BeholdPost } from "@/lib/behold";
 import { cn } from "@/lib/cn";
+import { Clapperboard, Images } from "lucide-react";
+import Image from "next/image";
 
 /*
  * Instagram posts from the Behold feed. Images come only from
@@ -27,12 +27,10 @@ export default function InstagramGrid({
 			{posts.slice(0, 6).map((post, index) => {
 				const featured = variant === "grid" && index === 0;
 				const size = featured ? post.sizes.large : post.sizes.medium;
-				const caption = post.prunedCaption || "Instagram post from @stuyaviators";
+				const caption =
+					post.prunedCaption || "Instagram post from @stuyaviators";
 				return (
-					<li
-						key={post.id}
-						className={cn(featured && "col-span-2 row-span-2")}
-					>
+					<li key={post.id} className={cn(featured && "col-span-2 row-span-2")}>
 						<a
 							href={post.permalink}
 							target="_blank"
@@ -45,7 +43,11 @@ export default function InstagramGrid({
 								alt={caption}
 								fill
 								unoptimized
-								sizes={featured ? "(min-width: 640px) 66vw, 100vw" : "(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"}
+								sizes={
+									featured
+										? "(min-width: 640px) 66vw, 100vw"
+										: "(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+								}
 								className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
 							/>
 							{post.mediaType === "IMAGE" ? null : (

@@ -19,7 +19,8 @@ export async function notifyDiscord(
 ): Promise<void> {
 	const url = process.env.DISCORD_WEBHOOK_URL;
 	if (!url) return;
-	const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://stuyaviators.vercel.app";
+	const site =
+		process.env.NEXT_PUBLIC_SITE_URL ?? "https://stuyaviators.vercel.app";
 	const preview = (submission.message ?? "").slice(0, 300);
 	try {
 		await fetcher(url, {

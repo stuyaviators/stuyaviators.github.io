@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import Link from "next/link";
 
 type Variant = "primary" | "accent" | "secondary" | "ghost";
 
@@ -12,7 +12,10 @@ const variants: Record<Variant, string> = {
 	ghost: "text-brand hover:bg-surface-2",
 };
 
-export function buttonClasses(variant: Variant = "primary", className?: string) {
+export function buttonClasses(
+	variant: Variant = "primary",
+	className?: string
+) {
 	return cn(
 		"inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition-[filter,color,border-color,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none",
 		variants[variant],

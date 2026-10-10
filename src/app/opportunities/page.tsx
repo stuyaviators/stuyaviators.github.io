@@ -16,8 +16,18 @@ export const metadata: Metadata = {
 export default function OpportunitiesPage() {
 	return (
 		<>
-			<PageHero eyebrow="Explore · Opportunities" title="Opportunities" intro={pageIntros.opportunities.intro} image={photos.eventAviationHsPanel.src} imageAlt={photos.eventAviationHsPanel.alt} />
-			<ListingsSection kind="opportunity" intro={listingCopy.opportunities.intro} emptyText={listingCopy.opportunities.empty} />
+			<PageHero
+				eyebrow="Explore · Opportunities"
+				title="Opportunities"
+				intro={pageIntros.opportunities.intro}
+				image={photos.eventAviationHsPanel.src}
+				imageAlt={photos.eventAviationHsPanel.alt}
+			/>
+			<ListingsSection
+				kind="opportunity"
+				intro={listingCopy.opportunities.intro}
+				emptyText={listingCopy.opportunities.empty}
+			/>
 		</>
 	);
 }

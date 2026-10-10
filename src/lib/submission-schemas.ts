@@ -61,4 +61,6 @@ export const submissionSchemas = {
 } as const;
 
 export type SubmissionType = keyof typeof submissionSchemas;
-export const submissionTypes = Object.keys(submissionSchemas) as SubmissionType[];
+export const submissionTypes = Object.keys(
+	submissionSchemas
+) as SubmissionType[];

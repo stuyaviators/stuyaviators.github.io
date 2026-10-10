@@ -1,13 +1,17 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
-import { useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
 import type { CareerFamily } from "@/content/careers";
+import { Button } from "@/components/ui/Button";
 import { quizAnswers, quizQuestions } from "@/content/career-quiz";
 import { cn } from "@/lib/cn";
+import { RotateCcw } from "lucide-react";
+import { useRef, useState } from "react";
 
-type Result = { family: Pick<CareerFamily, "id" | "name" | "summary">; score: number; percent: number };
+type Result = {
+	family: Pick<CareerFamily, "id" | "name" | "summary">;
+	score: number;
+	percent: number;
+};
 
 export default function CareerQuiz({
 	families,
@@ -24,7 +28,10 @@ export default function CareerQuiz({
 		const max = new Map<string, number>();
 		for (const question of quizQuestions) {
 			for (const [family, weight] of Object.entries(question.weights)) {
-				totals.set(family, (totals.get(family) ?? 0) + weight * (answers[question.id] ?? 0));
+				totals.set(
+					family,
+					(totals.get(family) ?? 0) + weight * (answers[question.id] ?? 0)
+				);
 				max.set(family, (max.get(family) ?? 0) + weight * 2);
 			}
 		}
@@ -32,7 +39,11 @@ export default function CareerQuiz({
 		const ranked = families
 			.map((family) => {
 				const total = totals.get(family.id) ?? 0;
-				return { family, score: total, percent: Math.round((total / (max.get(family.id) || 1)) * 100) };
+				return {
+					family,
+					score: total,
+					percent: Math.round((total / (max.get(family.id) || 1)) * 100),
+				};
 			})
 			.sort((a, b) => b.percent - a.percent || b.score - a.score)
 			.slice(0, 3);
@@ -55,7 +66,9 @@ export default function CareerQuiz({
 						<li key={question.id}>
 							<fieldset>
 								<legend className="font-medium">
-									<span className="mr-2 font-mono text-sm text-accent-text">{String(index + 1).padStart(2, "0")}</span>
+									<span className="mr-2 font-mono text-sm text-accent-text">
+										{String(index + 1).padStart(2, "0")}
+									</span>
 									{question.text}
 								</legend>
 								<div className="mt-3 flex flex-wrap gap-2">
@@ -66,7 +79,9 @@ export default function CareerQuiz({
 												key={answer.label}
 												className={cn(
 													"flex min-h-10 cursor-pointer items-center rounded-md border px-3 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand",
-													checked ? "border-brand bg-brand text-brand-ink" : "border-field hover:border-brand"
+													checked
+														? "border-brand bg-brand text-brand-ink"
+														: "border-field hover:border-brand"
 												)}
 											>
 												<input
@@ -76,7 +91,10 @@ export default function CareerQuiz({
 													checked={checked}
 													className="sr-only"
 													onChange={() => {
-														setAnswers((current) => ({ ...current, [question.id]: answer.value }));
+														setAnswers((current) => ({
+															...current,
+															[question.id]: answer.value,
+														}));
 													}}
 												/>
 												{answer.label}
@@ -93,7 +111,9 @@ export default function CareerQuiz({
 						See my matches
 					</Button>
 					<p className="text-sm text-muted">
-						{answered < 4 ? `Answer at least 4 questions (${answered}/${quizQuestions.length}).` : `${answered} of ${quizQuestions.length} answered.`}
+						{answered < 4
+							? `Answer at least 4 questions (${answered}/${quizQuestions.length}).`
+							: `${answered} of ${quizQuestions.length} answered.`}
 					</p>
 					{answered > 0 ? (
 						<button
@@ -111,24 +131,47 @@ export default function CareerQuiz({
 			</form>
 
 			{results ? (
-				<div ref={resultsRef} tabIndex={-1} aria-live="polite" className="mt-8 border-t border-dashed border-hairline pt-8 outline-none">
+				<div
+					ref={resultsRef}
+					tabIndex={-1}
+					aria-live="polite"
+					className="mt-8 border-t border-dashed border-hairline pt-8 outline-none"
+				>
 					<h3 className="label text-accent-text">Your top matches</h3>
 					<ol className="mt-4 grid gap-4 md:grid-cols-3">
 						{results.map((result, index) => (
-							<li key={result.family.id} className="rounded-lg border border-hairline bg-bg p-5">
-								<p className="font-mono text-sm text-muted">#{index + 1} · {result.percent}% match</p>
+							<li
+								key={result.family.id}
+								className="rounded-lg border border-hairline bg-bg p-5"
+							>
+								<p className="font-mono text-sm text-muted">
+									#{index + 1} · {result.percent}% match
+								</p>
 								<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-hairline">
-									<div className="h-full bg-brand" style={{ width: `${Math.max(result.percent, 4)}%` }} />
+									<div
+										className="h-full bg-brand"
+										style={{ width: `${Math.max(result.percent, 4)}%` }}
+									/>
 								</div>
-								<p className="mt-3 text-lg font-semibold">{result.family.name}</p>
-								<p className="mt-1 text-sm text-muted">{result.family.summary}</p>
-								<a href={`#${result.family.id}`} className="mt-3 inline-block text-sm font-semibold text-brand underline-offset-4 hover:underline">
+								<p className="mt-3 text-lg font-semibold">
+									{result.family.name}
+								</p>
+								<p className="mt-1 text-sm text-muted">
+									{result.family.summary}
+								</p>
+								<a
+									href={`#${result.family.id}`}
+									className="mt-3 inline-block text-sm font-semibold text-brand underline-offset-4 hover:underline"
+								>
 									Explore {result.family.name.toLowerCase()} careers ↓
 								</a>
 							</li>
 						))}
 					</ol>
-					<p className="mt-4 text-sm text-muted">This is just a starting point. Plenty of aviators switch paths, and many careers mix several families.</p>
+					<p className="mt-4 text-sm text-muted">
+						This is just a starting point. Plenty of aviators switch paths, and
+						many careers mix several families.
+					</p>
 				</div>
 			) : null}
 		</div>

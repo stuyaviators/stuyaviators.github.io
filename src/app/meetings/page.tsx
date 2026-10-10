@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import DepartureBoard from "@/components/DepartureBoard";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import { Paragraphs } from "@/components/Md";
@@ -12,6 +11,7 @@ import { meetings } from "@/content/meetings";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { getUpcomingMeetings } from "@/lib/meetings";
+import Image from "next/image";
 
 export const revalidate = 3600;
 
@@ -37,7 +37,12 @@ export default async function MeetingsPage() {
 				imageAlt={photos.heroSimSetup.alt}
 			/>
 
-			<Section id="upcoming" index={1} label="Departures" title="Upcoming meetings">
+			<Section
+				id="upcoming"
+				index={1}
+				label="Departures"
+				title="Upcoming meetings"
+			>
 				<Stagger>
 					<DepartureBoard meetings={upcoming} showAllLink={false} />
 				</Stagger>
@@ -71,14 +76,17 @@ export default async function MeetingsPage() {
 									</div>
 									<div className="p-5 sm:p-6">
 										<p className="label text-accent-text">
-											{type.code ?? `Type ${String(index + 1).padStart(2, "0")}`}
+											{type.code ??
+												`Type ${String(index + 1).padStart(2, "0")}`}
 											{type.isNew ? " · New pilot session" : ""}
 										</p>
 										<h3 className="mt-1 text-xl">
 											{type.name}
 											{type.code ? ` (${type.code})` : ""}
 										</h3>
-										<p className="mt-1 font-medium text-muted italic">{type.tagline}</p>
+										<p className="mt-1 font-medium text-muted italic">
+											{type.tagline}
+										</p>
 										<p className="mt-3">{type.description}</p>
 									</div>
 								</article>
@@ -93,7 +101,10 @@ export default async function MeetingsPage() {
 					{schedule.map((section) => (
 						<Stagger key={section.id}>
 							<h3 className="label text-accent-text">{section.title}</h3>
-							<Paragraphs items={section.paragraphs} className="prose-club mt-3" />
+							<Paragraphs
+								items={section.paragraphs}
+								className="prose-club mt-3"
+							/>
 						</Stagger>
 					))}
 				</div>
@@ -112,8 +123,19 @@ export default async function MeetingsPage() {
 						submitLabel="Let us know!"
 						successMessage="Thanks for your input!"
 						fields={[
-							{ name: "name", label: "Full name", optional: true, autoComplete: "name" },
-							{ name: "email", label: "Email", type: "email", optional: true, autoComplete: "email" },
+							{
+								name: "name",
+								label: "Full name",
+								optional: true,
+								autoComplete: "name",
+							},
+							{
+								name: "email",
+								label: "Email",
+								type: "email",
+								optional: true,
+								autoComplete: "email",
+							},
 							{ name: "message", label: "Suggestion", type: "textarea" },
 						]}
 					/>

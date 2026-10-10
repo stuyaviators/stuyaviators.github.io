@@ -1,7 +1,7 @@
-import { ArrowRight } from "lucide-react";
-import Image from "next/image";
 import { photos } from "@/content/photos";
 import { site } from "@/content/site";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { Stagger } from "./TransitionProvider";
 import { ButtonLink } from "./ui/Button";
 import { Container } from "./ui/Section";
@@ -40,7 +40,10 @@ export default function Hero() {
 								strokeLinecap="round"
 								strokeDasharray="6 8"
 							/>
-							<g className="contrail-plane" transform="translate(470 10) rotate(-12)">
+							<g
+								className="contrail-plane"
+								transform="translate(470 10) rotate(-12)"
+							>
 								<path
 									d="M14 0 L-6 -2 L-12 -12 L-16 -12 L-12 -2 L-18 -1.5 L-21 -6 L-24 -6 L-22 0 L-24 6 L-21 6 L-18 1.5 L-12 2 L-16 12 L-12 12 L-6 2 Z"
 									fill="currentColor"
@@ -49,7 +52,9 @@ export default function Hero() {
 						</svg>
 					</Stagger>
 					<Stagger>
-						<p className="mt-4 max-w-xl text-lg text-muted sm:text-xl">{site.tagline}</p>
+						<p className="mt-4 max-w-xl text-lg text-muted sm:text-xl">
+							{site.tagline}
+						</p>
 					</Stagger>
 					<Stagger>
 						<div className="mt-8 flex flex-wrap gap-3">

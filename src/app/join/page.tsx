@@ -1,8 +1,6 @@
-import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { EpsilonWordmark, SocialIcon } from "@/components/icons";
 import MailingListForm from "@/components/forms/MailingListForm";
+import { EpsilonWordmark, SocialIcon } from "@/components/icons";
 import { Stagger } from "@/components/TransitionProvider";
 import { buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
@@ -10,6 +8,8 @@ import { Section } from "@/components/ui/Section";
 import { photos } from "@/content/photos";
 import { site, socials } from "@/content/site";
 import { signupFormConfig } from "@/lib/google-forms";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
 	title: "Join",
@@ -36,9 +36,19 @@ export default function JoinPage() {
 						<div className="h-full rounded-lg border-2 border-brand bg-surface p-6">
 							<p className="label text-accent-text">Step 01 · Required</p>
 							<h3 className="mt-2 text-2xl">Join the club on Epsilon</h3>
-							<p className="mt-2 text-muted">Epsilon is the Student Union’s club directory. Joining there makes you an official member.</p>
-							<a href={site.epsilonUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("accent", "mt-5")}>
-								Join on <EpsilonWordmark className="h-4 w-auto" aria-label="Epsilon" /> <ArrowUpRight aria-hidden className="size-4" />
+							<p className="mt-2 text-muted">
+								Epsilon is the Student Union’s club directory. Joining there
+								makes you an official member.
+							</p>
+							<a
+								href={site.epsilonUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className={buttonClasses("accent", "mt-5")}
+							>
+								Join on{" "}
+								<EpsilonWordmark className="h-4 w-auto" aria-label="Epsilon" />{" "}
+								<ArrowUpRight aria-hidden className="size-4" />
 							</a>
 						</div>
 					</Stagger>
@@ -46,9 +56,17 @@ export default function JoinPage() {
 						<div className="h-full rounded-lg border border-hairline bg-surface p-6">
 							<p className="label text-accent-text">Step 02</p>
 							<h3 className="mt-2 text-2xl">Join the Discord</h3>
-							<p className="mt-2 text-muted">Meeting details are posted in the #meetings channel.</p>
-							<a href={discord.href} target="_blank" rel="noopener noreferrer" className={buttonClasses("secondary", "mt-5")}>
-								<SocialIcon name="discord" className="size-4" /> {discord.action}
+							<p className="mt-2 text-muted">
+								Meeting details are posted in the #meetings channel.
+							</p>
+							<a
+								href={discord.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								className={buttonClasses("secondary", "mt-5")}
+							>
+								<SocialIcon name="discord" className="size-4" />{" "}
+								{discord.action}
 							</a>
 						</div>
 					</Stagger>
@@ -56,17 +74,30 @@ export default function JoinPage() {
 						<div className="rounded-lg border border-hairline bg-surface p-6">
 							<p className="label text-accent-text">Step 03</p>
 							<h3 className="mt-2 text-2xl">Get on the mailing list</h3>
-							<MailingListForm className="mt-5" fallbackUrl={signupFormConfig().fallbackUrl} />
+							<MailingListForm
+								className="mt-5"
+								fallbackUrl={signupFormConfig().fallbackUrl}
+							/>
 						</div>
 					</Stagger>
 					<Stagger as="li" className="md:col-span-2">
 						<div className="rounded-lg border border-hairline bg-surface p-6">
 							<p className="label text-accent-text">Step 04</p>
 							<h3 className="mt-2 text-2xl">Come to a meeting</h3>
-							<p className="mt-2 text-muted">General members aren’t required to attend regularly. Come whenever your schedule allows.</p>
+							<p className="mt-2 text-muted">
+								General members aren’t required to attend regularly. Come
+								whenever your schedule allows.
+							</p>
 							<div className="mt-5 flex flex-wrap gap-3">
-								<Link href="/meetings" className={buttonClasses("secondary")}>See meetings</Link>
-								<Link href="/flight-crew#positions" className={buttonClasses("ghost")}>Want to lead? See Flight Crew positions</Link>
+								<Link href="/meetings" className={buttonClasses("secondary")}>
+									See meetings
+								</Link>
+								<Link
+									href="/flight-crew#positions"
+									className={buttonClasses("ghost")}
+								>
+									Want to lead? See Flight Crew positions
+								</Link>
 							</div>
 						</div>
 					</Stagger>
