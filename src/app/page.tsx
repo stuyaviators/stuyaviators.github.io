@@ -1,5 +1,5 @@
 import DepartureBoard from "@/components/DepartureBoard";
-import Hero from "@/components/Hero";
+import HomeIntro from "@/components/HomeIntro";
 import InstagramGrid from "@/components/InstagramGrid";
 import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
@@ -27,7 +27,10 @@ export default async function Home() {
 
 	return (
 		<>
-			<Hero />
+			<HomeIntro
+				poster={photos.heroCessnaBackseat.src}
+				posterAlt={photos.heroCessnaBackseat.alt}
+			/>
 
 			<Section
 				id="departures"
@@ -55,8 +58,8 @@ export default async function Home() {
 			>
 				<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{featuredTypes.map((index) => {
-						const type = meetings.types[index]!;
-						const photo = meetingImages[index]!;
+						const type = meetings.types[index];
+						const photo = meetingImages[index];
 						return (
 							<Stagger as="li" key={type.name}>
 								<Link

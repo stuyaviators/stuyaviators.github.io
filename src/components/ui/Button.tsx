@@ -17,7 +17,7 @@ export function buttonClasses(
 	className?: string
 ) {
 	return cn(
-		"inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition-[filter,color,border-color,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none",
+		"inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[filter,color,border-color,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none",
 		variants[variant],
 		className
 	);
@@ -38,7 +38,9 @@ export function Button({
 	);
 }
 
-/** Internal links use next/link; http(s)/mailto links open externally. */
+/**
+Internal links use next/link; http(s)/mailto links open externally.
+*/
 export function ButtonLink({
 	href,
 	variant = "primary",

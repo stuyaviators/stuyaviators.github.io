@@ -322,3 +322,63 @@
 	--success: #6fd39b;
 	color: var(--text);
 }
+
+/* Homepage intro: text fades up once the video is playing. */
+.intro-reveal > * {
+	opacity: 0;
+	transform: translateY(18px);
+	transition:
+		opacity 0.9s ease-out,
+		transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.intro-reveal.is-ready > * {
+	opacity: 1;
+	transform: none;
+}
+
+.intro-reveal.is-ready > :nth-child(2) {
+	transition-delay: 0.12s;
+}
+
+.intro-reveal.is-ready > :nth-child(3) {
+	transition-delay: 0.24s;
+}
+
+.intro-reveal.is-ready > :nth-child(4) {
+	transition-delay: 0.36s;
+}
+
+@keyframes scroll-cue {
+	50% {
+		transform: translateY(5px);
+	}
+}
+
+.scroll-cue {
+	animation: scroll-cue 1.6s ease-in-out infinite;
+}
+
+/* Apple-style scroll-linked reveals where supported (pure CSS; elements
+   already on screen at load render fully). */
+@supports (animation-timeline: view()) {
+	.stagger {
+		animation: stagger-rise linear both;
+		animation-timeline: view();
+		animation-range: entry 0% entry 70%;
+		animation-delay: 0s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.intro-reveal > * {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+
+	.scroll-cue,
+	.stagger {
+		animation: none;
+	}
+}
