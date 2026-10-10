@@ -26,18 +26,32 @@ function Flap({
 	readonly text: string;
 	readonly className?: string;
 }) {
+	// Characters flip individually, but words stay together when wrapping.
+	let index = 0;
 	return (
 		<span className={className} aria-label={text}>
-			{[...text.toUpperCase()].map((char, index) => (
-				<span
-					key={index}
-					aria-hidden
-					className="flap"
-					style={{ "--flap-i": index } as React.CSSProperties}
-				>
-					{char === " " ? " " : char}
-				</span>
-			))}
+			{text
+				.toUpperCase()
+				.split(" ")
+				.map((word, wordIndex) => (
+					<span key={`${word}-${wordIndex}`} aria-hidden>
+						{wordIndex > 0 ? " " : null}
+						<span className="whitespace-nowrap">
+							{[...word].map((char) => {
+								const i = index++;
+								return (
+									<span
+										key={i}
+										className="flap"
+										style={{ "--flap-i": i } as React.CSSProperties}
+									>
+										{char}
+									</span>
+								);
+							})}
+						</span>
+					</span>
+				))}
 		</span>
 	);
 }
@@ -61,7 +75,7 @@ export default function DepartureBoard({
 				<p className="label font-bold tracking-[0.16em]">Departures</p>
 				<p className="label text-board-dim">Stuyvesant HS · NYC</p>
 			</div>
-			<table className="w-full text-left text-sm sm:text-base">
+			<table className="hidden w-full text-left text-sm sm:table sm:text-base">
 				<caption className="sr-only">Upcoming StuyAviators meetings</caption>
 				<thead className="label text-[0.68rem] text-board-dim">
 					<tr>
@@ -138,6 +152,54 @@ export default function DepartureBoard({
 					)}
 				</tbody>
 			</table>
+			<ul
+				className="divide-y divide-[#1e3350]/70 sm:hidden"
+				aria-label="Upcoming StuyAviators meetings"
+			>
+				{meetings.length > 0 ? (
+					meetings.map((meeting) => {
+						const start = new Date(meeting.start);
+						return (
+							<li key={meeting.id} className="px-4 py-3">
+								<div className="flex items-baseline justify-between gap-3 text-sm">
+									<span>
+										<Flap text={timeFormat.format(start)} />{" "}
+										<span className="text-board-dim">·</span>{" "}
+										<Flap text={dateFormat.format(start).replace(",", "")} />
+									</span>
+									<span
+										className={
+											meeting.status === "scheduled"
+												? "text-board-dim"
+												: "text-[#ff8a80]"
+										}
+									>
+										{statusLabel[meeting.status].toUpperCase()}
+									</span>
+								</div>
+								<p className="mt-1">
+									{meeting.code ? (
+										<span className="mr-2 text-board-dim">{meeting.code}</span>
+									) : null}
+									<Flap text={meeting.title} />
+								</p>
+								<p className="label mt-1 text-board-dim">
+									Room {meeting.room ?? "TBA"}
+								</p>
+							</li>
+						);
+					})
+				) : (
+					<li className="px-4 py-4 text-sm">
+						<p>
+							<Flap text="Wed–Fri · after school" />
+						</p>
+						<p className="mt-1 text-board-dim">
+							REGULAR MEETINGS · SEE DISCORD
+						</p>
+					</li>
+				)}
+			</ul>
 			{showAllLink ? (
 				<div className="flex flex-wrap justify-between gap-2 border-t border-[#1e3350] px-4 py-3 text-sm sm:px-6">
 					<p className="text-board-dim">
