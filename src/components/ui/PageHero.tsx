@@ -3,7 +3,11 @@ import type { ReactNode } from "react";
 import { Stagger } from "@/components/TransitionProvider";
 import { Container } from "./Section";
 
-/** Interior page header: label, title, intro, optional photo. */
+/**
+ * Interior page header. With an image, the photo fills the header and the
+ * text sits on a navy scrim (left-weighted on desktop, even on mobile) so it
+ * keeps AA contrast over any photo.
+ */
 export function PageHero({
 	eyebrow,
 	title,
@@ -19,40 +23,52 @@ export function PageHero({
 	readonly imageAlt?: string;
 	readonly children?: ReactNode;
 }) {
+	const content = (
+		<>
+			<Stagger>
+				<p className="label text-accent-text">{eyebrow}</p>
+			</Stagger>
+			<Stagger>
+				<h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
+			</Stagger>
+			{intro ? (
+				<Stagger>
+					<div className="mt-5 max-w-2xl text-lg text-muted">{intro}</div>
+				</Stagger>
+			) : null}
+			{children ? (
+				<Stagger>
+					<div className="mt-7 flex flex-wrap gap-3">{children}</div>
+				</Stagger>
+			) : null}
+		</>
+	);
+
+	if (!image) {
+		return (
+			<header className="border-b border-hairline bg-surface">
+				<Container className="py-14 sm:py-20">{content}</Container>
+			</header>
+		);
+	}
+
 	return (
-		<header className="border-b border-hairline bg-surface">
-			<Container className="grid items-center gap-8 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
-				<div>
-					<Stagger>
-						<p className="label text-accent-text">{eyebrow}</p>
-					</Stagger>
-					<Stagger>
-						<h1 className="mt-3 text-4xl sm:text-5xl">{title}</h1>
-					</Stagger>
-					{intro ? (
-						<Stagger>
-							<div className="mt-5 max-w-2xl text-lg text-muted">{intro}</div>
-						</Stagger>
-					) : null}
-					{children ? (
-						<Stagger>
-							<div className="mt-7 flex flex-wrap gap-3">{children}</div>
-						</Stagger>
-					) : null}
-				</div>
-				{image ? (
-					<Stagger className="relative aspect-[4/3] overflow-hidden rounded-lg border border-hairline bg-surface-2">
-						<Image
-							src={image}
-							alt={imageAlt ?? ""}
-							fill
-							priority
-							placeholder="blur"
-							sizes="(min-width: 1024px) 40vw, 100vw"
-							className="object-cover"
-						/>
-					</Stagger>
-				) : null}
+		<header className="on-dark relative isolate -mt-[5.5rem] overflow-hidden bg-navy pt-[5.5rem]">
+			<Image
+				src={image}
+				alt={imageAlt ?? ""}
+				fill
+				priority
+				placeholder="blur"
+				sizes="100vw"
+				className="-z-20 object-cover"
+			/>
+			<div
+				aria-hidden
+				className="absolute inset-0 -z-10 bg-navy/80 lg:bg-transparent lg:bg-linear-to-r lg:from-navy/95 lg:via-navy/80 lg:to-navy/35"
+			/>
+			<Container className="flex min-h-[26rem] flex-col justify-end py-14 sm:min-h-[30rem] sm:py-20">
+				<div className="max-w-3xl">{content}</div>
 			</Container>
 		</header>
 	);

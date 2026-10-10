@@ -91,27 +91,10 @@ export type Contact = {
 
 export const contacts: Contact[] = [
 	{
-		label: "School",
-		value: "aviators-outreach@stuy.edu",
-		href: "mailto:aviators-outreach@stuy.edu",
-		note: "General questions and story submissions",
-	},
-	{
-		label: "Media",
-		value: "aviators-media@stuy.edu",
-		href: "mailto:aviators-media@stuy.edu",
-		note: "Photo and video submissions",
-	},
-	{
-		label: "Leadership",
+		label: "Email",
 		value: "aviators-exec@stuy.edu",
 		href: "mailto:aviators-exec@stuy.edu",
-		note: "Permissions and leadership team",
-	},
-	{
-		label: "Other",
-		value: "stuyaviators@gmail.com",
-		href: "mailto:stuyaviators@gmail.com",
+		note: "Questions, ideas, partnerships and permissions",
 	},
 ];
 

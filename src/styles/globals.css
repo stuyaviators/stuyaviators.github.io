@@ -244,3 +244,81 @@
 		scroll-behavior: auto !important;
 	}
 }
+
+/* Departure-board split-flap: each character flips in once. */
+@keyframes flap {
+	0% {
+		transform: rotateX(90deg);
+		opacity: 0.2;
+	}
+	60% {
+		transform: rotateX(-12deg);
+	}
+	100% {
+		transform: rotateX(0);
+		opacity: 1;
+	}
+}
+
+.flap {
+	display: inline-block;
+	transform-origin: 50% 50%;
+	animation: flap 0.45s ease-out both;
+	animation-delay: calc(var(--flap-i, 0) * 35ms + 150ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.flap {
+		animation: none;
+	}
+}
+
+/* Hero contrail: dashed trail draws in, then the aircraft appears. */
+@keyframes contrail-draw {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+	to {
+		clip-path: inset(0 0 0 0);
+	}
+}
+
+@keyframes contrail-arrive {
+	from {
+		opacity: 0;
+		translate: -24px 4px;
+	}
+}
+
+.contrail-line {
+	animation: contrail-draw 1.4s ease-out 0.3s both;
+}
+
+.contrail-plane {
+	animation: contrail-arrive 0.6s ease-out 1.3s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.contrail-line,
+	.contrail-plane {
+		animation: none;
+	}
+}
+
+/* Text over photos/navy: dark-theme tokens regardless of the page theme. */
+.on-dark {
+	--text: #eef4ff;
+	--muted: #d3e0f2;
+	--brand: #8dbdf2;
+	--brand-ink: #0f1b32;
+	--accent: #ddebff;
+	--accent-ink: #0f1b32;
+	--accent-text: #ddebff;
+	--surface: #172a4d;
+	--surface-2: #1e355e;
+	--field: #8aa3c7;
+	--hairline: rgb(221 235 255 / 22%);
+	--danger: #ff8a80;
+	--success: #6fd39b;
+	color: var(--text);
+}
