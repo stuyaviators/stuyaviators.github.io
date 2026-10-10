@@ -85,7 +85,7 @@ export default function MailingListForm({
 					label="Full name"
 					name="fullName"
 					autoComplete="name"
-					placeholder="Jerry Qiu"
+					placeholder="Jane Doe"
 					value={values.fullName}
 					error={shownNameError}
 					onChange={(event) => {
@@ -101,7 +101,7 @@ export default function MailingListForm({
 					type="email"
 					inputMode="email"
 					autoComplete="email"
-					placeholder="jqiu61@stuy.edu"
+					placeholder="jdoe61@stuy.edu"
 					value={values.email}
 					error={shownEmailError}
 					extra={
