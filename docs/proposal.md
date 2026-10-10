@@ -262,6 +262,17 @@ review on request.
 | 2026-10-10 | Notify | Approved service: **Discord webhook** for new-submission alerts. URL lives only in the `DISCORD_WEBHOOK_URL` env var, never in the repo. Messages disable all @mentions. |
 | 2026-10-10 | #11 | OG images approved: static per-page images **and** dynamic `next/og` images for opportunities, scholarships and newsletters. |
 
+| 2026-10-10 | D2 (revised) | Keep almost all legacy copy; only the Mobirise badges (and the slogan carousel named in the brief) are cut. |
+| 2026-10-10 | Palette | Club palette replaces amber: Night Navy `#0F1B32`, Ice `#DDEBFF`, Stuy Blue `#0B64A9`. Brand guidelines page at `/brand` with downloadable logos (official Figma SVGs) and palette. |
+| 2026-10-10 | Careers | Career-finder quiz added; every career lists helpful fields of study. Static content, not in the dashboard. |
+| 2026-10-10 | Images | All legacy images optimized; missing/stock photos use placeholders; no AI-generated images. |
+| 2026-10-10 | Forms | Every submission → dashboard inbox + Discord alert + automatic mailing-list sign-up (when name and Stuy email validate). No unsubscribe button on forms; the note explains how to unsubscribe from a newsletter. |
+| 2026-10-10 | Contact | Contact sections list only `aviators-exec@stuy.edu`. |
+| 2026-10-10 | Examples | Placeholder identity is "Peter Stuyvesant" / `pstuyvesant60@stuy.edu`. |
+| 2026-10-10 | Meetings | Read from Epsilon with an officer's session token (`EPSILON_ACCESS_TOKEN`, server-only). Tokens expire hourly; manual fallback list until refreshed. **Phase 3:** admin dashboard setting to add/replace/remove the token (stored encrypted, validity + expiry shown). |
+| 2026-10-10 | Homepage | Apple-style intro: club video full-screen with title fade-in, shrinking into the split hero on scroll. Reduced motion gets the static split hero. Slimmer homepage (hero, departures, 4 meeting types, quotes, Instagram, join). Interior pages have photos behind their titles. |
+| 2026-10-10 | Crew | Current leadership matches Epsilon roles (Andrew Zhang, Alexander Smelyansky, Caleb Paugh, Sheng Yue Huang, Nathan Lai); Allyson Win, Andrew Archvadze and Evan Ye moved to Past Leadership. |
+
 ### D2: what's cut vs kept
 
 | Text | Verdict |
