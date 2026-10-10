@@ -9,7 +9,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { photos } from "@/content/photos";
 import { site, socials } from "@/content/site";
-import { signupFormConfig, unsubscribeHref } from "@/lib/google-forms";
+import { signupFormConfig } from "@/lib/google-forms";
 
 export const metadata: Metadata = {
 	title: "Join",
@@ -56,7 +56,7 @@ export default function JoinPage() {
 						<div className="rounded-lg border border-hairline bg-surface p-6">
 							<p className="label text-accent-text">Step 03</p>
 							<h3 className="mt-2 text-2xl">Get on the mailing list</h3>
-							<MailingListForm className="mt-5" fallbackUrl={signupFormConfig().fallbackUrl} unsubscribeHref={unsubscribeHref()} />
+							<MailingListForm className="mt-5" fallbackUrl={signupFormConfig().fallbackUrl} />
 						</div>
 					</Stagger>
 					<Stagger as="li" className="md:col-span-2">

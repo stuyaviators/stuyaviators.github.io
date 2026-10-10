@@ -39,7 +39,7 @@ export default function UnsubscribeForm() {
 				name="email"
 				type="email"
 				autoComplete="email"
-				placeholder="jdoe61@stuy.edu"
+				placeholder="pstuyvesant60@stuy.edu"
 				value={email}
 				error={touched ? error : state.fieldErrors?.email}
 				onChange={(event) => {

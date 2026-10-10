@@ -21,12 +21,10 @@ import { Honeypot, TextField } from "./Field";
  */
 export default function MailingListForm({
 	fallbackUrl,
-	unsubscribeHref,
 	compact = false,
 	className,
 }: {
 	readonly fallbackUrl: string;
-	readonly unsubscribeHref: string;
 	readonly compact?: boolean;
 	readonly className?: string;
 }) {
@@ -85,7 +83,7 @@ export default function MailingListForm({
 					label="Full name"
 					name="fullName"
 					autoComplete="name"
-					placeholder="Jane Doe"
+					placeholder="Peter Stuyvesant"
 					value={values.fullName}
 					error={shownNameError}
 					onChange={(event) => {
@@ -101,13 +99,13 @@ export default function MailingListForm({
 					type="email"
 					inputMode="email"
 					autoComplete="email"
-					placeholder="jdoe61@stuy.edu"
+					placeholder="pstuyvesant60@stuy.edu"
 					value={values.email}
 					error={shownEmailError}
 					extra={
 						showEscapeHatch ? (
 							<p className="mt-1 text-sm text-muted">
-								Email doesn’t follow this pattern?{" "}
+								Email stuyvesantsn’t follow this pattern?{" "}
 								<a
 									href={fallbackUrl}
 									target="_blank"
@@ -150,11 +148,8 @@ export default function MailingListForm({
 				</div>
 			</div>
 			<p className="mt-3 text-sm text-muted">
-				We only use your email for StuyAviators news and events.{" "}
-				<a href={unsubscribeHref} className="underline underline-offset-2">
-					Unsubscribe
-				</a>{" "}
-				any time.
+				We only use your email for StuyAviators news and events. To
+				unsubscribe, use the link at the bottom of any newsletter.
 			</p>
 		</form>
 	);

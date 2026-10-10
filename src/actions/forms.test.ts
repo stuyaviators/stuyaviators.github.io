@@ -56,7 +56,7 @@ describe("signUpForMailingList", () => {
 	it("posts exactly the two entries, normalized, to formResponse", async () => {
 		const state = await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "  jane   doe ", email: "JDoe61@Stuy.edu" })
+			form({ fullName: "  peter   stuyvesant ", email: "PStuyvesant60@Stuy.edu" })
 		);
 		expect(state).toEqual({ status: "success", joinedMailingList: true });
 		const calls = googleCalls();
@@ -68,14 +68,14 @@ describe("signUpForMailingList", () => {
 		);
 		const body = new URLSearchParams(String(init?.body));
 		expect([...body.keys()]).toEqual(["entry.1248809368", "entry.1701037871"]);
-		expect(body.get("entry.1248809368")).toBe("Jane Doe");
-		expect(body.get("entry.1701037871")).toBe("jdoe61@stuy.edu");
+		expect(body.get("entry.1248809368")).toBe("Peter Stuyvesant");
+		expect(body.get("entry.1701037871")).toBe("pstuyvesant60@stuy.edu");
 	});
 
 	it("re-validates on the server: a request that skips the client is rejected", async () => {
 		const state = await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "Jane Doe", email: "jsmith61@stuy.edu" })
+			form({ fullName: "Peter Stuyvesant", email: "jsmith61@stuy.edu" })
 		);
 		expect(state.status).toBe("error");
 		expect(state.lastNameMismatch).toBe(true);
@@ -87,8 +87,8 @@ describe("signUpForMailingList", () => {
 		const state = await signUpForMailingList(
 			initialFormState,
 			form({
-				fullName: "Jane Doe",
-				email: "jdoe61@stuy.edu",
+				fullName: "Peter Stuyvesant",
+				email: "pstuyvesant60@stuy.edu",
 				[honeypotField]: "http://spam.example",
 			})
 		);
@@ -103,7 +103,7 @@ describe("signUpForMailingList", () => {
 			states.push(
 				await signUpForMailingList(
 					initialFormState,
-					form({ fullName: "Jane Doe", email: "jdoe61@stuy.edu" })
+					form({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" })
 				)
 			);
 		}
@@ -118,7 +118,7 @@ describe("signUpForMailingList", () => {
 		fetchMock.mockResolvedValue(new Response("nope", { status: 404 }));
 		const state = await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "Jane Doe", email: "jdoe61@stuy.edu" })
+			form({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" })
 		);
 		expect(state.status).toBe("error");
 		expect(state.fallbackUrl).toBe("https://forms.gle/vzSfXNKrsejNe1rd6");
@@ -128,7 +128,7 @@ describe("signUpForMailingList", () => {
 		fetchMock.mockRejectedValue(new TypeError("fetch failed"));
 		const state = await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "Jane Doe", email: "jdoe61@stuy.edu" })
+			form({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" })
 		);
 		expect(state.status).toBe("error");
 		expect(state.fallbackUrl).toBeDefined();
@@ -138,7 +138,7 @@ describe("signUpForMailingList", () => {
 		process.env.DISCORD_WEBHOOK_URL = "https://discord.test/webhook";
 		await signUpForMailingList(
 			initialFormState,
-			form({ fullName: "Jane Doe", email: "jdoe61@stuy.edu" })
+			form({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" })
 		);
 		await flushAfter();
 		const rows = await testDb!.select().from(submissions);
@@ -151,7 +151,7 @@ describe("signUpForMailingList", () => {
 			allowed_mentions: { parse: unknown[] };
 		};
 		expect(payload.allowed_mentions).toEqual({ parse: [] });
-		expect(JSON.stringify(payload)).not.toContain("jdoe61@stuy.edu");
+		expect(JSON.stringify(payload)).not.toContain("pstuyvesant60@stuy.edu");
 	});
 });
 
@@ -160,13 +160,13 @@ describe("submitForm", () => {
 		const state = await submitForm(
 			"contact",
 			initialFormState,
-			form({ name: "Jane Doe", email: "jdoe61@stuy.edu", message: "Hello!" })
+			form({ name: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu", message: "Hello!" })
 		);
 		expect(state).toEqual({ status: "success", joinedMailingList: true });
 		const rows = await testDb!.select().from(submissions);
 		expect(rows[0]).toMatchObject({
 			type: "contact",
-			name: "Jane Doe",
+			name: "Peter Stuyvesant",
 			message: "Hello!",
 			status: "new",
 			mailingList: "submitted",
@@ -216,7 +216,7 @@ describe("unsubscribe", () => {
 	it("falls back to mailto while GOOGLE_FORM_UNSUBSCRIBE_* is unset", async () => {
 		const state = await unsubscribe(
 			initialFormState,
-			form({ email: "jdoe61@stuy.edu" })
+			form({ email: "pstuyvesant60@stuy.edu" })
 		);
 		expect(state.fallbackUrl).toBe(
 			"mailto:stuyaviators@gmail.com?subject=Unsubscribe"

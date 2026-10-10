@@ -20,44 +20,44 @@ type Row = {
 // The required cases from the brief, plus the normalized values we submit.
 const rows: Row[] = [
 	{
-		name: "Jane Doe",
-		email: "jdoe61@stuy.edu",
+		name: "Peter Stuyvesant",
+		email: "pstuyvesant60@stuy.edu",
 		ok: true,
 		why: "standard case",
-		submits: { fullName: "Jane Doe", email: "jdoe61@stuy.edu" },
+		submits: { fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" },
 	},
 	{
-		name: "jane doe",
-		email: "JDoe61@Stuy.edu",
+		name: "peter stuyvesant",
+		email: "PStuyvesant60@Stuy.edu",
 		ok: true,
 		why: "normalization",
-		submits: { fullName: "Jane Doe", email: "jdoe61@stuy.edu" },
+		submits: { fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" },
 	},
 	{
-		name: "JANE DOE",
-		email: "jdoe61@stuy.edu",
+		name: "PETER STUYVESANT",
+		email: "pstuyvesant60@stuy.edu",
 		ok: true,
 		why: "all-caps name fixed",
-		submits: { fullName: "Jane Doe" },
+		submits: { fullName: "Peter Stuyvesant" },
 	},
 	{
-		name: "Bob Doe",
-		email: "jdoe61@stuy.edu",
+		name: "Bob Stuyvesant",
+		email: "pstuyvesant60@stuy.edu",
 		ok: true,
 		why: "first name isn't checked (preferred name)",
 	},
 	{
-		name: "Jane Doe",
-		email: "adoe61@stuy.edu",
+		name: "Peter Stuyvesant",
+		email: "astuyvesant60@stuy.edu",
 		ok: true,
 		why: "first initial isn't checked",
 	},
 	{
-		name: "mary-jane o'brien",
+		name: "mary-peter o'brien",
 		email: "mobrien30@stuy.edu",
 		ok: true,
 		why: "apostrophe in last name",
-		submits: { fullName: "Mary-Jane O'Brien" },
+		submits: { fullName: "Mary-Peter O'Brien" },
 	},
 	{
 		name: "josé peña",
@@ -91,42 +91,42 @@ const rows: Row[] = [
 		why: "hyphenated last name, full",
 	},
 	{
-		name: "Jane Ming Doe",
-		email: "jdoe61@stuy.edu",
+		name: "Peter Ming Stuyvesant",
+		email: "pstuyvesant60@stuy.edu",
 		ok: true,
 		why: "middle name handled by the loose match",
 	},
 	{
-		name: "Jane Doe",
-		email: "jdoe@stuy.edu",
+		name: "Peter Stuyvesant",
+		email: "pstuyvesant@stuy.edu",
 		ok: false,
 		why: "digits required",
 		error: messages.emailDigits,
 	},
 	{
-		name: "Jane Doe",
-		email: "jdoe61x@stuy.edu",
+		name: "Peter Stuyvesant",
+		email: "pstuyvesant60x@stuy.edu",
 		ok: false,
 		why: "characters after the digits",
 		error: messages.emailDigits,
 	},
 	{
-		name: "Jane Doe",
-		email: "jdoe61@gmail.com",
+		name: "Peter Stuyvesant",
+		email: "pstuyvesant60@gmail.com",
 		ok: false,
 		why: "not @stuy.edu",
 		error: messages.emailDomain,
 	},
 	{
-		name: "Jane Doe",
+		name: "Peter Stuyvesant",
 		email: "jsmith61@stuy.edu",
 		ok: false,
 		why: "last name mismatch (single part is strict)",
 		error: messages.emailLastName,
 	},
 	{
-		name: "Jane Doe",
-		email: "doe61@stuy.edu",
+		name: "Peter Stuyvesant",
+		email: "stuyvesant60@stuy.edu",
 		ok: false,
 		why: "missing first initial",
 		error: messages.emailLastName,
@@ -139,8 +139,8 @@ const rows: Row[] = [
 		error: messages.emailLastName,
 	},
 	{
-		name: "Jane",
-		email: "jdoe61@stuy.edu",
+		name: "Peter",
+		email: "pstuyvesant60@stuy.edu",
 		ok: false,
 		why: "needs first and last name",
 	},
@@ -175,7 +175,7 @@ describe("validateSignup", () => {
 
 	it("flags the last-name mismatch so the UI can show the escape hatch", () => {
 		const result = validateSignup({
-			fullName: "Jane Doe",
+			fullName: "Peter Stuyvesant",
 			email: "jsmith61@stuy.edu",
 		});
 		expect(result.success).toBe(false);
@@ -183,15 +183,15 @@ describe("validateSignup", () => {
 	});
 
 	it("rejects a one-word name with the first-and-last message", () => {
-		const result = validateSignup({ fullName: "Jane", email: "jdoe61@stuy.edu" });
+		const result = validateSignup({ fullName: "Peter", email: "pstuyvesant60@stuy.edu" });
 		expect(result.success).toBe(false);
 		if (!result.success) expect(result.errors.fullName).toBe(messages.nameRequired);
 	});
 
 	it("rejects disallowed characters in names", () => {
 		const result = validateSignup({
-			fullName: "Jane Doe2",
-			email: "jdoe61@stuy.edu",
+			fullName: "Peter Stuyvesant2",
+			email: "pstuyvesant60@stuy.edu",
 		});
 		expect(result.success).toBe(false);
 		if (!result.success)
@@ -200,12 +200,12 @@ describe("validateSignup", () => {
 
 	it("trims and collapses whitespace", () => {
 		const result = validateSignup({
-			fullName: "  jane    doe ",
-			email: "  jdoe61@stuy.edu ",
+			fullName: "  peter    stuyvesant ",
+			email: "  pstuyvesant60@stuy.edu ",
 		});
 		expect(result).toEqual({
 			success: true,
-			data: { fullName: "Jane Doe", email: "jdoe61@stuy.edu" },
+			data: { fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" },
 		});
 	});
 
@@ -216,10 +216,10 @@ describe("validateSignup", () => {
 
 describe("formatName", () => {
 	it.each([
-		["jane doe", "Jane Doe"],
-		["mary-jane o'brien", "Mary-Jane O'Brien"],
+		["peter stuyvesant", "Peter Stuyvesant"],
+		["mary-peter o'brien", "Mary-Peter O'Brien"],
 		["josé peña", "José Peña"],
-		["JANE", "Jane"],
+		["PETER", "Peter"],
 		["ronald McDonald", "Ronald McDonald"],
 		["O'BRIEN", "O'Brien"],
 	])("%s → %s", (input, expected) => {
@@ -230,12 +230,12 @@ describe("formatName", () => {
 describe("schemas", () => {
 	it("signupSchema returns normalized values", () => {
 		expect(
-			signupSchema.parse({ fullName: "jane doe", email: "JDoe61@Stuy.edu" })
-		).toEqual({ fullName: "Jane Doe", email: "jdoe61@stuy.edu" });
+			signupSchema.parse({ fullName: "peter stuyvesant", email: "PStuyvesant60@Stuy.edu" })
+		).toEqual({ fullName: "Peter Stuyvesant", email: "pstuyvesant60@stuy.edu" });
 	});
 
 	it("signupSchema rejects invalid input with field paths", () => {
-		const result = signupSchema.safeParse({ fullName: "Jane", email: "x" });
+		const result = signupSchema.safeParse({ fullName: "Peter", email: "x" });
 		expect(result.success).toBe(false);
 		const paths = result.error?.issues.map((issue) => issue.path[0]);
 		expect(paths).toEqual(["fullName", "email"]);

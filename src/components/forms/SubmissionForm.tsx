@@ -95,7 +95,7 @@ export default function SubmissionForm({
 			</div>
 			<p className="text-sm text-muted">
 				If you use your Stuy email, we’ll also add you to our mailing list.
-				Unsubscribe any time.
+				You can unsubscribe from any newsletter.
 			</p>
 		</form>
 	);

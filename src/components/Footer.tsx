@@ -4,7 +4,7 @@ import bannerWhite from "@/assets/brand/banner-white.png";
 import MailingListForm from "@/components/forms/MailingListForm";
 import { SocialIcon } from "@/components/icons";
 import { contacts, isNavGroup, nav, site, socials } from "@/content/site";
-import { signupFormConfig, unsubscribeHref } from "@/lib/google-forms";
+import { signupFormConfig } from "@/lib/google-forms";
 import { Container } from "./ui/Section";
 
 export default function Footer() {
@@ -47,7 +47,6 @@ export default function Footer() {
 							compact
 							className="mt-4"
 							fallbackUrl={signupFormConfig().fallbackUrl}
-							unsubscribeHref={unsubscribeHref()}
 						/>
 					</div>
 				</div>

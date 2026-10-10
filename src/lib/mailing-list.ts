@@ -5,7 +5,7 @@ import { z } from "zod";
  * Action (server). Rules, in plain English, are in docs/google-forms-setup.md.
  *
  * Stuy emails look like first initial + last name + digits, e.g.
- * jdoe61@stuy.edu. Only the LAST name is checked against the email; the first
+ * pstuyvesant60@stuy.edu. Only the LAST name is checked against the email; the first
  * name isn't, because preferred names can differ from the school record.
  */
 
@@ -14,9 +14,9 @@ export const messages = {
 	nameCharacters:
 		"Names can only use letters, spaces, hyphens, apostrophes, and periods.",
 	emailDomain: "Use your @stuy.edu email.",
-	emailDigits: "Your Stuy email should end in numbers, e.g. jdoe61@stuy.edu.",
+	emailDigits: "Your Stuy email should end in numbers, e.g. pstuyvesant60@stuy.edu.",
 	emailLastName:
-		"Your Stuy email should include your last name, e.g. jdoe61@stuy.edu.",
+		"Your Stuy email should include your last name, e.g. pstuyvesant60@stuy.edu.",
 } as const;
 
 const allowedNameCharacters = /^[\p{L}\p{M}\s'’.-]+$/u;

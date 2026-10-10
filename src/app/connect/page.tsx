@@ -16,7 +16,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { contacts, mapsLinks, site, socials } from "@/content/site";
 import { getInstagramFeed } from "@/lib/behold";
-import { signupFormConfig, unsubscribeHref } from "@/lib/google-forms";
+import { signupFormConfig } from "@/lib/google-forms";
 
 export const revalidate = 3600;
 
@@ -117,7 +117,7 @@ export default async function ConnectPage() {
 
 			<Section id="mailing-list" index={4} label="Mailing list" title="Join the mailing list">
 				<div className="max-w-3xl">
-					<MailingListForm fallbackUrl={signupFormConfig().fallbackUrl} unsubscribeHref={unsubscribeHref()} />
+					<MailingListForm fallbackUrl={signupFormConfig().fallbackUrl} />
 				</div>
 			</Section>
 
