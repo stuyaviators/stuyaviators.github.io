@@ -143,7 +143,7 @@ export async function submitForm(
 		return {
 			status: "error",
 			message:
-				"Submissions are temporarily unavailable. Please email aviators-outreach@stuy.edu.",
+				"Submissions are temporarily unavailable. Please email aviators-exec@stuy.edu.",
 		};
 	}
 
@@ -176,7 +176,7 @@ export async function submitForm(
 		return {
 			status: "error",
 			message:
-				"Something went wrong saving your message. Please email aviators-outreach@stuy.edu.",
+				"Something went wrong saving your message. Please email aviators-exec@stuy.edu.",
 		};
 	}
 
