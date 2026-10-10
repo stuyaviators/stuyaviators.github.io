@@ -321,5 +321,5 @@ controllers, PCI → investigators, CLP/SLC → instructors). Filter chips by fa
 13. **Health, education & media:** aviation medical examiner/flight surgeon · flight nurse/paramedic
     · aviation educator · museum curator · aviation journalist/photographer · aviation cybersecurity
 
-Closing section: "Start now" with free/low-cost first steps that already appear in club copy
+Closing section: "Start now" with free/low-cost first steps (new copy, part of the careers content)
 (flight sims, guest speakers, Civil Air Patrol cadets, Part 107 for 16+, discovery flights).
