@@ -7,6 +7,7 @@ import {
 	ImageField,
 	SelectField,
 } from "@/components/dashboard/fields";
+import { Spinner } from "@/components/dashboard/Spinner";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import ListingCard from "@/components/listings/ListingCard";
@@ -328,7 +329,13 @@ export default function ListingForm({
 				{error ? <Notice tone="bad">{error}</Notice> : null}
 				<div className="flex flex-wrap gap-3">
 					<Button type="submit" disabled={isPending}>
-						{isPending ? "Saving…" : `Save ${noun}`}
+						{isPending ? (
+							<>
+								<Spinner /> Saving…
+							</>
+						) : (
+							`Save ${noun}`
+						)}
 					</Button>
 					<Link
 						href={`/dashboard/${slug}`}

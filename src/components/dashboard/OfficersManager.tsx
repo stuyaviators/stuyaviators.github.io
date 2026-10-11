@@ -8,10 +8,12 @@ import {
 } from "@/actions/officers";
 import Confirm from "@/components/dashboard/Confirm";
 import { SelectField } from "@/components/dashboard/fields";
+import { Spinner } from "@/components/dashboard/Spinner";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { Trash2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -24,7 +26,7 @@ export default function OfficersManager({
 	readonly currentId: string;
 }) {
 	const router = useRouter();
-	const { run, isPending, error } = useAction();
+	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [isAdding, startAdding] = useTransition();
 	const [email, setEmail] = useState("");
 	const [role, setRole] = useState("officer");
@@ -93,7 +95,12 @@ export default function OfficersManager({
 						type="submit"
 						disabled={isPending || isAdding || email.trim() === ""}
 					>
-						<UserPlus aria-hidden className="size-4" /> Add
+						{isAdding ? (
+							<Spinner />
+						) : (
+							<UserPlus aria-hidden className="size-4" />
+						)}{" "}
+						Add
 					</Button>
 				</form>
 				{added ? (
@@ -109,13 +116,16 @@ export default function OfficersManager({
 				</Notice>
 			) : null}
 
-			<ul className="space-y-3">
+			<ul className="dash-stagger space-y-3">
 				{users.map((user) => {
 					const isYou = user.id === currentId;
 					return (
 						<li
 							key={user.id}
-							className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4"
+							className={cn(
+								"flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4",
+								leavingId === user.id && "dash-leave"
+							)}
 						>
 							<div className="min-w-0 flex-1">
 								<p className="truncate font-semibold">
@@ -178,9 +188,12 @@ export default function OfficersManager({
 				onConfirm={() => {
 					const target = removing;
 					setRemoving(undefined);
-					if (target) {
-						run(async () => removeOfficer(target.id));
+					if (!target) {
+						return;
 					}
+
+					markLeaving(target.id);
+					run(async () => removeOfficer(target.id));
 				}}
 			/>
 		</>

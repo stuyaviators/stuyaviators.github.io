@@ -39,7 +39,7 @@ export default function DashboardNav({
 	const pathname = usePathname();
 	return (
 		<nav aria-label="Dashboard">
-			<ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
+			<ul className="dash-stagger -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
 				{items.map((item) => {
 					const Icon = icons[item.icon] ?? FileText;
 					const isCurrent =

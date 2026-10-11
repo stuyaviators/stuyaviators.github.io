@@ -13,6 +13,7 @@ import { Badge, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { formatDate } from "@/components/listings/ListingCard";
 import { Button, buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { daysUntil, isClosingSoon, isExpired } from "@/lib/listing-dates";
 import {
 	ArrowDown,
@@ -37,7 +38,7 @@ export default function ListingRows({
 	readonly slug: string;
 	readonly view: "active" | "trash";
 }) {
-	const { run, isPending, error } = useAction();
+	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [pending, setPending] = useState<Pending>();
 	const isTrash = view === "trash";
 
@@ -48,14 +49,17 @@ export default function ListingRows({
 					{error}
 				</Notice>
 			) : null}
-			<ul className="space-y-3">
+			<ul className="dash-stagger space-y-3">
 				{listings.map((listing, index) => {
 					const isPast = isExpired(listing);
 					const isClosing = isClosingSoon(listing);
 					return (
 						<li
 							key={listing.id}
-							className="rounded-2xl border border-hairline bg-surface p-4 sm:p-5"
+							className={cn(
+								"rounded-2xl border border-hairline bg-surface p-4 sm:p-5",
+								leavingId === listing.id && "dash-leave"
+							)}
 						>
 							<div className="flex flex-wrap items-start justify-between gap-3">
 								<div className="min-w-0 flex-1">
@@ -92,6 +96,7 @@ export default function ListingRows({
 												variant="secondary"
 												disabled={isPending}
 												onClick={() => {
+													markLeaving(listing.id);
 													run(async () => restoreListing(listing.id));
 												}}
 											>
@@ -210,6 +215,7 @@ export default function ListingRows({
 
 					const { id, mode } = pending;
 					setPending(undefined);
+					markLeaving(id);
 					run(async () =>
 						mode === "forever" ? deleteListingForever(id) : trashListing(id)
 					);

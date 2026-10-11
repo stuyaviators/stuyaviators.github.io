@@ -10,9 +10,11 @@ import {
 } from "@/actions/newsletters";
 import Confirm from "@/components/dashboard/Confirm";
 import { SelectField } from "@/components/dashboard/fields";
+import { Spinner } from "@/components/dashboard/Spinner";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { Button, buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { ExternalLink, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,7 +38,7 @@ export default function NewsletterList({
 	readonly view: "active" | "trash";
 }) {
 	const router = useRouter();
-	const { run, isPending, error } = useAction();
+	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [presetId, setPresetId] = useState("");
 	const [pending, setPending] = useState<Pending>();
 	const isTrash = view === "trash";
@@ -80,7 +82,8 @@ export default function NewsletterList({
 							create();
 						}}
 					>
-						<Plus aria-hidden className="size-4" /> New newsletter
+						{isPending ? <Spinner /> : <Plus aria-hidden className="size-4" />}{" "}
+						New newsletter
 					</Button>
 					{presets.length > 0 ? (
 						<div className="flex flex-1 flex-wrap items-end gap-2">
@@ -121,11 +124,14 @@ export default function NewsletterList({
 					</p>
 				</Card>
 			) : (
-				<ul className="space-y-3">
+				<ul className="dash-stagger space-y-3">
 					{newsletters.map((newsletter) => (
 						<li
 							key={newsletter.id}
-							className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4 sm:p-5"
+							className={cn(
+								"flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4 sm:p-5",
+								leavingId === newsletter.id && "dash-leave"
+							)}
 						>
 							<div className="min-w-0 flex-1">
 								<div className="flex flex-wrap items-center gap-2">
@@ -154,6 +160,7 @@ export default function NewsletterList({
 											variant="secondary"
 											disabled={isPending}
 											onClick={() => {
+												markLeaving(newsletter.id);
 												run(async () => restoreNewsletter(newsletter.id));
 											}}
 										>
@@ -228,7 +235,10 @@ export default function NewsletterList({
 							{presets.map((preset) => (
 								<li
 									key={preset.id}
-									className="flex items-center gap-1 rounded-full border border-hairline bg-surface py-1 pr-1 pl-4 text-sm"
+									className={cn(
+										"flex items-center gap-1 rounded-full border border-hairline bg-surface py-1 pr-1 pl-4 text-sm",
+										leavingId === preset.id && "dash-leave"
+									)}
 								>
 									{preset.name}
 									<Button
@@ -280,6 +290,7 @@ export default function NewsletterList({
 
 					const current = pending;
 					setPending(undefined);
+					markLeaving(current.id);
 					run(async () => {
 						switch (current.kind) {
 							case "preset": {

@@ -7,6 +7,7 @@ import {
 	testEpsilonAction,
 } from "@/actions/settings";
 import Confirm from "@/components/dashboard/Confirm";
+import { Spinner } from "@/components/dashboard/Spinner";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { TextAreaField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -212,7 +213,13 @@ export default function EpsilonSettings({
 						}}
 					/>
 					<Button type="submit" disabled={isPending || token.trim() === ""}>
-						{isPending ? "Checking…" : "Check and save"}
+						{isPending ? (
+							<>
+								<Spinner /> Checking…
+							</>
+						) : (
+							"Check and save"
+						)}
 					</Button>
 				</form>
 			</Card>

@@ -6,6 +6,7 @@ import {
 	Notice,
 	PageHeader,
 } from "@/components/dashboard/ui";
+import CountUp from "@/components/motion/CountUp";
 import { ButtonLink } from "@/components/ui/Button";
 import { getDb } from "@/db";
 import { envChecklist, sheetUrl } from "@/lib/dashboard-env";
@@ -86,7 +87,9 @@ export default async function OverviewPage({
 								className="block rounded-2xl border border-hairline bg-surface p-5 transition-colors hover:border-brand"
 							>
 								<p className="label text-muted">{tile.label}</p>
-								<p className="mt-2 text-4xl font-semibold">{tile.published}</p>
+								<p className="mt-2 text-4xl font-semibold">
+									<CountUp value={tile.published} duration={0.9} />
+								</p>
 								<p className="text-sm text-muted">
 									published
 									{tile.draft > 0

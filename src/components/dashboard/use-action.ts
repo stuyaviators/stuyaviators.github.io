@@ -13,6 +13,8 @@ export function useAction() {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string>();
+	// The row that is animating away while its action runs.
+	const [leavingId, setLeavingId] = useState<string>();
 
 	function run<T extends { ok: boolean }>(
 		action: () => Promise<T | ActionError>,
@@ -25,11 +27,13 @@ export function useAction() {
 				result = await action();
 			} catch {
 				setError("Couldn’t reach the server. Check your connection.");
+				setLeavingId(undefined);
 				return;
 			}
 
 			if (!result.ok) {
 				setError((result as ActionError).error);
+				setLeavingId(undefined);
 				return;
 			}
 
@@ -42,6 +46,8 @@ export function useAction() {
 		run,
 		isPending,
 		error,
+		leavingId,
+		markLeaving: setLeavingId,
 		clearError() {
 			setError(undefined);
 		},

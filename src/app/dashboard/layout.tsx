@@ -1,14 +1,13 @@
 import type { NavItem } from "@/components/dashboard/DashboardNav";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { signOutAction } from "@/actions/auth";
 import DashboardNav from "@/components/dashboard/DashboardNav";
+import SignOutForm from "@/components/dashboard/SignOutForm";
 import { Notice } from "@/components/dashboard/ui";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/Button";
 import { isOpenSignIn } from "@/lib/open-signin";
 import { hasRole, requirePageUser } from "@/lib/session";
-import { ExternalLink, LogOut } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -47,7 +46,7 @@ export default async function DashboardLayout({
 		: baseItems;
 
 	return (
-		<div className="min-h-dvh md:grid md:grid-cols-[15rem_1fr]">
+		<div className="dash-shell min-h-dvh md:grid md:grid-cols-[15rem_1fr]">
 			<aside className="border-b border-hairline bg-surface px-4 py-3 md:sticky md:top-0 md:h-dvh md:border-r md:border-b-0 md:py-6">
 				<div className="flex items-center justify-between gap-3 md:block">
 					<Link
@@ -75,11 +74,7 @@ export default async function DashboardLayout({
 						{user.name ?? user.email}
 					</p>
 					<p className="label truncate text-muted">{user.role}</p>
-					<form action={signOutAction} className="mt-2">
-						<Button type="submit" variant="secondary" className="w-full">
-							<LogOut aria-hidden className="size-4" /> Sign out
-						</Button>
-					</form>
+					<SignOutForm className="mt-2" />
 				</div>
 			</aside>
 
@@ -99,11 +94,7 @@ export default async function DashboardLayout({
 					{children}
 					<div className="mt-10 md:hidden">
 						<p className="text-sm text-muted">Signed in as {user.email}</p>
-						<form action={signOutAction} className="mt-2">
-							<Button type="submit" variant="secondary">
-								<LogOut aria-hidden className="size-4" /> Sign out
-							</Button>
-						</form>
+						<SignOutForm className="mt-2" />
 					</div>
 				</main>
 			</div>

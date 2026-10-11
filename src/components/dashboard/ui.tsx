@@ -99,7 +99,7 @@ export function Notice({
 		<div
 			role={tone === "bad" ? "alert" : "status"}
 			className={cn(
-				"rounded-xl border px-4 py-3 text-sm",
+				"dash-pop rounded-xl border px-4 py-3 text-sm",
 				tone === "bad" && "border-danger/60 bg-danger/10 text-text",
 				tone === "good" && "border-success/50 bg-success/10 text-text",
 				tone === "warn" && "border-field bg-surface-2 text-text",

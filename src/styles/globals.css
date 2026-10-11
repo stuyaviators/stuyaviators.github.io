@@ -798,3 +798,101 @@ video {
 	user-select: none;
 	-webkit-touch-callout: none;
 }
+
+/* ── Dashboard motion ─────────────────────────────────────────────────────
+   Content rises in (staggered), notices pop, rows slide away when removed,
+   and the whole dashboard fades out on sign-out. All off under reduced
+   motion. */
+@keyframes dash-rise {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+@keyframes dash-pop {
+	from {
+		opacity: 0;
+		transform: scale(0.96) translateY(-4px);
+	}
+}
+
+@keyframes dash-row-leave {
+	from {
+		max-height: 16rem;
+	}
+	to {
+		opacity: 0;
+		transform: translateX(32px);
+		max-height: 0;
+		margin-block: 0;
+		padding-block: 0;
+		border-width: 0;
+	}
+}
+
+@keyframes dash-shell-leave {
+	to {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.985);
+		filter: blur(6px);
+	}
+}
+
+.dash-rise {
+	animation: dash-rise 0.5s var(--ease-out-expo) backwards;
+}
+
+.dash-stagger > * {
+	animation: dash-rise 0.55s var(--ease-out-expo) backwards;
+}
+
+.dash-stagger > :nth-child(2) {
+	animation-delay: 60ms;
+}
+.dash-stagger > :nth-child(3) {
+	animation-delay: 120ms;
+}
+.dash-stagger > :nth-child(4) {
+	animation-delay: 180ms;
+}
+.dash-stagger > :nth-child(5) {
+	animation-delay: 240ms;
+}
+.dash-stagger > :nth-child(6) {
+	animation-delay: 300ms;
+}
+.dash-stagger > :nth-child(7) {
+	animation-delay: 360ms;
+}
+.dash-stagger > :nth-child(8) {
+	animation-delay: 420ms;
+}
+.dash-stagger > :nth-child(n + 9) {
+	animation-delay: 480ms;
+}
+
+.dash-pop {
+	animation: dash-pop 0.35s var(--ease-out-expo) backwards;
+}
+
+.dash-leave {
+	overflow: hidden;
+	pointer-events: none;
+	animation: dash-row-leave 0.35s ease-in forwards;
+}
+
+html.dash-leaving .dash-shell {
+	pointer-events: none;
+	animation: dash-shell-leave 0.38s ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dash-rise,
+	.dash-stagger > *,
+	.dash-pop,
+	.dash-leave,
+	html.dash-leaving .dash-shell {
+		animation: none;
+	}
+}

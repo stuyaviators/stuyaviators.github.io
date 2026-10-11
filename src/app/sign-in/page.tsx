@@ -40,7 +40,7 @@ export default async function SignInPage({
 
 	return (
 		<main className="flex min-h-dvh items-center justify-center px-4 py-12">
-			<div className="w-full max-w-md rounded-3xl border border-hairline bg-surface p-8 shadow-card">
+			<div className="dash-rise w-full max-w-md rounded-3xl border border-hairline bg-surface p-8 shadow-card">
 				<Image
 					src={logo}
 					alt=""
@@ -57,7 +57,7 @@ export default async function SignInPage({
 				{isDenied ? (
 					<div
 						role="alert"
-						className="mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4"
+						className="dash-pop mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4"
 					>
 						<h2 className="text-lg">You’re not authorized</h2>
 						<p className="mt-1 text-sm">
@@ -77,7 +77,7 @@ export default async function SignInPage({
 				{error && !isDenied ? (
 					<div
 						role="alert"
-						className="mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4 text-sm"
+						className="dash-pop mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4 text-sm"
 					>
 						Couldn’t sign you in. Try again; if it keeps happening, tell an
 						admin.

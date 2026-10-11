@@ -10,6 +10,7 @@ import {
 } from "@/actions/newsletters";
 import BlockList from "@/components/dashboard/BlockList";
 import { ImageField, SelectField } from "@/components/dashboard/fields";
+import { Spinner } from "@/components/dashboard/Spinner";
 import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -436,11 +437,16 @@ export default function NewsletterEditor({
 							: "text-muted"
 					)}
 				>
-					{save.kind === "saved" ? (
-						<Check aria-hidden className="size-4 text-success" />
-					) : (
-						<Save aria-hidden className="size-4" />
-					)}
+					{/* Keyed so the icon pops each time the state changes. */}
+					<span key={save.kind} className="dash-pop inline-flex">
+						{save.kind === "saving" ? (
+							<Spinner />
+						) : save.kind === "saved" ? (
+							<Check aria-hidden className="size-4 text-success" />
+						) : (
+							<Save aria-hidden className="size-4" />
+						)}
+					</span>
 					{statusText}
 				</p>
 				<div className="flex flex-wrap gap-2">
