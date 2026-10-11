@@ -7,8 +7,10 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { galleryCopy } from "@/content/gallery";
 import { pageIntros } from "@/content/pages";
-import { photoSpecs } from "@/content/photo-specs";
-import { galleryPhotos, photos, spotlightPhotos } from "@/content/photos";
+import { photos } from "@/content/photos";
+import { getPublicGallery } from "@/lib/gallery";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
 	title: "Gallery",
@@ -16,11 +18,8 @@ export const metadata: Metadata = {
 	alternates: { canonical: "/gallery" },
 };
 
-export default function GalleryPage() {
-	const images = [...galleryPhotos, ...spotlightPhotos].map((key) => ({
-		...photos[key],
-		spec: photoSpecs[key],
-	}));
+export default async function GalleryPage() {
+	const images = await getPublicGallery();
 	return (
 		<>
 			<PageHero

@@ -11,6 +11,7 @@ import {
 	Archive,
 	ArchiveRestore,
 	ChevronDown,
+	Images,
 	Mail,
 	Quote,
 } from "lucide-react";
@@ -128,6 +129,15 @@ export default function InboxList({
 											>
 												<Quote aria-hidden className="size-4" /> Make a
 												testimonial
+											</Link>
+										) : null}
+										{item.type === "photo" ? (
+											<Link
+												href={`/dashboard/gallery?from=${item.id}`}
+												className={buttonClasses("secondary")}
+											>
+												<Images aria-hidden className="size-4" /> Add to the
+												gallery
 											</Link>
 										) : null}
 										<Button

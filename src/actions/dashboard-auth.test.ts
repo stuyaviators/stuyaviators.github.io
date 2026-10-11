@@ -1,6 +1,7 @@
 import type { Database } from "@/db";
 import {
 	crewMembers,
+	galleryPhotos,
 	listings,
 	newsletters,
 	submissions,
@@ -42,6 +43,7 @@ const newsletterActions = await import("./newsletters.ts");
 const announcementActions = await import("./announcement.ts");
 const crewActions = await import("./crew.ts");
 const testimonialActions = await import("./testimonials.ts");
+const galleryActions = await import("./gallery.ts");
 const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
@@ -91,6 +93,14 @@ const crewInput = {
 	classOf: "'60",
 	role: "Flight Attendant (Helper)",
 	imageUrl: "",
+};
+
+const galleryInput = {
+	alt: "A Cessna on final approach",
+	imageUrl:
+		"https://abc.public.blob.vercel-storage.com/uploads/highlight/a.jpg",
+	width: 1600,
+	height: 900,
 };
 
 const notSignedIn = { ok: false, error: "Please sign in again." };
@@ -185,6 +195,24 @@ describe("signed out", () => {
 		expect(await crewActions.deleteCrewMemberAction(id)).toEqual(notSignedIn);
 		expect(await crewActions.importCrewAction()).toEqual(notSignedIn);
 		expect(await testDb!.select().from(crewMembers)).toHaveLength(0);
+	});
+
+	it("can't edit the gallery", async () => {
+		const id = crypto.randomUUID();
+		expect(await galleryActions.addGalleryPhotoAction(galleryInput)).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.updateGalleryAltAction(id, "x")).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.moveGalleryPhotoAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.deleteGalleryPhotoAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.importGalleryAction()).toEqual(notSignedIn);
+		expect(await testDb!.select().from(galleryPhotos)).toHaveLength(0);
 	});
 
 	it("can't edit testimonials", async () => {
@@ -459,6 +487,32 @@ describe("officers", () => {
 			ok: true,
 		});
 		expect((await crewActions.deleteCrewMemberAction(mine.id)).ok).toBe(false);
+	});
+
+	it("can import, add, caption and remove gallery photos", async () => {
+		expect((await galleryActions.importGalleryAction()).ok).toBe(true);
+		expect((await galleryActions.importGalleryAction()).ok).toBe(false);
+		expect(await galleryActions.addGalleryPhotoAction(galleryInput)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("gallery");
+		const rows = await testDb!.select().from(galleryPhotos);
+		const mine = rows.find((row) => row.imageUrl !== null)!;
+		expect(await galleryActions.updateGalleryAltAction(mine.id, "New")).toEqual(
+			{ ok: true }
+		);
+		expect(
+			await galleryActions.updateGalleryAltAction(mine.id, " ")
+		).toMatchObject({ ok: false, fieldErrors: { alt: expect.any(String) } });
+		expect(
+			await galleryActions.addGalleryPhotoAction({
+				...galleryInput,
+				imageUrl: "https://example.org/a.jpg",
+			})
+		).toMatchObject({ ok: false });
+		expect(await galleryActions.deleteGalleryPhotoAction(mine.id)).toEqual({
+			ok: true,
+		});
 	});
 
 	it("can import, add, edit and remove testimonials", async () => {

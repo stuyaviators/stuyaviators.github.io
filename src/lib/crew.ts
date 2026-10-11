@@ -8,6 +8,7 @@ import {
 } from "@/content/crew";
 import { getDb } from "@/db";
 import { crewMembers } from "@/db/schema";
+import { optionalBlobUrl } from "@/lib/blob-url";
 import { crewGroupIds } from "@/lib/crew-groups";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
@@ -23,35 +24,12 @@ export const crewTag = "crew";
 
 export type CrewRow = typeof crewMembers.$inferSelect;
 
-const blobHost = ".public.blob.vercel-storage.com";
-
-// Photos come from Vercel Blob uploads only: next/image refuses other hosts.
-const photoUrl = z
-	.string()
-	.trim()
-	.max(2000)
-	.refine(
-		(value) => {
-			if (value === "") {
-				return true;
-			}
-
-			try {
-				const url = new URL(value);
-				return url.protocol === "https:" && url.hostname.endsWith(blobHost);
-			} catch {
-				return false;
-			}
-		},
-		{ message: "Use the Upload button for photos" }
-	);
-
 export const crewMemberSchema = z.object({
 	groupId: z.enum(crewGroupIds),
 	name: z.string().trim().min(1, "Enter a name").max(80),
 	classOf: z.string().trim().max(10),
 	role: z.string().trim().min(1, "Enter a role").max(120),
-	imageUrl: photoUrl,
+	imageUrl: optionalBlobUrl,
 });
 
 export type CrewMemberInput = z.infer<typeof crewMemberSchema>;
