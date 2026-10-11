@@ -32,6 +32,7 @@ const { auth } = await import("@/auth");
 const { updateTag } = await import("next/cache");
 const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
+const announcementActions = await import("./announcement.ts");
 const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
@@ -65,6 +66,14 @@ const card = {
 	tags: "",
 	featured: false,
 	status: "published",
+};
+
+const announcementInput = {
+	text: "Applications close Friday",
+	linkUrl: "/opportunities",
+	linkLabel: "Apply",
+	isOn: true,
+	endsOn: "",
 };
 
 const notSignedIn = { ok: false, error: "Please sign in again." };
@@ -134,6 +143,12 @@ describe("signed out", () => {
 			await newsletterActions.savePresetAction("x", defaultNewsletter())
 		).toEqual(notSignedIn);
 		expect(await count(newsletters)).toBe(0);
+	});
+
+	it("can't change the announcement", async () => {
+		expect(
+			await announcementActions.saveAnnouncementAction(announcementInput)
+		).toEqual(notSignedIn);
 	});
 
 	it("can't triage the inbox", async () => {
@@ -348,6 +363,18 @@ describe("officers", () => {
 			row.updatedAt.toISOString()
 		);
 		expect(stale).toMatchObject({ ok: false, conflict: true });
+	});
+
+	it("can save the announcement, with bad links refused", async () => {
+		expect(
+			await announcementActions.saveAnnouncementAction(announcementInput)
+		).toEqual({ ok: true });
+		expect(updateTag).toHaveBeenCalledWith("announcement");
+		const bad = await announcementActions.saveAnnouncementAction({
+			...announcementInput,
+			linkUrl: "javascript:alert(1)",
+		});
+		expect(bad.ok).toBe(false);
 	});
 
 	it("can triage the inbox", async () => {

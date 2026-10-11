@@ -1,3 +1,4 @@
+import type { NewsletterData } from "../lib/newsletter/types.ts";
 import {
 	boolean,
 	date,
@@ -11,7 +12,6 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import type { NewsletterData } from "../lib/newsletter/types.ts";
 
 export const listingKind = pgEnum("listing_kind", [
 	"opportunity",
@@ -163,4 +163,19 @@ export const newsletterPresets = pgTable("newsletter_presets", {
 	data: jsonb().$type<NewsletterData>().notNull(),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	createdBy: text(),
+});
+
+/**
+The site-wide announcement banner. A single row (id is always 1).
+*/
+export const announcement = pgTable("announcement", {
+	id: integer().primaryKey().default(1),
+	text: text().notNull().default(""),
+	linkUrl: text().notNull().default(""),
+	linkLabel: text().notNull().default(""),
+	isOn: boolean().notNull().default(false),
+	// Last day it shows, in New York time. Empty means no end.
+	endsOn: date({ mode: "string" }),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedBy: text(),
 });

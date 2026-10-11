@@ -31,6 +31,11 @@ const baseItems: NavItem[] = [
 		icon: "scholarships",
 	},
 	{ href: "/dashboard/newsletter", label: "Newsletter", icon: "newsletter" },
+	{
+		href: "/dashboard/announcement",
+		label: "Announcement",
+		icon: "announcement",
+	},
 ];
 const adminItems: NavItem[] = [
 	{ href: "/dashboard/officers", label: "Officers", icon: "officers" },

@@ -6,6 +6,7 @@ import {
 	Gauge,
 	GraduationCap,
 	Inbox,
+	Megaphone,
 	Newspaper,
 	Plane,
 	Settings,
@@ -17,6 +18,7 @@ import { usePathname } from "next/navigation";
 const icons = {
 	overview: Gauge,
 	inbox: Inbox,
+	announcement: Megaphone,
 	opportunities: Plane,
 	scholarships: GraduationCap,
 	newsletter: Newspaper,

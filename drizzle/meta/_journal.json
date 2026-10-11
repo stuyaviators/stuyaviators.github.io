@@ -15,6 +15,13 @@
       "when": 1791687853929,
       "tag": "0001_phase3_dashboard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791724557633,
+      "tag": "0002_announcement",
+      "breakpoints": true
     }
   ]
 }

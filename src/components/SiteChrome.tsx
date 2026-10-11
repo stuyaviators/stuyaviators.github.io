@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
+import AnnouncementSlot from "@/components/AnnouncementSlot";
 import Footer from "@/components/Footer";
+import MailingListModal from "@/components/forms/MailingListModal";
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import SkyBackground from "@/components/SkyBackground";
 import TransitionProvider from "@/components/TransitionProvider";
-import MailingListModal from "@/components/forms/MailingListModal";
 import { signupFormConfig } from "@/lib/google-forms";
 
 /**
@@ -18,6 +19,7 @@ export default function SiteChrome({
 	return (
 		<>
 			<Header />
+			<AnnouncementSlot />
 			<TransitionProvider>
 				<main
 					id="main"
