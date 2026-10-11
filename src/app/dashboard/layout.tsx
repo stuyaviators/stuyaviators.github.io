@@ -12,6 +12,7 @@ import { Notice } from "@/components/dashboard/ui";
 import { ViewerProvider } from "@/components/dashboard/Viewer";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getDb } from "@/db";
+import { sweepOrphansIfDue } from "@/lib/blob-cleanup";
 import { countNewSubmissions } from "@/lib/inbox";
 import { isOpenSignIn } from "@/lib/open-signin";
 import { namesByEmail } from "@/lib/ownership";
@@ -21,6 +22,7 @@ import { purgeTrashIfDue } from "@/lib/trash";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { after } from "next/server";
 
 export const metadata: Metadata = {
 	title: { default: "Dashboard", template: "%s · Dashboard" },
@@ -86,6 +88,8 @@ export default async function DashboardLayout({
 		db && hasAccess(user, "inbox") ? await countNewSubmissions(db) : 0;
 	if (db) {
 		await purgeTrashIfDue(db);
+		// The daily unused-image sweep runs after the page has been sent.
+		after(async () => sweepOrphansIfDue(db));
 	}
 
 	const names = db ? await namesByEmail(db) : {};

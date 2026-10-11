@@ -7,6 +7,7 @@ import {
 	moveGalleryPhotoAction,
 	updateGalleryAltAction,
 } from "@/actions/gallery";
+import { discardImageAction } from "@/actions/uploads";
 import Confirm from "@/components/dashboard/Confirm";
 import { ImageField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
@@ -288,6 +289,22 @@ function ReferenceNote({ reference }: { readonly reference: Reference }) {
 	);
 }
 
+/**
+Removes an upload that was never used (best effort; a daily sweep catches
+anything this misses).
+*/
+async function discardUpload(url: string | undefined) {
+	if (url === undefined || url === "") {
+		return;
+	}
+
+	try {
+		await discardImageAction(url);
+	} catch {
+		// Offline, or signed out: the daily sweep removes it later.
+	}
+}
+
 const maxBulk = 5;
 
 type BulkRow = {
@@ -324,9 +341,13 @@ function BulkPhotoUpload({ onDone }: { readonly onDone: () => void }) {
 	}
 
 	async function didAdd(file: File, index: number): Promise<boolean> {
+		// The uploaded file, once there is one: removed again if adding fails,
+		// so a failed caption never leaves a photo behind in storage.
+		let uploadedUrl: string | undefined;
 		try {
 			update(index, { status: "uploading" });
 			const image = await uploadImageSized(file, "highlight");
+			uploadedUrl = image.url;
 			update(index, { status: "describing" });
 			const result = await addGalleryPhotoAction({
 				alt: "",
@@ -335,6 +356,7 @@ function BulkPhotoUpload({ onDone }: { readonly onDone: () => void }) {
 				height: image.height,
 			});
 			if (!result.ok) {
+				await discardUpload(uploadedUrl);
 				update(index, {
 					status: "failed",
 					message: result.fieldErrors?.alt ?? result.error,
@@ -345,6 +367,7 @@ function BulkPhotoUpload({ onDone }: { readonly onDone: () => void }) {
 			update(index, { status: "done" });
 			return true;
 		} catch (error) {
+			await discardUpload(uploadedUrl);
 			update(index, {
 				status: "failed",
 				message:
@@ -506,6 +529,12 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 				value={imageUrl}
 				error={errors.imageUrl ?? errors.width ?? errors.height}
 				onChange={(url) => {
+					// A photo that is removed or replaced is deleted from storage
+					// (never if it is in use somewhere else).
+					if (imageUrl !== "" && imageUrl !== url) {
+						void discardUpload(imageUrl);
+					}
+
 					setImageUrl(url);
 					setSize({ width: 0, height: 0 });
 				}}
