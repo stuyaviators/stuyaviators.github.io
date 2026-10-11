@@ -156,11 +156,10 @@ export const presets: Record<RoleName, number> = {
 		"listings",
 		"newsletters",
 		"gallery",
-		"testimonials",
 		"announcement",
 		"inbox",
 	]),
-	contributor: maskOf(["listings", "newsletters", "gallery", "testimonials"]),
+	contributor: maskOf(["listings", "newsletters", "gallery"]),
 };
 
 const uploadMask = maskOf([
@@ -275,9 +274,9 @@ export const roleDescriptions: Record<RoleName, string> = {
 	officer:
 		"Opportunities, scholarships, newsletters, gallery, testimonials, the banner and the inbox. Not the Flight Crew page. Can delete anything.",
 	manager:
-		"Everything a Contributor does, plus the banner and the inbox. Not the Flight Crew page, and can't manage people. Deletes only what they added.",
+		"Everything a Contributor does, plus the banner and the inbox. Not testimonials or the Flight Crew page, and can't manage people. Deletes only what they added.",
 	contributor:
-		"Opportunities, scholarships, newsletters, gallery and testimonials. Deletes only what they added.",
+		"Opportunities, scholarships, newsletters and the gallery. Deletes only what they added.",
 };
 
 /**

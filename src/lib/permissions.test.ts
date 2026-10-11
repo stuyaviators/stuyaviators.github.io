@@ -26,9 +26,7 @@ describe("the permission number", () => {
 
 	it("adds up the ticked boxes", () => {
 		expect(maskOf(["listings", "newsletters"])).toBe(3);
-		expect(maskOf(["listings", "newsletters", "gallery", "testimonials"])).toBe(
-			15
-		);
+		expect(maskOf(["listings", "newsletters", "gallery"])).toBe(7);
 		expect(maskOf([])).toBe(0);
 	});
 
@@ -60,8 +58,8 @@ describe("the ready-made roles", () => {
 		expect(presets).toEqual({
 			admin: 2047,
 			officer: 623,
-			manager: 111,
-			contributor: 15,
+			manager: 103,
+			contributor: 7,
 		});
 	});
 
@@ -83,13 +81,13 @@ describe("the ready-made roles", () => {
 		).toEqual(["admin"]);
 	});
 
-	it("contributors do cards, newsletters, gallery and testimonials", () => {
+	it("contributors do cards, newsletters and the gallery", () => {
 		expect(
 			areas.filter((area) => canAccess(presets.contributor, area))
-		).toEqual(["listings", "newsletters", "gallery", "testimonials"]);
+		).toEqual(["listings", "newsletters", "gallery"]);
 	});
 
-	it("officers are contributors plus the banner and inbox, but not the Flight Crew", () => {
+	it("officers are contributors plus testimonials, the banner and inbox, but not the Flight Crew", () => {
 		expect(areas.filter((area) => canAccess(presets.officer, area))).toEqual([
 			"listings",
 			"newsletters",
@@ -102,19 +100,23 @@ describe("the ready-made roles", () => {
 		expect(hasPermission(presets.officer, "deleteOthers")).toBe(true);
 	});
 
-	it("managers are contributors plus the banner and inbox: no Flight Crew, no people", () => {
+	it("managers are contributors plus the banner and inbox: no testimonials, no Flight Crew, no people", () => {
 		expect(areas.filter((area) => canAccess(presets.manager, area))).toEqual([
 			"listings",
 			"newsletters",
 			"gallery",
-			"testimonials",
 			"announcement",
 			"inbox",
 		]);
+		expect(canAccess(presets.manager, "testimonials")).toBe(false);
 		expect(canAccess(presets.manager, "crew")).toBe(false);
 		expect(hasPermission(presets.manager, "deleteOthers")).toBe(false);
-		// The same as an officer, minus deleting other people's items.
-		expect(presets.manager).toBe(presets.officer - 512);
+	});
+
+	it("only officers and admins reach testimonials", () => {
+		expect(
+			roles.filter((role) => canAccess(presets[role], "testimonials"))
+		).toEqual(["admin", "officer"]);
 	});
 
 	it("only admins reach the Flight Crew page", () => {

@@ -129,17 +129,17 @@ beforeEach(async () => {
 	delete process.env.BLOB_READ_WRITE_TOKEN;
 });
 
-describe("contributor (cards, newsletters, gallery, testimonials)", () => {
+describe("contributor (cards, newsletters, gallery)", () => {
 	beforeEach(async () => {
 		await addPerson("contrib@stuy.edu", "contributor");
 		signInAs("contrib@stuy.edu");
 	});
 
-	it("can add cards, photos and quotes, but not reach anything else", async () => {
+	it("can add cards and photos, but not reach anything else", async () => {
 		expect((await listingActions.saveListing(undefined, card)).ok).toBe(true);
 		expect((await galleryActions.addGalleryPhotoAction(photo)).ok).toBe(true);
-		expect((await testimonialActions.addTestimonialAction(quote)).ok).toBe(
-			true
+		expect(await testimonialActions.addTestimonialAction(quote)).toEqual(
+			denied
 		);
 		expect(await crewActions.addCrewMemberAction(crewPerson)).toEqual(denied);
 		expect(await announcementActions.saveAnnouncementAction(banner)).toEqual(
@@ -201,24 +201,27 @@ describe("contributor (cards, newsletters, gallery, testimonials)", () => {
 		expect(rows.find((row) => row.id === mine!.id)?.deletedAt).not.toBeNull();
 	});
 
-	it("can't delete quotes with no recorded creator", async () => {
+	it("can't delete photos with no recorded creator", async () => {
 		const [legacy] = await testDb!
-			.insert(testimonials)
-			.values({ ...quote })
+			.insert(galleryPhotos)
+			.values({ ...photo })
 			.returning();
-		expect(
-			(await testimonialActions.deleteTestimonialAction(legacy!.id)).ok
-		).toBe(false);
+		expect((await galleryActions.deleteGalleryPhotoAction(legacy!.id)).ok).toBe(
+			false
+		);
 	});
 });
 
-describe("officer (contributor plus banner and inbox, no Flight Crew)", () => {
+describe("officer (contributor plus testimonials, banner and inbox, no Flight Crew)", () => {
 	beforeEach(async () => {
 		await addPerson("officer@stuy.edu", "officer");
 		signInAs("officer@stuy.edu");
 	});
 
-	it("reaches the banner and inbox, but not the Flight Crew", async () => {
+	it("reaches testimonials, the banner and inbox, but not the Flight Crew", async () => {
+		expect((await testimonialActions.addTestimonialAction(quote)).ok).toBe(
+			true
+		);
 		expect((await announcementActions.saveAnnouncementAction(banner)).ok).toBe(
 			true
 		);
@@ -244,7 +247,7 @@ describe("officer (contributor plus banner and inbox, no Flight Crew)", () => {
 	});
 });
 
-describe("manager (contributor plus banner and inbox, no Flight Crew, no people)", () => {
+describe("manager (contributor plus banner and inbox, no testimonials, no Flight Crew, no people)", () => {
 	beforeEach(async () => {
 		await addPerson("manager@stuy.edu", "manager");
 		signInAs("manager@stuy.edu");
@@ -259,7 +262,10 @@ describe("manager (contributor plus banner and inbox, no Flight Crew, no people)
 		expect((await unreadRoute.GET()).status).toBe(200);
 	});
 
-	it("can't edit the Flight Crew page", async () => {
+	it("can't edit testimonials or the Flight Crew page", async () => {
+		expect(await testimonialActions.addTestimonialAction(quote)).toEqual(
+			denied
+		);
 		expect(await crewActions.addCrewMemberAction(crewPerson)).toEqual(denied);
 		expect(await crewActions.importCrewAction()).toEqual(denied);
 		expect(
