@@ -25,6 +25,7 @@ const permissionKeys = [
 	"testimonials",
 	"crew",
 	"announcement",
+	"meetings",
 	"inbox",
 	"officers",
 	"settings",
@@ -73,6 +74,12 @@ export const permissionList: readonly Permission[] = [
 		label: "Announcement banner",
 		hint: "Change the site-wide banner",
 		value: 32,
+	},
+	{
+		key: "meetings",
+		label: "Meetings board",
+		hint: "Add and edit meetings on the departure board",
+		value: 2048,
 	},
 	{
 		key: "inbox",
@@ -149,6 +156,7 @@ export const presets: Record<RoleName, number> = {
 		"gallery",
 		"testimonials",
 		"announcement",
+		"meetings",
 		"inbox",
 		"deleteOthers",
 	]),
@@ -157,6 +165,7 @@ export const presets: Record<RoleName, number> = {
 		"newsletters",
 		"gallery",
 		"announcement",
+		"meetings",
 		"inbox",
 	]),
 	contributor: maskOf(["listings", "newsletters", "gallery"]),
@@ -272,9 +281,9 @@ export const roleLabels: Record<StoredRole, string> = {
 export const roleDescriptions: Record<RoleName, string> = {
 	admin: "Everything, including settings and who can do what.",
 	officer:
-		"Opportunities, scholarships, newsletters, gallery, testimonials, the banner and the inbox. Not the Flight Crew page. Can delete anything.",
+		"Opportunities, scholarships, newsletters, gallery, testimonials, the banner, the meetings board and the inbox. Not the Flight Crew page. Can delete anything.",
 	manager:
-		"Everything a Contributor does, plus the banner and the inbox. Not testimonials or the Flight Crew page, and can't manage people. Deletes only what they added.",
+		"Everything a Contributor does, plus the banner, the meetings board and the inbox. Not testimonials or the Flight Crew page, and can't manage people. Deletes only what they added.",
 	contributor:
 		"Opportunities, scholarships, newsletters and the gallery. Deletes only what they added.",
 };

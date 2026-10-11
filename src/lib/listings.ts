@@ -1,6 +1,7 @@
 import { getDb } from "@/db";
 import { listings } from "@/db/schema";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { deadlineOrder } from "@/lib/listing-order";
+import { and, eq, isNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export type Listing = typeof listings.$inferSelect;
@@ -15,7 +16,7 @@ export {
 } from "./listing-dates.ts";
 
 /**
-Published, not deleted; ordered by sort order then deadline.
+Published, not deleted; soonest deadline first (see listing-order.ts).
 */
 export const getPublishedListings = unstable_cache(
 	async (kind: ListingKind): Promise<Listing[]> => {
@@ -35,7 +36,7 @@ export const getPublishedListings = unstable_cache(
 						isNull(listings.deletedAt)
 					)
 				)
-				.orderBy(asc(listings.sortOrder), asc(listings.deadline));
+				.orderBy(...deadlineOrder);
 		} catch (error) {
 			console.error("Could not load listings", error);
 			return [];

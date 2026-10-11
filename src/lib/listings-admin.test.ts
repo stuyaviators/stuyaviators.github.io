@@ -1,5 +1,9 @@
 import type { Database } from "@/db";
-import { didDeleteFromTrash, didMoveToTrash, didRestoreFromTrash } from "@/lib/trash";
+import {
+	didDeleteFromTrash,
+	didMoveToTrash,
+	didRestoreFromTrash,
+} from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
@@ -7,7 +11,6 @@ import {
 	getListing,
 	listForDashboard,
 	listingInput,
-	moveListing,
 	setListingStatus,
 	updateListing,
 } from "./listings-admin.ts";
@@ -207,49 +210,36 @@ describe("ordering", () => {
 		);
 	}
 
-	async function seed() {
-		const ids: string[] = [];
-		for (const title of ["A", "B", "C"]) {
-			// eslint-disable-next-line no-await-in-loop
-			const card = await createListing(
-				db,
-				listingInput.parse({ ...valid, title }),
-				"x"
-			);
-			ids.push(card.id);
-		}
-
-		return ids as [string, string, string];
+	async function add(title: string, deadline: string) {
+		await createListing(
+			db,
+			listingInput.parse({ ...valid, title, deadline }),
+			"x"
+		);
 	}
 
-	it("moves cards up and down", async () => {
-		const [a, , c] = await seed();
-		await moveListing(db, c, "up");
-		expect(await titles()).toEqual(["A", "C", "B"]);
-		await moveListing(db, a, "down");
-		expect(await titles()).toEqual(["C", "A", "B"]);
+	it("sorts by deadline: soonest first, cards with no deadline last", async () => {
+		await add("Rolling", "");
+		await add("March", "2027-03-01");
+		await add("January", "2027-01-15");
+		await add("Rolling too", "");
+		expect(await titles()).toEqual([
+			"January",
+			"March",
+			// The newest of the cards with no deadline comes first.
+			"Rolling too",
+			"Rolling",
+		]);
 	});
 
-	it("does nothing at the ends", async () => {
-		const [a, , c] = await seed();
-		await moveListing(db, a, "up");
-		await moveListing(db, c, "down");
-		expect(await titles()).toEqual(["A", "B", "C"]);
-	});
-
-	it("doesn't disturb the other kind", async () => {
-		const [a] = await seed();
-		const other = await createListing(
+	it("keeps each kind to itself", async () => {
+		await add("A", "2027-01-15");
+		await createListing(
 			db,
 			listingInput.parse({ ...valid, kind: "opportunity", title: "O" }),
 			"x"
 		);
-		await moveListing(db, a, "down");
-		expect((await getListing(db, other.id))?.sortOrder).toBe(0);
-	});
-
-	it("returns undefined for a card that doesn't exist", async () => {
-		expect(await moveListing(db, crypto.randomUUID(), "up")).toBeUndefined();
+		expect(await titles()).toEqual(["A"]);
 	});
 });
 

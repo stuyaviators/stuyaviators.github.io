@@ -4,6 +4,7 @@ import { buildCalendar, escapeText, foldLine } from "./ics.ts";
 
 const meeting: Meeting = {
 	id: "epsilon-1",
+	source: "epsilon",
 	title: "Flight sim, part 2; bring snacks",
 	start: "2026-10-16T19:35:00Z",
 	end: "2026-10-16T21:00:00Z",

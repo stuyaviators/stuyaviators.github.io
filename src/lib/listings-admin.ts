@@ -1,9 +1,10 @@
 import type { Database } from "@/db";
 import type { Listing, ListingKind } from "@/lib/listings";
 import { listings } from "@/db/schema";
+import { deadlineOrder } from "@/lib/listing-order";
 import { listingSlug } from "@/lib/listing-slug";
 import { optionalUrl } from "@/lib/newsletter/types";
-import { and, asc, desc, eq, isNotNull, isNull, like, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, like, sql } from "drizzle-orm";
 import { z } from "zod";
 
 /*
@@ -109,7 +110,7 @@ export async function listForDashboard(
 		.select()
 		.from(listings)
 		.where(and(eq(listings.kind, kind), isNull(listings.deletedAt)))
-		.orderBy(asc(listings.sortOrder), asc(listings.createdAt));
+		.orderBy(...deadlineOrder);
 }
 
 export async function getListing(
@@ -206,44 +207,6 @@ export async function setListingStatus(
 		.returning();
 	const updated = updatedRows.at(0);
 	return updated;
-}
-
-/**
-Moves a card one place up or down, renumbering its kind in one statement.
-*/
-export async function moveListing(
-	db: Database,
-	id: string,
-	direction: "up" | "down"
-): Promise<ListingKind | undefined> {
-	const listing = await getListing(db, id);
-	if (!listing) {
-		return undefined;
-	}
-
-	const ordered = await listForDashboard(db, listing.kind);
-	const index = ordered.findIndex((item) => item.id === id);
-	const target = direction === "up" ? index - 1 : index + 1;
-	if (index === -1 || target < 0 || target >= ordered.length) {
-		return listing.kind;
-	}
-
-	const ids = ordered.map((item) => item.id);
-	ids.splice(target, 0, ...ids.splice(index, 1));
-	const cases = sql.join(
-		ids.map((item, order) => sql`when ${item}::uuid then ${order}::int`),
-		sql` `
-	);
-	await db
-		.update(listings)
-		.set({ sortOrder: sql`case ${listings.id} ${cases} end` })
-		.where(
-			sql`${listings.id} in (${sql.join(
-				ids.map((item) => sql`${item}::uuid`),
-				sql`, `
-			)})`
-		);
-	return listing.kind;
 }
 
 /**

@@ -19,7 +19,10 @@ import {
 
 describe("the permission number", () => {
 	it("gives every box its own power of two, so every mix is a different number", () => {
-		const values = permissionList.map((permission) => permission.value);
+		// The list is in the order the dashboard shows it, not in value order.
+		const values = permissionList
+			.map((permission) => permission.value)
+			.toSorted((a, b) => a - b);
 		expect(values).toEqual(values.map((_, index) => 2 ** index));
 		expect(allPermissions).toBe(2 ** values.length - 1);
 	});
@@ -56,9 +59,9 @@ describe("the ready-made roles", () => {
 	it("are Admin, Officer, Manager and Contributor", () => {
 		expect(roles).toEqual(["admin", "officer", "manager", "contributor"]);
 		expect(presets).toEqual({
-			admin: 2047,
-			officer: 623,
-			manager: 103,
+			admin: 4095,
+			officer: 2671,
+			manager: 2151,
 			contributor: 7,
 		});
 	});
@@ -87,25 +90,27 @@ describe("the ready-made roles", () => {
 		).toEqual(["listings", "newsletters", "gallery"]);
 	});
 
-	it("officers are contributors plus testimonials, the banner and inbox, but not the Flight Crew", () => {
+	it("officers are contributors plus testimonials, the banner, meetings and inbox, but not the Flight Crew", () => {
 		expect(areas.filter((area) => canAccess(presets.officer, area))).toEqual([
 			"listings",
 			"newsletters",
 			"gallery",
 			"testimonials",
 			"announcement",
+			"meetings",
 			"inbox",
 		]);
 		expect(canAccess(presets.officer, "crew")).toBe(false);
 		expect(hasPermission(presets.officer, "deleteOthers")).toBe(true);
 	});
 
-	it("managers are contributors plus the banner and inbox: no testimonials, no Flight Crew, no people", () => {
+	it("managers are contributors plus the banner, meetings and inbox: no testimonials, no Flight Crew, no people", () => {
 		expect(areas.filter((area) => canAccess(presets.manager, area))).toEqual([
 			"listings",
 			"newsletters",
 			"gallery",
 			"announcement",
+			"meetings",
 			"inbox",
 		]);
 		expect(canAccess(presets.manager, "testimonials")).toBe(false);

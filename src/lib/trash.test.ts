@@ -2,6 +2,7 @@
 
 import type { Database } from "@/db";
 import {
+	clubMeetings,
 	crewMembers,
 	galleryPhotos,
 	listings,
@@ -64,6 +65,10 @@ async function oneOfEach() {
 		.insert(crewMembers)
 		.values({ groupId: "helpers", name: "Peter", role: "Helper" })
 		.returning();
+	const [meeting] = await db
+		.insert(clubMeetings)
+		.values({ title: "FSD night", startsAt: new Date("2026-10-21T19:35:00Z") })
+		.returning();
 	return [
 		["listing", listing!.id],
 		["newsletter", newsletter!.id],
@@ -71,6 +76,7 @@ async function oneOfEach() {
 		["gallery", photo!.id],
 		["testimonial", quote!.id],
 		["crew", person!.id],
+		["meeting", meeting!.id],
 	] as const;
 }
 

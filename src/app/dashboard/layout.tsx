@@ -55,11 +55,13 @@ const baseItems: NavItem[] = [
 		label: "Announcement",
 		icon: "announcement",
 	},
+	{ href: "/dashboard/meetings", label: "Meetings", icon: "meetings" },
 ];
 const navAccess: Record<NavItem["icon"], Access> = {
 	overview: "any",
 	inbox: "inbox",
 	announcement: "announcement",
+	meetings: "meetings",
 	crew: "crew",
 	gallery: "gallery",
 	testimonials: "testimonials",

@@ -2,6 +2,7 @@ import type { Database } from "@/db";
 import type { ActionError } from "@/lib/action-guard";
 import type { User } from "@/lib/users";
 import {
+	clubMeetings,
 	crewMembers,
 	galleryPhotos,
 	listings,
@@ -27,6 +28,7 @@ const tables = {
 	gallery: galleryPhotos,
 	testimonial: testimonials,
 	crew: crewMembers,
+	meeting: clubMeetings,
 } as const;
 
 export const notYours: ActionError = {

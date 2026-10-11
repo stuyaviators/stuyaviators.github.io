@@ -1,11 +1,7 @@
 "use client";
 
 import type { Listing } from "@/lib/listings";
-import {
-	moveListingAction,
-	publishListing,
-	trashListing,
-} from "@/actions/listings";
+import { publishListing, trashListing } from "@/actions/listings";
 import Confirm from "@/components/dashboard/Confirm";
 import { Badge, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
@@ -19,15 +15,7 @@ import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { daysUntil, isClosingSoon, isExpired } from "@/lib/listing-dates";
 import { listingPath } from "@/lib/listing-path";
-import {
-	ArrowDown,
-	ArrowUp,
-	ExternalLink,
-	Eye,
-	EyeOff,
-	Pencil,
-	Trash2,
-} from "lucide-react";
+import { ExternalLink, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -52,7 +40,7 @@ export default function ListingRows({
 				</Notice>
 			) : null}
 			<ul className="dash-stagger space-y-3">
-				{listings.map((listing, index) => {
+				{listings.map((listing) => {
 					const isPast = isExpired(listing);
 					const isClosing = isClosingSoon(listing);
 					return (
@@ -105,34 +93,6 @@ export default function ListingRows({
 												page
 											</Link>
 										) : null}
-										<Button
-											variant="ghost"
-											aria-label={`Move ${listing.title} up`}
-											disabled={isPending || index === 0}
-											onClick={() => {
-												run(
-													async () => moveListingAction(listing.id, "up"),
-													undefined,
-													"Moved up"
-												);
-											}}
-										>
-											<ArrowUp aria-hidden className="size-4" />
-										</Button>
-										<Button
-											variant="ghost"
-											aria-label={`Move ${listing.title} down`}
-											disabled={isPending || index === listings.length - 1}
-											onClick={() => {
-												run(
-													async () => moveListingAction(listing.id, "down"),
-													undefined,
-													"Moved down"
-												);
-											}}
-										>
-											<ArrowDown aria-hidden className="size-4" />
-										</Button>
 										<Button
 											variant="secondary"
 											disabled={isPending}

@@ -27,6 +27,7 @@ describe("parseEpsilonMeetings", () => {
 		expect(meetings).toEqual([
 			{
 				id: "epsilon-1",
+				source: "epsilon",
 				title: "FSD Night",
 				code: "FSD",
 				start: "2026-10-21T19:35:00+00:00",

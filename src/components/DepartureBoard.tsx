@@ -4,10 +4,11 @@ import Link from "next/link";
 
 /*
  * Split-flap style departure board for upcoming meetings. Characters flip in
- * once via CSS (disabled under prefers-reduced-motion). Each meeting has a
- * "View on Epsilon" button. When Epsilon can't be read (no working token) the
- * board says it is down and points to Epsilon; when it can be read but nothing
- * is scheduled it shows the charter's regular schedule.
+ * once via CSS (disabled under prefers-reduced-motion). Each row opens that
+ * meeting's own page (the title link is stretched over the row). When nothing
+ * can be read (Epsilon has no working token and no meeting was added by hand)
+ * the board says it is down and points to Epsilon; when it can be read but
+ * nothing is scheduled it shows the charter's regular schedule.
  */
 const timeFormat = new Intl.DateTimeFormat("en-US", {
 	timeZone: "America/New_York",
@@ -65,6 +66,11 @@ const statusLabel: Record<Meeting["status"], string> = {
 	moved: "Moved",
 };
 
+const rowLink =
+	"after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2";
+const detailsHint =
+	"label inline-flex items-center gap-1 rounded-full border border-board-line px-3 py-1 text-board-text transition-colors group-hover:border-board-text group-focus-within:border-board-text";
+
 const epsilonButton =
 	"label inline-flex items-center gap-1 rounded-full border border-board-line px-3 py-1 text-board-text transition-colors hover:border-board-text";
 
@@ -72,11 +78,14 @@ export default function DepartureBoard({
 	meetings,
 	status = "up",
 	showAllLink = true,
+	isEpsilonUp = true,
 }: {
 	readonly meetings: Meeting[];
 	// "down" when Epsilon can't be read: shows the notice instead of meetings.
 	readonly status?: "up" | "down";
 	readonly showAllLink?: boolean;
+	// False when Epsilon couldn't be read but meetings added by hand are shown.
+	readonly isEpsilonUp?: boolean;
 }) {
 	const epsilonUrl = epsilonClubUrl();
 	if (status === "down") {
@@ -107,6 +116,9 @@ export default function DepartureBoard({
 			</div>
 		);
 	}
+
+	// Epsilon couldn't be read, so what is shown may be old or incomplete.
+	const isStale = !isEpsilonUp && meetings.length > 0;
 
 	return (
 		<div className="overflow-hidden rounded-2xl border border-board-line bg-board-bg font-mono text-board-text shadow-card">
@@ -149,7 +161,10 @@ export default function DepartureBoard({
 						meetings.map((meeting) => {
 							const start = new Date(meeting.start);
 							return (
-								<tr key={meeting.id} className="border-t border-board-line">
+								<tr
+									key={meeting.id}
+									className="group relative border-t border-board-line transition-colors hover:bg-board-line/30 focus-within:bg-board-line/30"
+								>
 									<td className="px-4 py-3 sm:px-6">
 										<Flap text={timeFormat.format(start)} />
 									</td>
@@ -162,7 +177,9 @@ export default function DepartureBoard({
 												{meeting.code}
 											</span>
 										) : null}
-										<Flap text={meeting.title} />
+										<Link href={`/meetings/${meeting.id}`} className={rowLink}>
+											<Flap text={meeting.title} />
+										</Link>
 									</td>
 									<td className="hidden px-2 py-3 sm:table-cell">
 										{meeting.room ?? "TBA"}
@@ -173,15 +190,9 @@ export default function DepartureBoard({
 										{statusLabel[meeting.status].toUpperCase()}
 									</td>
 									<td className="px-4 py-3 text-right whitespace-nowrap sm:px-6">
-										<a
-											href={epsilonUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											aria-label={`View ${meeting.title} on Epsilon (opens in a new tab)`}
-											className={epsilonButton}
-										>
-											View on Epsilon <span aria-hidden>↗</span>
-										</a>
+										<span aria-hidden className={detailsHint}>
+											Details <span>→</span>
+										</span>
 									</td>
 								</tr>
 							);
@@ -214,7 +225,10 @@ export default function DepartureBoard({
 					meetings.map((meeting) => {
 						const start = new Date(meeting.start);
 						return (
-							<li key={meeting.id} className="px-4 py-3">
+							<li
+								key={meeting.id}
+								className="group relative px-4 py-3 transition-colors hover:bg-board-line/30 focus-within:bg-board-line/30"
+							>
 								<div className="flex items-baseline justify-between gap-3 text-sm">
 									<span>
 										<Flap text={timeFormat.format(start)} />{" "}
@@ -235,20 +249,16 @@ export default function DepartureBoard({
 									{meeting.code ? (
 										<span className="mr-2 text-board-dim">{meeting.code}</span>
 									) : null}
-									<Flap text={meeting.title} />
+									<Link href={`/meetings/${meeting.id}`} className={rowLink}>
+										<Flap text={meeting.title} />
+									</Link>
 								</p>
 								<p className="label mt-1 text-board-dim">
 									Room {meeting.room ?? "TBA"}
 								</p>
-								<a
-									href={epsilonUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label={`View ${meeting.title} on Epsilon (opens in a new tab)`}
-									className={`${epsilonButton} mt-3`}
-								>
-									View on Epsilon <span aria-hidden>↗</span>
-								</a>
+								<span aria-hidden className={`${detailsHint} mt-3`}>
+									Details <span>→</span>
+								</span>
 							</li>
 						);
 					})
@@ -263,16 +273,40 @@ export default function DepartureBoard({
 					</li>
 				)}
 			</ul>
-			{showAllLink ? (
+			{showAllLink || isStale ? (
 				<div className="flex flex-wrap justify-between gap-2 border-t border-board-line px-4 py-3 text-sm sm:px-6">
 					<p className="text-board-dim">
-						{meetings.length > 0
-							? "Times shown in New York time."
-							: "Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."}
+						{meetings.length > 0 ? (
+							<>
+								Times shown in New York time.
+								{isStale ? (
+									<>
+										{" "}
+										<a
+											href={epsilonUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline underline-offset-4"
+										>
+											Check Epsilon
+											<span className="sr-only"> (opens in a new tab)</span>
+										</a>{" "}
+										for the most up-to-date info.
+									</>
+								) : null}
+							</>
+						) : (
+							"Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."
+						)}
 					</p>
-					<Link href="/meetings" className="label underline underline-offset-4">
-						All meetings →
-					</Link>
+					{showAllLink ? (
+						<Link
+							href="/meetings"
+							className="label underline underline-offset-4"
+						>
+							All meetings →
+						</Link>
+					) : null}
 				</div>
 			) : null}
 		</div>

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import {
+	CalendarClock,
 	FileText,
 	Gauge,
 	GraduationCap,
@@ -23,6 +24,7 @@ const icons = {
 	overview: Gauge,
 	inbox: Inbox,
 	announcement: Megaphone,
+	meetings: CalendarClock,
 	crew: UsersRound,
 	gallery: Images,
 	testimonials: Quote,

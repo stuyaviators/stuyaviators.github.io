@@ -1,4 +1,5 @@
 import { getDb } from "@/db";
+import { getPublicClubMeetings, meetingsTag } from "@/lib/club-meetings";
 import { epsilonConfig, getEpsilonAccessToken } from "@/lib/epsilon-token";
 import { z } from "zod";
 
@@ -14,12 +15,16 @@ import { z } from "zod";
  * fallback list). Only meeting fields are requested, never members.
  */
 
-export const meetingsTag = "meetings";
+export { meetingsTag } from "@/lib/club-meetings";
 
 export type MeetingStatus = "scheduled" | "cancelled" | "moved";
 
 export type Meeting = {
 	id: string;
+	/**
+	Where it came from: read from Epsilon, or added by an officer in the dashboard.
+	*/
+	source: "epsilon" | "club";
 	title: string;
 	/**
 	Meeting-type code from the Meetings page (FSD, CLP, PCI, ATC, SLC).
@@ -30,6 +35,11 @@ export type Meeting = {
 	room?: string;
 	status: MeetingStatus;
 	description?: string;
+	/**
+	A link an officer added (a sign-up, a call, a form) and its button text.
+	*/
+	linkUrl?: string;
+	linkLabel?: string;
 };
 
 const epsilonMeeting = z.object({
@@ -64,6 +74,7 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 		const title = meeting.title.trim();
 		meetings.push({
 			id: `epsilon-${meeting.id}`,
+			source: "epsilon",
 			title,
 			code: codes.find((code) =>
 				new RegExp(String.raw`\b${code}\b`, "u").test(title)
@@ -128,28 +139,51 @@ export function epsilonClubUrl(): string {
 }
 
 export type MeetingBoard =
-	{ isUp: true; meetings: Meeting[] } | { isUp: false; meetings?: undefined };
+	| { isUp: true; meetings: Meeting[]; isEpsilonUp: boolean }
+	| { isUp: false; meetings?: undefined; isEpsilonUp: false };
+
+const byStart = (a: Meeting, b: Meeting) => a.start.localeCompare(b.start);
 
 /**
-The upcoming meetings, or `isUp: false` when Epsilon can't be read (no token
-saved, or it doesn't work): the board then says so instead of guessing.
+Every meeting we know of, from Epsilon and added by hand, soonest first.
+`isEpsilonUp` is false when Epsilon couldn't be read (no token saved, or it
+doesn't work).
+*/
+async function getAllMeetings(): Promise<{
+	meetings: Meeting[];
+	isEpsilonUp: boolean;
+}> {
+	const [fromEpsilon, fromClub] = await Promise.all([
+		fetchEpsilonMeetings().catch(() => undefined),
+		getPublicClubMeetings(),
+	]);
+	return {
+		meetings: [...(fromEpsilon ?? []), ...fromClub].toSorted(byStart),
+		isEpsilonUp: fromEpsilon !== undefined,
+	};
+}
+
+/**
+The upcoming meetings. The board is down only when Epsilon can't be read and
+no one has added a meeting by hand: it then says so instead of guessing.
 */
 export async function getMeetingBoard(
 	now = new Date(),
 	limit = 6
 ): Promise<MeetingBoard> {
-	let meetings: Meeting[];
-	try {
-		meetings = await fetchEpsilonMeetings();
-	} catch {
-		return { isUp: false };
-	}
+	const { meetings, isEpsilonUp } = await getAllMeetings();
+	const upcoming = meetings
+		.filter((meeting) => new Date(meeting.end ?? meeting.start) >= now)
+		.slice(0, limit);
+	return !isEpsilonUp && upcoming.length === 0
+		? { isUp: false, isEpsilonUp: false }
+		: { isUp: true, meetings: upcoming, isEpsilonUp };
+}
 
-	return {
-		isUp: true,
-		meetings: meetings
-			.filter((meeting) => new Date(meeting.end ?? meeting.start) >= now)
-			.toSorted((a, b) => a.start.localeCompare(b.start))
-			.slice(0, limit),
-	};
+/**
+One meeting by the id in its address, past or upcoming.
+*/
+export async function getMeeting(id: string): Promise<Meeting | undefined> {
+	const { meetings } = await getAllMeetings();
+	return meetings.find((meeting) => meeting.id === id);
 }
