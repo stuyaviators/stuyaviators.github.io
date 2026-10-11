@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { site } from "@/content/site";
 import { listingPath } from "@/lib/listing-path";
 import { getPublishedListing } from "@/lib/listings";
-import { renderOg } from "@/lib/og";
+import { renderOg, renderPictureOg } from "@/lib/og";
+import { fetchOgPicture } from "@/lib/og-picture";
 import { notFound } from "next/navigation";
 import { formatDate } from "./ListingCard.tsx";
 import ListingDetail from "./ListingDetail.tsx";
@@ -68,8 +69,21 @@ export async function renderListingOg({
 		return renderOg({ title: noun, eyebrow: "StuyAviators", photo });
 	}
 
+	// A card with its own picture shares that picture; one without (or with a
+	// picture we can't draw) gets the usual club-photo card.
+	const picture = await fetchOgPicture(listing.imageUrl ?? undefined);
+	if (picture) {
+		return renderPictureOg({
+			picture,
+			label: `${noun} · ${listing.organization}`.slice(0, 48),
+		});
+	}
+
 	let detail: string | undefined;
-	if (listing.deadline) {
+	if (kind === "opportunity") {
+		const when = listing.startDate ?? listing.deadline;
+		detail = when ? formatDate(when) : undefined;
+	} else if (listing.deadline) {
 		detail = `Deadline ${formatDate(listing.deadline)}`;
 	} else if (listing.amount) {
 		detail = listing.amount;
