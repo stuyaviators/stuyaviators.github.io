@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { captionPhoto, cleanCaption, readCaption } from "./ai-caption.ts";
+import {
+	captionPhoto,
+	cleanCaption,
+	failureMessage,
+	readCaption,
+} from "./ai-caption.ts";
 
 describe("cleanCaption", () => {
 	it("makes one line without surrounding quotes", () => {
@@ -29,6 +34,16 @@ describe("readCaption", () => {
 			readCaption({ candidates: [{ content: { parts: [{ text: "  " }] } }] })
 		).toBeUndefined();
 		expect(readCaption("nope")).toBeUndefined();
+	});
+});
+
+describe("failureMessage", () => {
+	it("says what is wrong for the common refusals", () => {
+		expect(failureMessage(402)).toMatch(/out of credits/u);
+		expect(failureMessage(401)).toMatch(/key/u);
+		expect(failureMessage(403)).toMatch(/key/u);
+		expect(failureMessage(400)).toMatch(/set up wrong/u);
+		expect(failureMessage(500)).toMatch(/said no/u);
 	});
 });
 
