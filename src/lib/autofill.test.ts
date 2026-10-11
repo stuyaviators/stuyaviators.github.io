@@ -75,6 +75,15 @@ describe("parsePage", () => {
 		expect(result).toEqual({ organization: "example.edu" });
 	});
 
+	it("finds the page's picture and resolves a relative address", () => {
+		const html = `<meta property="og:image" content="/img/card.jpg">`;
+		expect(parsePage(html, url, "scholarship").imageUrl).toBe(
+			"https://www.example.edu/img/card.jpg"
+		);
+		const twitter = `<meta name="twitter:image" content="javascript:alert(1)">`;
+		expect(parsePage(twitter, url, "scholarship").imageUrl).toBeUndefined();
+	});
+
 	it("keeps the short description within the form's limit", () => {
 		const long = "word ".repeat(300);
 		const html = `<meta name="description" content="${long}">`;

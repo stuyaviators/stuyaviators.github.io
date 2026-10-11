@@ -21,6 +21,8 @@ export type Suggestion = Partial<{
 	endDate: string;
 	location: string;
 	eligibility: string;
+	// Where the page's picture lives. The action re-hosts it in our own storage.
+	imageUrl: string;
 }>;
 
 const entities: Record<string, string> = {
@@ -414,6 +416,33 @@ function placeOf(location: unknown): string | undefined {
 	return [text(first.name), city].filter(Boolean).join(", ") || undefined;
 }
 
+function findImage(
+	meta: Map<string, string>,
+	item: Json | undefined,
+	pageUrl: URL
+): string | undefined {
+	const fromData: unknown = Array.isArray(item?.image)
+		? item.image[0]
+		: item?.image;
+	const candidate =
+		meta.get("og:image") ??
+		meta.get("og:image:url") ??
+		meta.get("twitter:image") ??
+		text(isJson(fromData) ? fromData.url : fromData);
+	if (candidate === undefined) {
+		return undefined;
+	}
+
+	try {
+		const url = new URL(candidate, pageUrl);
+		return url.protocol === "https:" || url.protocol === "http:"
+			? url.href
+			: undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 function hostLabel(url: URL): string {
 	return url.hostname.replace(/^www\./u, "");
 }
@@ -474,6 +503,11 @@ export function parsePage(
 	const long = paras.slice(0, 5).join("\n\n");
 	if (long && long !== result.summary) {
 		result.description = cut(long, 3000);
+	}
+
+	const image = findImage(meta, item, pageUrl);
+	if (image !== undefined) {
+		result.imageUrl = image;
 	}
 
 	const deadline = findDeadline(body);
@@ -592,13 +626,15 @@ async function assertPublic(url: URL) {
 	}
 }
 
-const maxBytes = 1_500_000;
 const maxRedirects = 4;
 
-async function readCapped(response: Response): Promise<string> {
+async function readCapped(
+	response: Response,
+	maxBytes: number
+): Promise<Uint8Array> {
 	const reader = response.body?.getReader();
 	if (!reader) {
-		return "";
+		return new Uint8Array();
 	}
 
 	const chunks: Uint8Array[] = [];
@@ -615,12 +651,19 @@ async function readCapped(response: Response): Promise<string> {
 	}
 
 	await reader.cancel().catch(() => undefined);
-	return new TextDecoder().decode(Buffer.concat(chunks));
+	return new Uint8Array(Buffer.concat(chunks).subarray(0, maxBytes));
 }
 
-export async function fetchPage(
-	input: string
-): Promise<{ html: string; url: URL }> {
+type Download = { bytes: Uint8Array; url: URL; contentType: string };
+
+/**
+Downloads a public web address: only public hosts (checked again at every
+redirect), a short timeout, and at most `maxBytes` of the body.
+*/
+export async function fetchPublic(
+	input: string,
+	options: { accept: string; kind: RegExp; kindError: string; maxBytes: number }
+): Promise<Download> {
 	let url: URL;
 	try {
 		url = new URL(input);
@@ -636,7 +679,7 @@ export async function fetchPage(
 			redirect: "manual",
 			signal: AbortSignal.timeout(8000),
 			headers: {
-				accept: "text/html,application/xhtml+xml",
+				accept: options.accept,
 				"user-agent":
 					"StuyAviatorsLinkReader/1.0 (+https://stuyaviators.vercel.app)",
 			},
@@ -662,15 +705,40 @@ export async function fetchPage(
 			);
 		}
 
-		if (!/html|xml/iu.test(response.headers.get("content-type") ?? "")) {
-			throw new AutofillError(
-				"That link isn’t a web page (maybe a PDF or file)."
-			);
+		const contentType = response.headers.get("content-type") ?? "";
+		if (!options.kind.test(contentType)) {
+			throw new AutofillError(options.kindError);
 		}
 
 		// eslint-disable-next-line no-await-in-loop -- last step of the loop.
-		return { html: await readCapped(response), url };
+		const bytes = await readCapped(response, options.maxBytes);
+		return { bytes, url, contentType };
 	}
 
 	throw new AutofillError("That link redirects too many times.");
+}
+
+export async function fetchPage(
+	input: string
+): Promise<{ html: string; url: URL }> {
+	const page = await fetchPublic(input, {
+		accept: "text/html,application/xhtml+xml",
+		kind: /html|xml/iu,
+		kindError: "That link isn’t a web page (maybe a PDF or file).",
+		maxBytes: 1_500_000,
+	});
+	return { html: new TextDecoder().decode(page.bytes), url: page.url };
+}
+
+/**
+A picture from a page, ready for the image processor (it checks the format).
+*/
+export async function fetchPicture(input: string): Promise<Uint8Array> {
+	const picture = await fetchPublic(input, {
+		accept: "image/*",
+		kind: /^image\//iu,
+		kindError: "That isn’t a picture.",
+		maxBytes: 4 * 1024 * 1024,
+	});
+	return picture.bytes;
 }

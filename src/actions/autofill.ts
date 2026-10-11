@@ -3,8 +3,15 @@
 import type { ActionResult } from "@/lib/action-guard";
 import type { Suggestion } from "@/lib/autofill";
 import { actionError, guarded } from "@/lib/action-guard";
-import { AutofillError, fetchPage, parsePage } from "@/lib/autofill";
+import {
+	AutofillError,
+	fetchPage,
+	fetchPicture,
+	parsePage,
+} from "@/lib/autofill";
+import { storeImage } from "@/lib/blob-upload";
 import { hitRateLimit } from "@/lib/rate-limit";
+import { processImage } from "@/lib/uploads";
 import { z } from "zod";
 
 /*
@@ -39,9 +46,16 @@ export async function autofillListing(
 
 		try {
 			const page = await fetchPage(parsed.data.url);
+			const { imageUrl, ...fields } = parsePage(
+				page.html,
+				page.url,
+				parsed.data.kind
+			);
+			const stored =
+				imageUrl === undefined ? undefined : await keepPicture(imageUrl);
 			return {
 				ok: true,
-				fields: parsePage(page.html, page.url, parsed.data.kind),
+				fields: stored === undefined ? fields : { ...fields, imageUrl: stored },
 			};
 		} catch (error) {
 			if (error instanceof AutofillError) {
@@ -51,4 +65,17 @@ export async function autofillListing(
 			throw error;
 		}
 	});
+}
+
+/**
+The page's picture, copied into our own storage as a card image. The site
+can only show images it hosts. Any problem just means no picture.
+*/
+async function keepPicture(source: string): Promise<string | undefined> {
+	try {
+		const bytes = await fetchPicture(source);
+		return await storeImage(await processImage(bytes, "listing"), "listing");
+	} catch {
+		return undefined;
+	}
 }

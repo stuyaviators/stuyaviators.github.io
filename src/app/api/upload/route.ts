@@ -1,4 +1,5 @@
 import { blobToken } from "@/lib/blob-token";
+import { storeImage } from "@/lib/blob-upload";
 import { AuthorizationError, requireUser } from "@/lib/session";
 import {
 	maxUploadBytes,
@@ -6,7 +7,6 @@ import {
 	UploadError,
 	uploadPurpose,
 } from "@/lib/uploads";
-import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 /*
@@ -67,18 +67,9 @@ export async function POST(request: Request) {
 			new Uint8Array(await file.arrayBuffer()),
 			purpose.data
 		);
-		const blob = await put(
-			`uploads/${purpose.data}/${crypto.randomUUID()}.${image.extension}`,
-			Buffer.from(image.data),
-			{
-				access: "public",
-				contentType: image.contentType,
-				cacheControlMaxAge: 60 * 60 * 24 * 365,
-				token,
-			}
-		);
+		const url = await storeImage(image, purpose.data);
 		return NextResponse.json({
-			url: blob.url,
+			url,
 			width: image.width,
 			height: image.height,
 		});

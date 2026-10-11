@@ -67,6 +67,7 @@ const autofillLabels: Array<[keyof Values & keyof Suggestion, string]> = [
 	["endDate", "end date"],
 	["location", "location"],
 	["eligibility", "eligibility"],
+	["imageUrl", "picture"],
 ];
 
 const isoDate = /^\d{4}-\d{2}-\d{2}$/u;
@@ -243,8 +244,9 @@ export default function ListingForm({
 								)}
 							</Button>
 							<p className="text-sm text-muted">
-								Reads the page and fills in the empty fields below. Always check
-								what it found.
+								Reads the page and fills in the empty fields below, including
+								its picture. Always check what it found, and only keep a picture
+								you are allowed to use.
 							</p>
 						</div>
 						{autofillMessage ? (
