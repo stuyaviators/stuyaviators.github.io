@@ -4,9 +4,18 @@ import { Stagger } from "@/components/TransitionProvider";
 import { buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import { brandRules, logoVariants, palette, typefaces, typeRules } from "@/content/brand";
+import {
+	brandRules,
+	logoVariants,
+	palette,
+	typefaces,
+	typeRules,
+	wordmark,
+} from "@/content/brand";
+import logo from "@/assets/brand/logo.png";
 import TypeTester from "@/components/TypeTester";
 import { ArrowUpRight, Check, Download, X } from "lucide-react";
+import Image from "next/image";
 
 export const metadata: Metadata = {
 	title: "Brand Guidelines",
@@ -18,6 +27,12 @@ export const metadata: Metadata = {
 const base = "/brand/downloads";
 
 const typeScale = [
+	{
+		name: "Wordmark",
+		spec: "Inter Tight 600 caps",
+		sample: "STUYAVIATORS",
+		className: "font-display text-3xl font-semibold tracking-[0.08em] uppercase",
+	},
 	{
 		name: "Display",
 		spec: "Inter Tight 600",
@@ -61,9 +76,9 @@ export default function BrandPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About"
-				title="Brand Guidelines"
-				intro="Logos, colors and type for flyers, slides, shirts and social posts. Please follow these guidelines whenever you use the StuyAviators name or logo."
+				eyebrow="Brand guidelines"
+				title="StuyAviators brand"
+				intro="Logos, wordmark, colors and type for flyers, slides, shirts and social posts. Please follow these guidelines whenever you use the StuyAviators name or logo."
 			>
 				<a
 					href={`${base}/stuyaviators-brand-kit.zip`}
@@ -138,6 +153,7 @@ export default function BrandPage() {
 			</Section>
 
 			<Section
+				pin
 				id="colors"
 				label="Color palette"
 				title="Colors"
@@ -194,8 +210,28 @@ export default function BrandPage() {
 				id="type"
 				label="Typography"
 				title="Type"
-				intro="Our type follows Airbus’s brand typography: Inter Tight for display and graphic design, Inter for everything you read on screen. All are free on Google Fonts."
+				intro="Our type follows Airbus’s brand typography: Inter Tight for the wordmark, display and graphic design, Inter for everything you read on screen. Both are free on Google Fonts."
 			>
+				<div className="mb-6 grid gap-8 rounded-3xl bg-surface p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+					<div>
+						<p className="label text-accent-text">Wordmark</p>
+						<div className="mt-6 flex items-center gap-4">
+							<Image src={logo} alt="" width={64} height={64} className="size-16" />
+							<span className="font-display text-3xl font-semibold tracking-[0.08em] uppercase sm:text-5xl">
+								{wordmark.text}
+							</span>
+						</div>
+						<p className="mt-4 font-mono text-sm text-muted">{wordmark.spec}</p>
+					</div>
+					<ul className="space-y-3">
+						{wordmark.rules.map((rule) => (
+							<li key={rule} className="flex gap-3">
+								<Check aria-hidden className="mt-1 size-4 shrink-0 text-success" />
+								{rule}
+							</li>
+						))}
+					</ul>
+				</div>
 				<div className="grid gap-6 md:grid-cols-2">
 					{typefaces.map((face) => (
 						<Stagger key={face.id}>
@@ -287,7 +323,7 @@ export default function BrandPage() {
 				</ul>
 			</Section>
 
-			<Section id="usage" label="Usage" title="Do’s and don’ts">
+			<Section pin id="usage" label="Usage" title="Do’s and don’ts">
 				<div className="grid gap-6 md:grid-cols-2">
 					<ul className="space-y-3 rounded-3xl bg-surface p-6">
 						{brandRules.do.map((rule) => (

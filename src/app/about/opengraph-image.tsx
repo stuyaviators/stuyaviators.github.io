@@ -5,7 +5,7 @@ export const alt = "Our Mission & Project Skylab · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Mission & Skylab",
+		title: "Our Mission & Project Skylab",
 		eyebrow: "About",
 		photo: await readFile(
 			new URL("../../assets/photos/hero-sim-display.jpg", import.meta.url)

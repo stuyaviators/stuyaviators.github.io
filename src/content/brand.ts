@@ -114,14 +114,27 @@ export const typefaces: Typeface[] = [
 ];
 
 /**
+The name as a wordmark (beside the logo) versus in running text.
+*/
+export const wordmark = {
+	text: "STUYAVIATORS",
+	spec: "Inter Tight Semibold · all caps · +0.08 em tracking",
+	rules: [
+		"In writing, the name is always StuyAviators: one word, capital S and capital A.",
+		"Use STUYAVIATORS (all caps) where it looks better: the wordmark beside the logo, all-caps headlines, merch. Set it in Inter Tight Semibold, tracked +0.08 em.",
+		"Never Stuy aviators, Stuy Aviators, Stuyaviators, stuyaviators or STUY AVIATORS.",
+	],
+};
+
+/**
 Typesetting rules, adapted from Airbus's typography guidelines.
 */
 export const typeRules = [
-	"Write in sentence case. Capitalize only the first word and proper nouns.",
-	"Use all caps only for short labels of up to three words.",
+	"Write in sentence case. Capitalize only the first word and proper nouns; career and course names use Title Case.",
+	"Use all caps only for the STUYAVIATORS wordmark and short labels of up to three words.",
 	"Set text upright. No italics.",
 	"Left-align long copy; center only short headlines.",
-	"Keep headlines tight (Inter Tight) and body text at its default spacing.",
+	"Set headlines and body text at the typefaces’ default letter-spacing.",
 ];
 
 export type LogoVariant = {
@@ -182,6 +195,7 @@ export const brandRules = {
 		"Keep clear space around the logo of at least a quarter of its width.",
 		"Use the logo at 48 px or larger on screens so the skyline stays legible.",
 		"Pick the variant that contrasts with the background.",
+		"Pair the circle logo with the STUYAVIATORS wordmark to its right, vertically centered.",
 	],
 	dont: [
 		"Stretch, rotate, crop or redraw the logo.",

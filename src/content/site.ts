@@ -23,14 +23,14 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/about",
-				label: "Mission & Skylab",
-				description: "What we do and why",
+				label: "Our Mission",
+				description: "Project Skylab and why we exist",
 			},
 			{ href: "/story", label: "Our Story", description: "Since 2022" },
 			{
 				href: "/charter",
-				label: "Charter & Rules",
-				description: "How the club runs",
+				label: "Club Charter",
+				description: "How the club runs, plus the rules",
 			},
 			{
 				href: "/brand",
@@ -59,7 +59,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/careers",
-				label: "Careers",
+				label: "Future Careers",
 				description: "Every path in aviation",
 			},
 		],
@@ -69,17 +69,17 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/flight-crew",
-				label: "Flight Crew",
+				label: "The Flight Crew",
 				description: "Leadership and positions",
 			},
 			{
 				href: "/gallery",
-				label: "Gallery",
+				label: "Community Highlights",
 				description: "Photos from members",
 			},
 			{
 				href: "/stories",
-				label: "Member Stories",
+				label: "Share Your Story",
 				description: "Journeys into flight",
 			},
 		],
@@ -89,7 +89,7 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/connect",
-				label: "Contact & Socials",
+				label: "Connect",
 				description: "Email, Discord and Instagram",
 			},
 			{

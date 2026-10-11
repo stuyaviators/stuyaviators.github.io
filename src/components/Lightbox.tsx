@@ -1,7 +1,9 @@
 "use client";
 
 import type { MotionValue } from "motion/react";
+import type { PhotoSpec } from "@/content/photo-specs";
 import type { StaticImageData } from "next/image";
+import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
 	motion,
@@ -12,35 +14,91 @@ import {
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export type LightboxImage = { src: StaticImageData; alt: string };
+export type LightboxImage = {
+	src: StaticImageData;
+	alt: string;
+	spec?: PhotoSpec;
+};
 
-// How far each column drifts (px) across the grid's pass through the screen;
-// alternating speeds give the staggered parallax.
-const columnDrift = [60, -140, 20, -200];
+function formatSpec(spec: PhotoSpec | undefined) {
+	if (!spec) {
+		return undefined;
+	}
 
-function Column({
-	items,
+	const date = spec.date
+		? new Date(`${spec.date}T12:00:00`).toLocaleDateString("en-US", {
+				month: "short",
+				day: "numeric",
+				year: "numeric",
+			})
+		: undefined;
+	return [
+		spec.camera?.replace(/^Apple /u, ""),
+		spec.focal,
+		spec.aperture,
+		spec.shutter,
+		spec.iso === undefined ? undefined : `ISO ${spec.iso}`,
+		date,
+	]
+		.filter(Boolean)
+		.join(" · ");
+}
+
+// Deterministic jitter so the scatter is the same on every render.
+function jitter(seed: number) {
+	const x = Math.sin(seed * 12.9898) * 43_758.5453;
+	return x - Math.floor(x);
+}
+
+function FloatingPhoto({
+	image,
+	index,
+	columns,
+	rows,
 	drift,
-	progress,
 	onOpen,
 }: {
-	readonly items: Array<{ image: LightboxImage; index: number }>;
-	readonly drift: number;
-	readonly progress: MotionValue<number>;
+	readonly image: LightboxImage;
+	readonly index: number;
+	readonly columns: number;
+	readonly rows: number;
+	readonly drift: MotionValue<number>;
 	readonly onOpen: (index: number, trigger: HTMLButtonElement) => void;
 }) {
 	const isReducedMotion = useReducedMotion();
-	const y = useTransform(progress, [0, 1], [0, drift]);
+	const column = index % columns;
+	const row = Math.floor(index / columns);
+	// Stagger alternate rows so the scatter doesn't read as a grid.
+	const left =
+		((column + (row % 2) * 0.5 + jitter(index + 1) * 0.45) / (columns + 0.5)) *
+		100;
+	const top = ((row + jitter(index + 50) * 0.5) / rows) * 100;
+	const width = 7 + jitter(index + 100) * 5; // Rem
+	const tilt = (jitter(index + 150) - 0.5) * 14;
+	const depth = (jitter(index + 200) - 0.5) * 2;
+	const y = useTransform(drift, [0, 1], [depth * 120, depth * -120]);
+	const floatStyle: Record<string, string> = {
+		"--float-d": `${6 + jitter(index + 250) * 5}s`,
+		"--float-delay": `${-jitter(index + 300) * 6}s`,
+		"--float-rot": `${tilt > 0 ? 2 : -2}deg`,
+	};
+
 	return (
-		<motion.ul
-			className="flex flex-col gap-3 sm:gap-4"
-			style={isReducedMotion ? undefined : { y }}
+		<li
+			className="absolute z-0 hover:z-30 focus-within:z-30"
+			style={{
+				left: `${left}%`,
+				top: `${top}%`,
+				width: `clamp(5.5rem, ${width * 1.6}vw, ${width}rem)`,
+			}}
 		>
-			{items.map(({ image, index }) => (
-				<li key={image.alt + index} className="clip-reveal">
+			<motion.div style={isReducedMotion ? undefined : { y }}>
+				<div className="float" style={floatStyle}>
 					<button
 						type="button"
-						className="group block w-full overflow-hidden rounded-2xl bg-surface-2"
+						aria-label={`Open photo: ${image.alt}`}
+						className="gallery-photo block w-full overflow-hidden rounded-xl shadow-card transition-[transform,filter,opacity,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[2.1] hover:rotate-0 hover:shadow-2xl focus-visible:scale-[2.1] focus-visible:rotate-0 motion-reduce:transition-none"
+						style={{ rotate: `${tilt}deg` }}
 						onClick={(event) => {
 							onOpen(index, event.currentTarget);
 						}}
@@ -49,28 +107,29 @@ function Column({
 							src={image.src}
 							alt={image.alt}
 							placeholder="blur"
-							sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-							className="h-auto w-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 motion-reduce:transition-none"
+							sizes="(min-width: 1024px) 400px, 50vw"
+							className="h-auto w-full"
 						/>
 					</button>
-				</li>
-			))}
-		</motion.ul>
+				</div>
+			</motion.div>
+		</li>
 	);
 }
 
 /**
-Masonry columns that drift at different speeds while you scroll.
+Photos scattered across the page at different depths, gently floating;
+hovering one brings it forward and enlarges it while the rest blur back.
 */
-function ParallaxColumns({
+function FloatingStage({
 	images,
 	onOpen,
 }: {
 	readonly images: LightboxImage[];
 	readonly onOpen: (index: number, trigger: HTMLButtonElement) => void;
 }) {
-	const ref = useRef<HTMLDivElement>(null);
-	const [columnCount, setColumnCount] = useState(3);
+	const ref = useRef<HTMLUListElement>(null);
+	const [columns, setColumns] = useState(5);
 	const { scrollYProgress } = useScroll({
 		target: ref,
 		offset: ["start end", "end start"],
@@ -80,7 +139,7 @@ function ParallaxColumns({
 		const large = globalThis.matchMedia("(min-width: 1024px)");
 		const small = globalThis.matchMedia("(min-width: 640px)");
 		const update = () => {
-			setColumnCount(large.matches ? 4 : small.matches ? 3 : 2);
+			setColumns(large.matches ? 5 : small.matches ? 4 : 3);
 		};
 
 		update();
@@ -92,33 +151,32 @@ function ParallaxColumns({
 		};
 	}, []);
 
-	const columns = Array.from({ length: columnCount }, (_, column) =>
-		images
-			.map((image, index) => ({ image, index }))
-			.filter(({ index }) => index % columnCount === column)
-	);
-
+	const rows = Math.ceil(images.length / columns);
 	return (
-		<div
+		<ul
 			ref={ref}
-			className="grid items-start gap-3 py-16 sm:gap-4"
-			style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
+			className="floating-stage relative my-16"
+			style={{ height: `calc(${rows} * clamp(8rem, 26vw, 15rem))` }}
 		>
-			{columns.map((items, column) => (
-				<Column
-					key={column}
-					items={items}
-					drift={columnDrift[column] ?? 0}
-					progress={scrollYProgress}
+			{images.map((image, index) => (
+				<FloatingPhoto
+					key={image.alt + index}
+					image={image}
+					index={index}
+					columns={columns}
+					rows={rows}
+					drift={scrollYProgress}
 					onOpen={onOpen}
 				/>
 			))}
-		</div>
+		</ul>
 	);
 }
 
 /**
-Photo grid with an accessible <dialog> lightbox (arrow keys, Escape).
+Floating photo scatter with an accessible <dialog> lightbox (arrow keys,
+Escape). The viewer shows camera specs from the photo's metadata, when
+there are any, instead of a caption.
 */
 export default function Lightbox({
 	images,
@@ -175,7 +233,7 @@ export default function Lightbox({
 
 	return (
 		<>
-			<ParallaxColumns
+			<FloatingStage
 				images={images}
 				onOpen={(i, trigger) => {
 					open(i, trigger);
@@ -200,7 +258,7 @@ export default function Lightbox({
 							className="mx-auto h-auto max-h-[80dvh] w-auto rounded-md object-contain"
 						/>
 						<figcaption className="mt-3 flex items-center justify-between gap-3 text-sm text-white">
-							<span>{current.alt}</span>
+							<span>{formatSpec(current.spec) ?? ""}</span>
 							<span className="font-mono whitespace-nowrap">
 								{(index ?? 0) + 1} / {images.length}
 							</span>

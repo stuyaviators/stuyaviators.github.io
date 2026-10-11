@@ -15,7 +15,10 @@ import williamVongphanith from "@/assets/crew/william-vongphanith.jpg";
 import yunusGubrud from "@/assets/crew/yunus-gubrud.jpg";
 
 /*
- * 2026–27 roster, matching officer roles on Epsilon. The class of 2026 and
+ * 2026–27 roster, matching officer roles on Epsilon. Structure: the Cockpit
+ * Crew (captains + first officer) and the other officers make up the
+ * Leadership Team; helpers are the wider Flight Crew. Faculty advisors, past
+ * members and partner clubs (the Alliance) are listed separately. The class of 2026 and
  * former officers moved to the past sections. Becomes dashboard-managed in
  * Phase 4. People without a supplied photo get an initials placeholder.
  */
@@ -35,8 +38,8 @@ export type CrewGroup = {
 
 export const crewGroups: CrewGroup[] = [
 	{
-		id: "current",
-		title: "Current Leadership",
+		id: "cockpit",
+		title: "Cockpit Crew",
 		introKey: "current",
 		// Roles from the club's Epsilon page (Oct 2026). Photos for newer
 		// officers still to be supplied.
@@ -58,6 +61,13 @@ export const crewGroups: CrewGroup[] = [
 				classOf: "'29",
 				role: "First Officer (Vice President)",
 			},
+		],
+	},
+	{
+		// With the cockpit crew, these officers form the Leadership Team.
+		id: "officers",
+		title: "Officers",
+		members: [
 			{
 				name: "Sheng Yue “Nancy” Huang",
 				classOf: "'27",
@@ -84,6 +94,7 @@ export const crewGroups: CrewGroup[] = [
 		],
 	},
 	{
+		// Leadership Team + helpers = the Flight Crew.
 		id: "helpers",
 		title: "Helpers & Contributors",
 		introKey: "helpers",
@@ -173,10 +184,19 @@ export const crewGroups: CrewGroup[] = [
 			},
 		],
 	},
+];
+
+export type PartnerClub = {
+	name: string;
+	members: CrewMember[];
+};
+
+/**
+Alliance: clubs StuyAviators partners with.
+*/
+export const partnerClubs: PartnerClub[] = [
 	{
-		id: "alliance",
-		title: "Alliance Members",
-		introKey: "alliance",
+		name: "K2-18B Rocketry",
 		members: [
 			{
 				name: "Esther Lee",
@@ -186,6 +206,7 @@ export const crewGroups: CrewGroup[] = [
 			},
 		],
 	},
+	{ name: "StuySky", members: [] },
 ];
 
 export const crewApplyUrl = "https://forms.gle/4dRYhvUt7iZH7u9E6";

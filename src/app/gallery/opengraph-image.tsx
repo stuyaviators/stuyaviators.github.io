@@ -5,7 +5,7 @@ export const alt = "Community Highlights · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Gallery",
+		title: "Community Highlights",
 		eyebrow: "Community · Gallery",
 		photo: await readFile(
 			new URL(

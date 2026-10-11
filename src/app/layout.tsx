@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import ScrollToTop from "@/components/ScrollToTop";
 import SkyBackground from "@/components/SkyBackground";
 import { themeScript } from "@/components/ThemeToggle";
 import TransitionProvider from "@/components/TransitionProvider";
@@ -73,6 +74,7 @@ export default function RootLayout({
 					</main>
 				</TransitionProvider>
 				<Footer />
+				<ScrollToTop />
 				<MailingListModal fallbackUrl={signupFormConfig().fallbackUrl} />
 			</body>
 		</html>

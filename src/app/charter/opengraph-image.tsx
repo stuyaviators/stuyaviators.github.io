@@ -5,7 +5,7 @@ export const alt = "Club Charter & Rules · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Charter & Rules",
+		title: "Club Charter & Rules",
 		eyebrow: "About",
 		photo: await readFile(
 			new URL("../../assets/photos/hero-sim-classroom.jpg", import.meta.url)

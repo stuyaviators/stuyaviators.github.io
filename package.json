@@ -14,6 +14,7 @@
 		"dev": "next dev",
 		"format": "prettier --write .",
 		"images": "node scripts/optimize-images.ts",
+		"photo-specs": "node scripts/photo-specs.ts",
 		"lint": "xo src scripts xo.config.mjs",
 		"lint:fix": "xo --fix src scripts xo.config.mjs",
 		"start": "next start",

@@ -4,15 +4,15 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import Parallax from "@/components/motion/Parallax";
-import { Section } from "@/components/ui/Section";
-import Waypoints from "@/components/Waypoints";
+import StepSequence from "@/components/motion/StepSequence";
+import { Section, SectionHeader } from "@/components/ui/Section";
 import { about } from "@/content/about";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "Mission & Skylab",
+	title: "Our Mission & Project Skylab",
 	description: pageIntros.about.intro,
 	alternates: { canonical: "/about" },
 };
@@ -28,14 +28,15 @@ export default function AboutPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About"
-				title="Mission & Skylab"
+				eyebrow="About · Our mission"
+				title="Our Mission"
 				intro={pageIntros.about.intro}
 				image={photos.heroSimDisplay.src}
 				imageAlt={photos.heroSimDisplay.alt}
 			/>
 
 			<Section
+				pin
 				id="skylab"
 				label="Project Skylab"
 				title={about.skylab.heading}
@@ -91,31 +92,37 @@ export default function AboutPage() {
 				</ol>
 			</Section>
 
-			<Section
+			<StepSequence
 				id="objectives"
-				label="Flight plan"
-				title={about.objectives.heading}
-			>
-				<Stagger>
-					<p className="mb-10 max-w-3xl text-lg text-muted">{intro}</p>
-				</Stagger>
-				<Waypoints
-					items={about.objectives.stages.map((summary, index) => ({
-						key: summary,
-						label: stageLabels[index],
-						content: (
-							<>
-								<p className="text-xl font-semibold">{summary}</p>
-								{stageDetails.at(index) === undefined ? null : (
-									<p className="mt-3 max-w-3xl text-muted">
-										{stageDetails.at(index)}
-									</p>
-								)}
-							</>
-						),
-					}))}
-				/>
-				<div className="mt-12 flex flex-wrap gap-3">
+				labelledBy="objectives-heading"
+				header={
+					<SectionHeader
+						headingId="objectives-heading"
+						eyebrow="Flight plan"
+						title={about.objectives.heading}
+						intro={intro}
+					/>
+				}
+				steps={about.objectives.stages.map((summary, index) => ({
+					key: summary,
+					label: stageLabels[index] ?? `Stage ${index + 1}`,
+					content: (
+						<>
+							<p className="text-2xl font-semibold sm:text-3xl font-display">
+								{summary}
+							</p>
+							{stageDetails.at(index) === undefined ? null : (
+								<p className="mt-4 max-w-3xl text-lg text-muted">
+									{stageDetails.at(index)}
+								</p>
+							)}
+						</>
+					),
+				}))}
+			/>
+
+			<Section className="min-h-0 sm:py-16">
+				<div className="flex flex-wrap justify-center gap-3">
 					<ButtonLink href="/story" variant="secondary">
 						Read our story
 					</ButtonLink>

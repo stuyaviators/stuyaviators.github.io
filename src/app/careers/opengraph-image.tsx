@@ -5,7 +5,7 @@ export const alt = "Future Careers · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Careers",
+		title: "Future Careers",
 		eyebrow: "Explore",
 		photo: await readFile(
 			new URL("../../assets/photos/event-airline-booth.jpg", import.meta.url)

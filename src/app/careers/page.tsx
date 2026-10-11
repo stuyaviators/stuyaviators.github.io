@@ -10,7 +10,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Careers",
+	title: "Future Careers",
 	description: pageIntros.careers.intro,
 	alternates: { canonical: "/careers" },
 };
@@ -24,8 +24,8 @@ export default function CareersPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore"
-				title="Careers"
+				eyebrow="Explore · Future careers"
+				title="Future Careers"
 				intro={pageIntros.careers.intro}
 				image={photos.eventAirlineBooth.src}
 				imageAlt={photos.eventAirlineBooth.alt}
@@ -42,7 +42,7 @@ export default function CareersPage() {
 				id="quiz"
 				label="Career finder"
 				title="Which path fits you?"
-				intro="Twelve quick questions, one at a time. We’ll score how well each career family matches you."
+				intro="Thirteen quick questions, one at a time. We’ll score how well each career family matches you."
 			>
 				<CareerQuiz
 					families={careerFamilies.map(({ id, name, summary }) => ({
@@ -83,7 +83,7 @@ export default function CareersPage() {
 						))}
 					</ul>
 					<p className="mt-6 text-sm text-muted">
-						Requirements change. Always check the official sources before you
+						Requirements change. Always check with the program or employer before you
 						apply.
 					</p>
 				</section>

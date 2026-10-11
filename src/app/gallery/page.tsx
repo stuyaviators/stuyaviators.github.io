@@ -6,6 +6,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { galleryCopy } from "@/content/gallery";
 import { pageIntros } from "@/content/pages";
+import { photoSpecs } from "@/content/photo-specs";
 import { galleryPhotos, photos, spotlightPhotos } from "@/content/photos";
 
 export const metadata: Metadata = {
@@ -15,14 +16,15 @@ export const metadata: Metadata = {
 };
 
 export default function GalleryPage() {
-	const images = [...galleryPhotos, ...spotlightPhotos].map(
-		(key) => photos[key]
-	);
+	const images = [...galleryPhotos, ...spotlightPhotos].map((key) => ({
+		...photos[key],
+		spec: photoSpecs[key],
+	}));
 	return (
 		<>
 			<PageHero
-				eyebrow="Community"
-				title="Gallery"
+				eyebrow="Community · Gallery"
+				title="Community Highlights"
 				intro={pageIntros.gallery.intro}
 				image={photos.galleryStrutCoastline.src}
 				imageAlt={photos.galleryStrutCoastline.alt}
@@ -39,6 +41,7 @@ export default function GalleryPage() {
 				<Lightbox images={images} />
 			</Section>
 			<Section
+				pin
 				id="submit"
 				label="Submit"
 				title={galleryCopy.submitHeading}

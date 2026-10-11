@@ -44,6 +44,7 @@ export default function PinnedScene({
 	labelledBy,
 	id,
 	isEntranceAnimated = true,
+	isAlwaysPinned = false,
 }: {
 	readonly children: ReactNode;
 	/**
@@ -56,6 +57,10 @@ export default function PinnedScene({
 	readonly labelledBy?: string;
 	readonly id?: string;
 	readonly isEntranceAnimated?: boolean;
+	/**
+	Skip the fits-on-screen check (content with a compact pinned layout).
+	*/
+	readonly isAlwaysPinned?: boolean;
 }) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
@@ -66,7 +71,9 @@ export default function PinnedScene({
 		const measure = () => {
 			const content = contentRef.current;
 			const isFits =
-				!content || content.scrollHeight <= window.innerHeight + 1;
+				isAlwaysPinned ||
+				!content ||
+				content.scrollHeight <= window.innerHeight + 1;
 			setIsPinned(!reduced.matches && isFits);
 		};
 
@@ -82,7 +89,7 @@ export default function PinnedScene({
 			observer.disconnect();
 			reduced.removeEventListener("change", measure);
 		};
-	}, []);
+	}, [isAlwaysPinned]);
 
 	// Progress across the locked stretch only (0 when it pins, 1 on release).
 	const { scrollYProgress } = useScroll({

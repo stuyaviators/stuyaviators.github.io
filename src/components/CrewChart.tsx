@@ -1,238 +1,292 @@
 "use client";
 
-import type { CrewGroup, CrewMember } from "@/content/crew";
+import type { MotionValue } from "motion/react";
+import type { CSSProperties, ReactNode } from "react";
+import type { CrewGroup, CrewMember, PartnerClub } from "@/content/crew";
 import { cn } from "@/lib/cn";
-import { motion, useReducedMotion } from "motion/react";
+import {
+	motion,
+	useReducedMotion,
+	useScroll,
+	useSpring,
+	useTransform,
+} from "motion/react";
 import Image from "next/image";
+import { useRef } from "react";
 import { Initials } from "./ui/Initials.tsx";
 
 /*
- * Flight Crew org chart: current leadership in a centered, animated
- * hierarchy (advisors → captains → first officer → officers → crew), with
- * tiers popping in and connector lines drawing down as you scroll. Past
- * leadership flanks the chart in faded black and white, coming back to
- * color on hover.
+ * Flight Crew, top to bottom: Cockpit Crew, Leadership Team, Flight Crew,
+ * Faculty Advisors, past leadership & crew, then the Alliance of partner
+ * clubs. Each person swings in like the story timeline (from the side,
+ * tilted, blurred, small), then floats gently and drifts at their own depth
+ * as you scroll. Past members are faded and black and white until hovered.
+ * Reduced motion: static layout.
  */
-type Tier = { label: string; members: CrewMember[]; size: "lg" | "md" | "sm" };
+type Size = "lg" | "md" | "sm" | "past";
 
-const ease = [0.16, 1, 0.3, 1] as const;
-
-const avatarSize = {
-	lg: "size-32 sm:size-40",
+const avatarSize: Record<Size, string> = {
+	lg: "size-28 sm:size-36",
 	md: "size-24 sm:size-28",
 	sm: "size-20 sm:size-24",
-	past: "size-14",
+	past: "size-16 sm:size-20",
 };
 
-function Avatar({
-	member,
-	size,
-	sizes,
-	className,
-}: {
-	readonly member: CrewMember;
-	readonly size: keyof typeof avatarSize;
-	readonly sizes: string;
-	readonly className?: string;
-}) {
-	return (
-		<div
-			className={cn(
-				"relative shrink-0 overflow-hidden rounded-full bg-surface-2",
-				avatarSize[size],
-				className
-			)}
-		>
-			{member.photo ? (
-				<Image
-					src={member.photo}
-					alt={`Portrait of ${member.name}`}
-					fill
-					placeholder="blur"
-					sizes={sizes}
-					className="object-cover"
-				/>
-			) : (
-				<Initials
-					name={member.name}
-					className={cn("absolute inset-0", size === "past" ? "text-base" : "")}
-				/>
-			)}
-		</div>
-	);
-}
+const imageSizes: Record<Size, string> = {
+	lg: "144px",
+	md: "112px",
+	sm: "96px",
+	past: "80px",
+};
 
 function displayName(member: CrewMember) {
 	return member.classOf ? `${member.name} (${member.classOf})` : member.name;
 }
 
-function Connector({ isDashed = false }: { readonly isDashed?: boolean }) {
-	const isReducedMotion = useReducedMotion();
-	return (
-		<motion.div
-			aria-hidden
-			className={cn(
-				"mx-auto h-12 w-0 origin-top border-l-2 sm:h-16",
-				isDashed ? "border-dashed border-field" : "border-brand"
-			)}
-			initial={isReducedMotion ? false : { scaleY: 0 }}
-			whileInView={{ scaleY: 1 }}
-			viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-			transition={{ duration: 0.7, ease }}
-		/>
-	);
-}
-
-function TierRow({ tier }: { readonly tier: Tier }) {
-	const isReducedMotion = useReducedMotion();
-	const sizes =
-		tier.size === "lg" ? "160px" : tier.size === "md" ? "112px" : "96px";
-	return (
-		<div className="text-center">
-			<p className="label text-accent-text">{tier.label}</p>
-			<ul className="mt-5 flex flex-wrap justify-center gap-x-8 gap-y-6 sm:gap-x-12">
-				{tier.members.map((member, index) => (
-					<motion.li
-						key={member.name}
-						className="group flex w-40 flex-col items-center sm:w-48"
-						initial={isReducedMotion ? false : { opacity: 0, scale: 0.6, y: 24 }}
-						whileInView={{ opacity: 1, scale: 1, y: 0 }}
-						viewport={{ once: true, margin: "0px 0px -15% 0px" }}
-						transition={{
-							type: "spring",
-							stiffness: 260,
-							damping: 22,
-							delay: 0.12 * index,
-						}}
-					>
-						<Avatar
-							member={member}
-							size={tier.size}
-							sizes={sizes}
-							className="ring-4 ring-brand/80 ring-offset-4 ring-offset-bg transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
-						/>
-						<p className="mt-4 leading-snug font-semibold">
-							{displayName(member)}
-						</p>
-						<p className="mt-1 text-sm text-muted">{member.role}</p>
-					</motion.li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-function PastColumn({
-	title,
-	members,
-	side,
+function Avatar({
+	member,
+	size,
+	isCurrent,
 }: {
-	readonly title: string;
-	readonly members: CrewMember[];
-	readonly side: "left" | "right";
+	readonly member: CrewMember;
+	readonly size: Size;
+	readonly isCurrent: boolean;
 }) {
-	const isReducedMotion = useReducedMotion();
 	return (
-		<div>
-			<p
+		<div className="relative">
+			{isCurrent ? (
+				<span
+					aria-hidden
+					className="absolute inset-0 -z-10 scale-110 rounded-full bg-brand/25 blur-xl"
+				/>
+			) : null}
+			<div
 				className={cn(
-					"label text-muted",
-					side === "right" ? "lg:text-right" : ""
+					"relative overflow-hidden rounded-full bg-surface-2",
+					avatarSize[size],
+					isCurrent && "ring-2 ring-brand/70 ring-offset-4 ring-offset-bg"
 				)}
 			>
-				{title}
-			</p>
-			<ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-				{members.map((member, index) => (
-					<motion.li
-						key={member.name}
-						initial={
-							isReducedMotion
-								? false
-								: { opacity: 0, x: side === "left" ? -32 : 32 }
-						}
-						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-						transition={{ duration: 0.6, delay: 0.06 * index, ease }}
-					>
-						<div
-							className={cn(
-								"flex items-center gap-3 opacity-50 grayscale transition-[opacity,filter] duration-500 hover:opacity-100 hover:grayscale-0",
-								side === "right" && "lg:flex-row-reverse lg:text-right"
-							)}
-						>
-							<Avatar member={member} size="past" sizes="56px" />
-							<span className="min-w-0">
-								<span className="block text-sm leading-snug font-semibold">
-									{displayName(member)}
-								</span>
-								<span className="block text-xs text-muted">
-									{member.role}
-								</span>
-							</span>
-						</div>
-					</motion.li>
-				))}
-			</ul>
+				{member.photo ? (
+					<Image
+						src={member.photo}
+						alt={`Portrait of ${member.name}`}
+						fill
+						placeholder="blur"
+						sizes={imageSizes[size]}
+						className="object-cover"
+					/>
+				) : (
+					<Initials
+						name={member.name}
+						className={cn(
+							"absolute inset-0",
+							size === "past" ? "text-lg" : ""
+						)}
+					/>
+				)}
+			</div>
 		</div>
+	);
+}
+
+/**
+One person: swings in on scroll, then floats and drifts at a depth.
+*/
+function FloatingMember({
+	member,
+	size,
+	index,
+	drift,
+	isPast = false,
+}: {
+	readonly member: CrewMember;
+	readonly size: Size;
+	readonly index: number;
+	readonly drift: MotionValue<number>;
+	readonly isPast?: boolean;
+}) {
+	const ref = useRef<HTMLLIElement>(null);
+	const isReducedMotion = useReducedMotion();
+	const isFromLeft = index % 2 === 0;
+	const { scrollYProgress } = useScroll({
+		target: ref,
+		offset: ["start end", "center 65%"],
+	});
+	const progress = useSpring(scrollYProgress, {
+		stiffness: 140,
+		damping: 22,
+		mass: 0.4,
+	});
+	const x = useTransform(progress, [0, 1], [isFromLeft ? -110 : 110, 0]);
+	const rotate = useTransform(progress, [0, 1], [isFromLeft ? -14 : 14, 0]);
+	const scale = useTransform(progress, [0, 1], [0.6, 1]);
+	const opacity = useTransform(progress, [0, 0.6], [0, 1]);
+	const filter = useTransform(progress, [0, 0.8], ["blur(10px)", "blur(0px)"]);
+	// Each person sits at their own depth, so a row parallaxes apart.
+	const depth = ((index * 37) % 5) - 2;
+	const y = useTransform(drift, [0, 1], [depth * 14, depth * -14]);
+	const floatStyle: Record<string, string> = {
+		"--float-d": `${5 + ((index * 13) % 4)}s`,
+		"--float-delay": `${-((index * 7) % 5)}s`,
+		"--float-rot": `${index % 2 === 0 ? 1.5 : -1.5}deg`,
+	};
+
+	return (
+		<motion.li
+			ref={ref}
+			style={isReducedMotion ? undefined : { x, rotate, scale, opacity, filter }}
+		>
+			<motion.div style={isReducedMotion ? undefined : { y }}>
+				<div
+					className={cn(
+						"float flex flex-col items-center text-center",
+						isPast
+							? "w-32 opacity-50 grayscale transition-[opacity,filter] duration-500 hover:opacity-100 hover:grayscale-0 sm:w-36"
+							: "w-36 sm:w-44"
+					)}
+					style={floatStyle}
+				>
+					<Avatar member={member} size={size} isCurrent={!isPast} />
+					<p
+						className={cn(
+							"mt-4 leading-snug font-semibold",
+							isPast ? "text-sm" : ""
+						)}
+					>
+						{displayName(member)}
+					</p>
+					<p className={cn("mt-0.5 text-muted", isPast ? "text-xs" : "text-sm")}>
+						{member.role}
+					</p>
+				</div>
+			</motion.div>
+		</motion.li>
+	);
+}
+
+function Tier({
+	title,
+	children,
+}: {
+	readonly title: string;
+	readonly children: ReactNode;
+}) {
+	return (
+		<div className="text-center">
+			<h3 className="text-2xl sm:text-3xl">{title}</h3>
+			<div className="mt-10">{children}</div>
+		</div>
+	);
+}
+
+function Row({
+	members,
+	size,
+	drift,
+	offset = 0,
+	isPast = false,
+}: {
+	readonly members: CrewMember[];
+	readonly size: Size;
+	readonly drift: MotionValue<number>;
+	readonly offset?: number;
+	readonly isPast?: boolean;
+}) {
+	return (
+		<ul className="flex flex-wrap justify-center gap-x-6 gap-y-10 sm:gap-x-10">
+			{members.map((member, index) => (
+				<FloatingMember
+					key={member.name}
+					member={member}
+					size={size}
+					index={index + offset}
+					drift={drift}
+					isPast={isPast}
+				/>
+			))}
+		</ul>
 	);
 }
 
 export default function CrewChart({
 	groups,
+	partners,
 }: {
 	readonly groups: CrewGroup[];
+	readonly partners: PartnerClub[];
 }) {
+	const ref = useRef<HTMLDivElement>(null);
+	const isReducedMotion = useReducedMotion();
+	const { scrollYProgress: drift } = useScroll({
+		target: ref,
+		offset: ["start end", "end start"],
+	});
 	const group = (id: string) =>
 		groups.find((item) => item.id === id)?.members ?? [];
-	const current = group("current");
-	const captains = current.filter((m) => m.role.startsWith("Captain"));
-	const firstOfficers = current.filter((m) =>
-		m.role.startsWith("First Officer")
-	);
-	const officers = current.filter(
-		(m) => !captains.includes(m) && !firstOfficers.includes(m)
-	);
-
-	const tiers: Tier[] = [
-		{ label: "Faculty advisors", members: group("advisors"), size: "sm" },
-		{ label: "Captains", members: captains, size: "lg" },
-		{ label: "First officer", members: firstOfficers, size: "md" },
-		{ label: "Officers", members: officers, size: "md" },
-		{ label: "Crew", members: group("helpers"), size: "sm" },
-	].filter((tier): tier is Tier => tier.members.length > 0);
-
-	const past = group("past");
-	const half = Math.ceil(past.length / 2);
-	const leftPast = past.slice(0, half);
-	const rightPast = [
-		...past.slice(half),
-		...group("past-helpers"),
-		...group("alliance"),
-	];
+	const past = [...group("past"), ...group("past-helpers")];
 
 	return (
-		<div className="grid gap-16 lg:grid-cols-[13rem_1fr_13rem] lg:gap-8">
-			<div className="order-2 lg:order-1 lg:pt-10">
-				<PastColumn title="Past leadership" members={leftPast} side="left" />
-			</div>
-			<div className="order-1 lg:order-2">
-				{tiers.map((tier, index) => (
-					<div key={tier.label}>
-						{index > 0 ? (
-							<Connector isDashed={index === 1 || tier.label === "Crew"} />
-						) : null}
-						<TierRow tier={tier} />
-					</div>
-				))}
-			</div>
-			<div className="order-3 lg:pt-10">
-				<PastColumn
-					title="Past crew & alliance"
-					members={rightPast}
-					side="right"
-				/>
-			</div>
+		<div ref={ref} className="space-y-24 sm:space-y-32">
+			<Tier title="Cockpit Crew">
+				<Row members={group("cockpit")} size="lg" drift={drift} />
+			</Tier>
+			<Tier title="Leadership Team">
+				<Row members={group("officers")} size="md" drift={drift} offset={3} />
+			</Tier>
+			<Tier title="Flight Crew">
+				<Row members={group("helpers")} size="sm" drift={drift} offset={5} />
+			</Tier>
+			<Tier title="Faculty Advisors">
+				<Row members={group("advisors")} size="md" drift={drift} offset={6} />
+			</Tier>
+			<Tier title="Past Leadership & Crew">
+				<Row isPast members={past} size="past" drift={drift} offset={8} />
+			</Tier>
+			<Tier title="Alliance">
+				<p className="mx-auto -mt-6 mb-10 max-w-xl text-muted">
+					Clubs we partner with.
+				</p>
+				<ul className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
+					{partners.map((club, index) => (
+						<motion.li
+							key={club.name}
+							className="rounded-3xl border border-hairline bg-surface p-6 sm:p-8"
+							initial={
+								isReducedMotion
+									? false
+									: { opacity: 0, y: 40, rotate: index % 2 === 0 ? -3 : 3 }
+							}
+							whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+							viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+							transition={{ type: "spring", stiffness: 160, damping: 20 }}
+						>
+							<div className="flex items-center justify-center gap-3">
+								<Initials
+									name={club.name}
+									className="size-14 rounded-full text-lg"
+								/>
+								<div className="text-left">
+									<p className="font-display text-xl font-semibold">
+										{club.name}
+									</p>
+									<p className="label text-accent-text">Partnered club</p>
+								</div>
+							</div>
+							{club.members.length > 0 ? (
+								<div className="mt-8">
+									<Row
+										members={club.members}
+										size="sm"
+										drift={drift}
+										offset={20 + index}
+									/>
+								</div>
+							) : null}
+						</motion.li>
+					))}
+				</ul>
+			</Tier>
 		</div>
 	);
 }

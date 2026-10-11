@@ -5,7 +5,7 @@ export const alt = "The Flight Crew · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Flight Crew",
+		title: "The Flight Crew",
 		eyebrow: "Community",
 		photo: await readFile(
 			new URL("../../assets/photos/hero-classroom-meeting.jpg", import.meta.url)

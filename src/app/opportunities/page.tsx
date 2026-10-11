@@ -17,7 +17,7 @@ export default function OpportunitiesPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore"
+				eyebrow="Explore · Opportunities"
 				title="Opportunities"
 				intro={pageIntros.opportunities.intro}
 				image={photos.eventAviationHsPanel.src}

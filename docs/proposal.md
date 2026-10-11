@@ -280,9 +280,14 @@ review on request.
 | 2026-10-10 | Careers (revised) | Quiz shows one question at a time and ends with animated % match scores; searchable career explorer with family filters and expandable role cards. |
 | 2026-10-10 | Wordmark | Navbar "StuyAviators" wordmark set in Inter Tight semibold; Goudy Bookletter 1911 dropped. Heading letter-spacing reset to Inter Tight's default; animated headings no longer run words together. |
 | 2026-10-10 | Scroll | Every page is a sequence of full-screen sections that rise in and recede on scroll (CSS scroll-driven animations; normal scrolling where unsupported or with reduced motion). In-page links scroll smoothly. |
-| 2026-10-10 | Titles | Page titles match the dropdown labels (Mission & Skylab, Charter & Rules, Brand Guidelines, Careers, Flight Crew, Gallery, Member Stories, Contact & Socials); eyebrows name the dropdown group. |
 | 2026-10-10 | Crew | Centered animated org chart with circular portraits: advisors → captains → first officer → officers → crew. Past leadership flanks it in faded black and white. |
 | 2026-10-10 | Motion | Story page flight-path timeline (drawn path, plane, swinging milestones); gallery columns drift at different speeds; ambient sky with planes on dotted paths (both themes) and stars/orbs (dark mode). |
+| 2026-10-10 | Titles | Page titles are the priority and stay as written (Our Mission, Club Charter, Future Careers, The Flight Crew, Community Highlights, Share Your Story, Connect). Dropdown labels follow the titles, shortened only when a title is too long. |
+| 2026-10-10 | Name | In writing the name is always **StuyAviators**; **STUYAVIATORS** (Inter Tight Semibold, caps, +0.08 em) where caps look better, including the navbar wordmark. Never "Stuy aviators". Brand page documents this. |
+| 2026-10-10 | Careers | No external links or "Try it here". Title Case career names and fields of study. Health & Medicine and Education & Media are separate families; cybersecurity under Engineering & Technology; gate agents under Airports. Single-column list. |
+| 2026-10-10 | Crew | Top to bottom: Cockpit Crew (captains + first officer), Leadership Team (other officers), Flight Crew (helpers), Faculty Advisors, Past Leadership & Crew (faded, grayscale), Alliance (partnered clubs K2-18B Rocketry and StuySky). Floating portraits. |
+| 2026-10-10 | Gallery | Photos float freely and enlarge on hover; no captions. The viewer shows camera specs from EXIF where present (15 photos). No globe: most photos lack location data, and GPS is never read for privacy. |
+| 2026-10-10 | Motion | Scroll locks on more pages (About stages and Join steps step through one at a time; Meetings, Connect, Stories, Brand sections pin). Charter headings stick while their text scrolls. Meeting types stack vertically. Light mode has drifting clouds. Navbar reappears when the mouse nears the top; scroll-to-top button on every page. |
 
 ### D2: what's cut vs kept
 

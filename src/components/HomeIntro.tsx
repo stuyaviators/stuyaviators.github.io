@@ -114,7 +114,9 @@ export default function HomeIntro({
 			return;
 		}
 
-		setHeaderOverlay(scrollYProgress.get() < 0.12);
+		// Only when actually at the top: a mid-page reload must not leave
+		// white header text over the light page.
+		setHeaderOverlay(window.scrollY < window.innerHeight * 0.2);
 		return () => {
 			setHeaderOverlay(false);
 		};

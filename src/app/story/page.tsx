@@ -19,7 +19,7 @@ export default function StoryPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About"
+				eyebrow="About · Our story"
 				title="Our Story"
 				intro={pageIntros.story.intro}
 				image={photos.heroLandingChallenge.src}

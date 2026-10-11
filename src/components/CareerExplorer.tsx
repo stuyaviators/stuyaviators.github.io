@@ -3,7 +3,6 @@
 import type { Career, CareerFamily } from "@/content/careers";
 import { cn } from "@/lib/cn";
 import {
-	ArrowUpRight,
 	ChevronDown,
 	GraduationCap,
 	Search,
@@ -63,7 +62,6 @@ function CareerCard({
 	const { career, family } = entry;
 	const detailsId = useId();
 	const isReducedMotion = useReducedMotion();
-	const source = family.sources.at(0);
 	return (
 		<motion.li
 			layout={isReducedMotion ? false : "position"}
@@ -74,7 +72,7 @@ function CareerCard({
 			className={cn(
 				"rounded-3xl border bg-surface transition-[border-color,box-shadow] duration-300",
 				isOpen
-					? "border-brand shadow-card sm:col-span-2"
+					? "border-brand shadow-card"
 					: "border-transparent hover:border-hairline"
 			)}
 		>
@@ -149,17 +147,6 @@ function CareerCard({
 										</li>
 									))}
 								</ul>
-								{source ? (
-									<a
-										href={source.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand underline-offset-4 hover:underline"
-									>
-										{source.label}
-										<ArrowUpRight aria-hidden className="size-3.5" />
-									</a>
-								) : null}
 							</div>
 						</div>
 					</motion.div>
@@ -305,14 +292,6 @@ export default function CareerExplorer({
 							<p className="mt-3 text-lg text-muted">
 								{selectedFamily.summary}
 							</p>
-							{selectedFamily.tryIt ? (
-								<p className="mt-4">
-									<span className="label mr-2 text-accent-text">
-										Try it here
-									</span>
-									{selectedFamily.tryIt}
-								</p>
-							) : null}
 						</div>
 						<div>
 							<p className="label text-muted">Helpful fields of study</p>
@@ -323,21 +302,6 @@ export default function CareerExplorer({
 										className="rounded-full bg-bg px-3 py-1 text-sm"
 									>
 										{study}
-									</li>
-								))}
-							</ul>
-							<ul className="mt-4 space-y-1 text-sm">
-								{selectedFamily.sources.map((source) => (
-									<li key={source.url}>
-										<a
-											href={source.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="inline-flex items-center gap-1 text-brand underline-offset-4 hover:underline"
-										>
-											{source.label}
-											<ArrowUpRight aria-hidden className="size-3" />
-										</a>
 									</li>
 								))}
 							</ul>
@@ -353,7 +317,7 @@ export default function CareerExplorer({
 			</p>
 
 			{visible.length > 0 ? (
-				<ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<ul className="mt-4 grid gap-3">
 					<AnimatePresence initial={false} mode="popLayout">
 						{visible.map(({ entry }) => {
 							const key = `${entry.family.id}:${entry.career.name}`;

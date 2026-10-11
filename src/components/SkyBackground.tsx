@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
  * Ambient sky behind every page (fixed, decorative, no JS):
  * - planes fly dotted flight paths that draw in, then fade out, on a slow
  *   loop (both themes; faint in light mode);
+ * - in light mode, faint clouds drifting across;
  * - in dark mode, twinkling stars and slow-drifting glowing orbs.
  * Hidden or frozen under prefers-reduced-motion (globals.css).
  */
@@ -29,6 +30,14 @@ const stars = Array.from({ length: 80 }, (_, index) => ({
 	delay: -next() * 6,
 }));
 
+const clouds = [
+	{ top: "8%", width: "26rem", duration: 150, delay: -20 },
+	{ top: "28%", width: "18rem", duration: 110, delay: -75 },
+	{ top: "52%", width: "32rem", duration: 190, delay: -130 },
+	{ top: "70%", width: "22rem", duration: 135, delay: -40 },
+	{ top: "86%", width: "28rem", duration: 170, delay: -100 },
+];
+
 const flights = [
 	{ d: "M -120 720 C 300 600, 760 660, 1560 170", dur: 20, begin: 0 },
 	{ d: "M 1560 110 C 1120 250, 620 150, -120 430", dur: 24, begin: 7 },
@@ -45,6 +54,22 @@ export default function SkyBackground() {
 			aria-hidden
 			className="sky pointer-events-none fixed inset-0 -z-10 overflow-hidden"
 		>
+			<div className="only-light">
+				{clouds.map((cloud) => (
+					<span
+						key={cloud.top}
+						className="cloud"
+						style={
+							{
+								top: cloud.top,
+								width: cloud.width,
+								"--d": `${cloud.duration}s`,
+								"--delay": `${cloud.delay}s`,
+							} as CSSProperties
+						}
+					/>
+				))}
+			</div>
 			<div className="only-dark">
 				<span className="orb left-[-10%] top-[5%] size-[42rem] bg-[radial-gradient(circle,rgb(20_121_204/0.28),transparent_65%)] [--d:38s] [--dx:12vw] [--dy:8vh]" />
 				<span className="orb right-[-15%] top-[35%] size-[38rem] bg-[radial-gradient(circle,rgb(99_102_241/0.18),transparent_65%)] [--d:46s] [--dx:-10vw] [--dy:-6vh]" />

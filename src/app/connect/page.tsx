@@ -19,7 +19,7 @@ import Image from "next/image";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-	title: "Contact & Socials",
+	title: "Connect",
 	description: pageIntros.contact.intro,
 	alternates: { canonical: "/connect" },
 };
@@ -29,8 +29,8 @@ export default async function ConnectPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Connect"
-				title="Contact & Socials"
+				eyebrow="Connect · Socials & contact"
+				title="Connect"
 				intro={pageIntros.socials.intro}
 				image={photos.heroSimRyanair.src}
 				imageAlt={photos.heroSimRyanair.alt}
@@ -44,6 +44,7 @@ export default async function ConnectPage() {
 			</PageHero>
 
 			<Section
+				pin
 				id="socials"
 				label="Stay in the loop"
 				title="Find us online"
@@ -79,6 +80,7 @@ export default async function ConnectPage() {
 			</Section>
 
 			<Section
+				pin
 				id="contact"
 				label="Contact information"
 				title="Contact us"
@@ -143,6 +145,7 @@ export default async function ConnectPage() {
 			</Section>
 
 			<Section
+				pin
 				id="message"
 				label="Send a message"
 				title="Write to us"

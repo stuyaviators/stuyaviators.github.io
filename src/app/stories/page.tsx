@@ -25,13 +25,14 @@ export default function StoriesPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Community"
-				title="Member Stories"
+				eyebrow="Community · Member stories"
+				title="Share Your Story"
 				intro={pageIntros.stories.intro}
 				image={photos.heroCessnaBackseat.src}
 				imageAlt={photos.heroCessnaBackseat.alt}
 			/>
 			<Section
+				pin
 				id="stories"
 				label={storiesCopy.spotlightHeading}
 				title={storiesCopy.sharedHeading}
@@ -71,6 +72,7 @@ export default function StoriesPage() {
 				</div>
 			</Section>
 			<Section
+				pin
 				id="share"
 				label="Share"
 				title={storiesCopy.shareHeading}

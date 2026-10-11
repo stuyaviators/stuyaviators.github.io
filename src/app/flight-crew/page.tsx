@@ -4,14 +4,14 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import { crewApplyUrl, crewGroups } from "@/content/crew";
+import { crewApplyUrl, crewGroups, partnerClubs } from "@/content/crew";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { crewCopy, positions } from "@/content/positions";
 import { ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
-	title: "Flight Crew",
+	title: "The Flight Crew",
 	description: pageIntros.flightCrew.intro,
 	alternates: { canonical: "/flight-crew" },
 };
@@ -28,8 +28,8 @@ export default function FlightCrewPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Community"
-				title="Flight Crew"
+				eyebrow="Community · Flight crew"
+				title="The Flight Crew"
 				intro={pageIntros.flightCrew.intro}
 				image={photos.heroClassroomMeeting.src}
 				imageAlt={photos.heroClassroomMeeting.alt}
@@ -48,7 +48,7 @@ export default function FlightCrewPage() {
 				title="Meet the crew"
 				intro={crewCopy.groupIntros.current}
 			>
-				<CrewChart groups={crewGroups} />
+				<CrewChart groups={crewGroups} partners={partnerClubs} />
 			</Section>
 
 			<Section

@@ -14,8 +14,8 @@
 	--surface-2: #ebebef;
 	--ice: #ddebff;
 	--ink: #0a0a0c;
-	--text: #1d1d1f;
-	--muted: #5f5f66;
+	--text: #111113;
+	--muted: #4f4f56;
 	--brand: #0b64a9;
 	--brand-ink: #ffffff;
 	--accent: #0b64a9;
@@ -632,7 +632,38 @@ dialog[open]::backdrop {
 
 /* Ambient sky (SkyBackground). */
 .sky-flights {
-	opacity: 0.16;
+	opacity: 0.28;
+}
+
+/* Light-mode clouds: soft puffs drifting across the page. */
+.cloud {
+	position: absolute;
+	left: 0;
+	aspect-ratio: 5 / 2;
+	--cloud: rgb(150 180 220 / 22%);
+	background:
+		radial-gradient(closest-side, var(--cloud) 55%, transparent) 8% 75% / 34%
+			60% no-repeat,
+		radial-gradient(closest-side, var(--cloud) 55%, transparent) 32% 40% / 38%
+			90% no-repeat,
+		radial-gradient(closest-side, var(--cloud) 55%, transparent) 58% 30% / 42%
+			100% no-repeat,
+		radial-gradient(closest-side, var(--cloud) 55%, transparent) 82% 65% / 34%
+			70% no-repeat,
+		radial-gradient(closest-side, var(--cloud) 55%, transparent) 50% 85% / 80%
+			45% no-repeat;
+	filter: blur(10px);
+	animation: cloud-drift var(--d, 120s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes cloud-drift {
+	from {
+		transform: translateX(-40vw);
+	}
+
+	to {
+		transform: translateX(130vw);
+	}
 }
 
 @media (prefers-color-scheme: dark) {
@@ -679,7 +710,8 @@ dialog[open]::backdrop {
 	}
 
 	.orb,
-	.star {
+	.star,
+	.cloud {
 		animation: none;
 	}
 }
@@ -692,4 +724,34 @@ dialog[open]::backdrop {
 
 :root[data-header-hidden] .below-header {
 	top: 0.75rem;
+}
+
+/* Gentle zero-gravity bob (Flight Crew chart). */
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+
+	50% {
+		transform: translateY(-10px) rotate(var(--float-rot, 1deg));
+	}
+}
+
+.float {
+	animation: float var(--float-d, 6s) ease-in-out var(--float-delay, 0s)
+		infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.float {
+		animation: none;
+	}
+}
+
+/* Gallery: when one photo is hovered or focused, the rest blur back. */
+.floating-stage:has(.gallery-photo:hover, .gallery-photo:focus-visible)
+	.gallery-photo:not(:hover, :focus-visible) {
+	filter: blur(3px) saturate(0.6);
+	opacity: 0.45;
 }

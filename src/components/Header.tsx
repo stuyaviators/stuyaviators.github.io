@@ -354,7 +354,21 @@ export default function Header() {
 		};
 	}, []);
 
-	const closeMobile = useCallback((shouldReturnFocus: boolean) => {
+	// Bring the hidden bar back when the pointer moves near the top edge.
+	useEffect(() => {
+		const onMove = (event: MouseEvent) => {
+			if (event.clientY < 72) {
+				setIsHidden(false);
+			}
+		};
+
+		globalThis.addEventListener("mousemove", onMove, { passive: true });
+		return () => {
+			globalThis.removeEventListener("mousemove", onMove);
+		};
+	}, []);
+
+		const closeMobile = useCallback((shouldReturnFocus: boolean) => {
 		setIsNavOpen(false);
 		if (shouldReturnFocus) {
 			toggleRef.current?.focus();
@@ -449,7 +463,7 @@ export default function Header() {
 								isScrolled ? "size-9" : "size-10"
 							)}
 						/>
-						<span className="font-display text-xl leading-none font-semibold text-text">
+						<span className="font-display text-lg leading-none font-semibold tracking-[0.08em] text-text uppercase">
 							StuyAviators
 						</span>
 					</Link>

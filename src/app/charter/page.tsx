@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Md, Paragraphs } from "@/components/Md";
-import { Stagger } from "@/components/TransitionProvider";
 import { FlightStrip } from "@/components/ui/FlightStrip";
 import { PageHero } from "@/components/ui/PageHero";
+import CharterToc from "@/components/CharterToc";
 import { Container } from "@/components/ui/Section";
 import { charter, expectations } from "@/content/charter";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Charter & Rules",
+	title: "Club Charter & Rules",
 	description: pageIntros.charter.intro,
 	alternates: { canonical: "/charter" },
 };
@@ -55,116 +56,110 @@ function NumberedRules({
 	);
 }
 
+/**
+One part of the charter: its heading locks in place (beside the text on
+wide screens, at the top on phones) while you scroll through the body.
+*/
+function CharterPart({
+	id,
+	number,
+	eyebrow,
+	title,
+	children,
+}: {
+	readonly id: string;
+	readonly number: number;
+	readonly eyebrow: string;
+	readonly title: string;
+	readonly children: ReactNode;
+}) {
+	return (
+		<section
+			id={id}
+			aria-labelledby={`${id}-h`}
+			className="scroll-mt-24 border-t border-hairline py-14 lg:grid lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10 lg:py-20"
+		>
+			<div className="below-header sticky z-10 -mx-4 bg-bg/85 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 sm:-mx-6 sm:px-6 lg:mx-0 lg:self-start lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+				<FlightStrip index={number} label={eyebrow} />
+				<h2 id={`${id}-h`} className="mt-2 text-2xl sm:text-3xl">
+					{title}
+				</h2>
+			</div>
+			<div className="mt-6 min-w-0 text-lg lg:mt-0">{children}</div>
+		</section>
+	);
+}
+
 export default function CharterPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About"
-				title="Charter & Rules"
+				eyebrow="About · Charter & rules"
+				title="Club Charter"
 				intro={pageIntros.charter.intro}
 				image={photos.heroSimClassroom.src}
 				imageAlt={photos.heroSimClassroom.alt}
 			/>
-			<Container className="grid gap-12 lg:grid-cols-[16rem_1fr]">
-				<nav
-					aria-label="On this page"
-					className="pt-14 lg:sticky lg:top-28 lg:self-start"
-				>
-					<p className="label text-muted">On this page</p>
-					<ol className="mt-3 space-y-1 border-l border-hairline text-sm">
-						{toc.map((item) => (
-							<li key={item.id}>
-								<a
-									href={`#${item.id}`}
-									className="-ml-px block border-l-2 border-transparent py-1 pl-3 text-muted hover:border-brand hover:text-text"
-								>
-									{item.title}
-								</a>
-							</li>
-						))}
-					</ol>
-				</nav>
+			<Container className="grid gap-12 pb-24 lg:grid-cols-[13rem_1fr]">
+				<CharterToc items={toc} />
 				<div className="min-w-0">
-					<Stagger className="scene-section scene">
+					<div className="py-16">
 						<FlightStrip label={charter.foundation.title} />
-						<p className="mt-5 max-w-3xl text-xl">
+						<p className="mt-5 max-w-3xl font-display text-3xl leading-snug font-semibold sm:text-4xl">
 							{charter.foundation.paragraphs[0]}
 						</p>
-					</Stagger>
+					</div>
 					{charter.sections.map((section, index) => (
-						<section
+						<CharterPart
 							key={section.id}
 							id={section.id}
-							aria-labelledby={`${section.id}-h`}
-							className="scene-section scene scroll-mt-28 py-10"
+							number={index + 1}
+							eyebrow="Charter"
+							title={section.title}
 						>
-							<FlightStrip index={index + 1} label="Charter" />
-							<h2 id={`${section.id}-h`} className="mt-4 text-3xl">
-								{section.title}
-							</h2>
-							<Paragraphs
-								items={section.paragraphs}
-								className="prose-club mt-4"
-							/>
-						</section>
+							<Paragraphs items={section.paragraphs} className="prose-club" />
+						</CharterPart>
 					))}
-
-					<section
+					<CharterPart
 						id={expectations.codeOfConduct.id}
-						aria-labelledby="coc-h"
-						className="scene-section scene scroll-mt-28 py-10"
+						number={7}
+						eyebrow="Rules & expectations"
+						title={expectations.codeOfConduct.title}
 					>
-						<FlightStrip index={7} label="Rules & expectations" />
-						<h2 id="coc-h" className="mt-4 text-3xl">
-							{expectations.codeOfConduct.title}
-						</h2>
-						<p className="prose-club mt-4">
-							{expectations.codeOfConduct.intro}
-						</p>
+						<p className="prose-club">{expectations.codeOfConduct.intro}</p>
 						<NumberedRules items={expectations.codeOfConduct.items} />
-					</section>
-					<section
+					</CharterPart>
+					<CharterPart
 						id={expectations.attendance.id}
-						aria-labelledby="att-h"
-						className="scene-section scene scroll-mt-28 py-10"
+						number={8}
+						eyebrow="Rules & expectations"
+						title={expectations.attendance.title}
 					>
-						<FlightStrip index={8} label="Rules & expectations" />
-						<h2 id="att-h" className="mt-4 text-3xl">
-							{expectations.attendance.title}
-						</h2>
 						<Paragraphs
 							items={expectations.attendance.paragraphs}
-							className="prose-club mt-4"
+							className="prose-club"
 						/>
-					</section>
-					<section
+					</CharterPart>
+					<CharterPart
 						id={expectations.etiquette.id}
-						aria-labelledby="eti-h"
-						className="scene-section scene scroll-mt-28 py-10"
+						number={9}
+						eyebrow="Rules & expectations"
+						title={expectations.etiquette.title}
 					>
-						<FlightStrip index={9} label="Rules & expectations" />
-						<h2 id="eti-h" className="mt-4 text-3xl">
-							{expectations.etiquette.title}
-						</h2>
-						<p className="prose-club mt-4">
-							{expectations.etiquette.intro}
-						</p>
+						<p className="prose-club">{expectations.etiquette.intro}</p>
 						<NumberedRules items={expectations.etiquette.items} />
-					</section>
-					<section
+					</CharterPart>
+					<CharterPart
 						id={expectations.cancellations.id}
-						aria-labelledby="can-h"
-						className="scene-section scene scroll-mt-28 py-10"
+						number={10}
+						eyebrow="Rules & expectations"
+						title={expectations.cancellations.title}
 					>
-						<FlightStrip index={10} label="Rules & expectations" />
-						<h2 id="can-h" className="mt-4 text-3xl">
-							{expectations.cancellations.title}
-						</h2>
 						<Paragraphs
 							items={expectations.cancellations.paragraphs}
-							className="prose-club mt-4"
+							className="prose-club"
 						/>
-					</section>
+					</CharterPart>
 				</div>
 			</Container>
 		</>

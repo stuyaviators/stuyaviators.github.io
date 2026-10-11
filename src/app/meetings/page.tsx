@@ -30,7 +30,7 @@ export default async function MeetingsPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore"
+				eyebrow="Explore · Meetings"
 				title="Meetings"
 				intro={pageIntros.meetings.intro}
 				image={photos.heroSimSetup.src}
@@ -38,6 +38,7 @@ export default async function MeetingsPage() {
 			/>
 
 			<Section
+				pin
 				id="upcoming"
 				label="Departures"
 				title="Upcoming meetings"
@@ -53,16 +54,20 @@ export default async function MeetingsPage() {
 				title="What happens at a meeting"
 				intro={meetings.typesIntro}
 			>
-				<ul className="grid gap-6 md:grid-cols-2">
+				{/* Vertical scroll: each card locks under the header and the next
+				    one slides up over it. */}
+				<ol className="grid gap-6">
 					{meetings.types.map((type, index) => {
 						const photo = meetingImages[index];
 						return (
-							<Stagger as="li" key={type.name}>
-								<article
-									id={type.code?.toLowerCase() ?? `type-${index + 1}`}
-									className="h-full scroll-mt-28 overflow-hidden rounded-3xl bg-surface"
-								>
-									<div className="relative aspect-[16/9] bg-surface-2">
+							<li
+								key={type.name}
+								id={type.code?.toLowerCase() ?? `type-${index + 1}`}
+								className="scroll-mt-28 motion-safe:sticky"
+								style={{ top: `calc(6.5rem + ${index * 0.75}rem)` }}
+							>
+								<article className="grid overflow-hidden rounded-3xl border border-hairline bg-surface shadow-card md:grid-cols-[1fr_1.1fr]">
+									<div className="relative aspect-[16/10] bg-surface-2 md:aspect-auto md:min-h-[22rem]">
 										<Image
 											src={photo.src}
 											alt={photo.alt}
@@ -72,29 +77,23 @@ export default async function MeetingsPage() {
 											className="object-cover"
 										/>
 									</div>
-									<div className="p-5 sm:p-6">
+									<div className="p-6 sm:p-10">
 										<p className="label text-accent-text">
-											{type.code ??
-												`Type ${String(index + 1).padStart(2, "0")}`}
+											{type.code ?? `Type ${String(index + 1).padStart(2, "0")}`}
 											{type.isNew ? " · New pilot session" : ""}
 										</p>
-										<h3 className="mt-1 text-xl">
-											{type.name}
-											{type.code ? ` (${type.code})` : ""}
-										</h3>
-										<p className="mt-1 font-medium text-muted">
-											{type.tagline}
-										</p>
-										<p className="mt-3">{type.description}</p>
+										<h3 className="mt-2 text-2xl sm:text-3xl">{type.name}</h3>
+										<p className="mt-2 font-medium text-muted">{type.tagline}</p>
+										<p className="mt-4">{type.description}</p>
 									</div>
 								</article>
-							</Stagger>
+							</li>
 						);
 					})}
-				</ul>
+				</ol>
 			</Section>
 
-			<Section id="schedule" label="Schedule" title="When we meet">
+			<Section pin id="schedule" label="Schedule" title="When we meet">
 				<div className="grid gap-8 lg:grid-cols-3">
 					{schedule.map((section) => (
 						<Stagger key={section.id}>
@@ -109,6 +108,7 @@ export default async function MeetingsPage() {
 			</Section>
 
 			<Section
+				pin
 				id="ideas"
 				label="Suggestions"
 				title={meetings.ideaHeading}

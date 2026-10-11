@@ -32,7 +32,7 @@ export const quizQuestions: QuizQuestion[] = [
 	{
 		id: "people",
 		text: "Do you enjoy helping and working with people face to face?",
-		weights: { cabin: 3, people: 2, airports: 1, business: 1 },
+		weights: { cabin: 3, health: 2, airports: 1, media: 1 },
 	},
 	{
 		id: "pressure",
@@ -52,7 +52,7 @@ export const quizQuestions: QuizQuestion[] = [
 	{
 		id: "tech",
 		text: "Do you like computers, coding or gadgets?",
-		weights: { uncrewed: 3, engineering: 2, maintenance: 1, people: 1 },
+		weights: { uncrewed: 3, engineering: 2, maintenance: 1 },
 	},
 	{
 		id: "investigate",
@@ -66,8 +66,13 @@ export const quizQuestions: QuizQuestion[] = [
 	},
 	{
 		id: "communicate",
-		text: "Do you like teaching, writing, photography or medicine?",
-		weights: { people: 3, uncrewed: 1, business: 1 },
+		text: "Do you like teaching, writing, photography or making videos?",
+		weights: { media: 3, uncrewed: 1, business: 1 },
+	},
+	{
+		id: "health",
+		text: "Are you interested in medicine, or in how flying affects the human body and mind?",
+		weights: { health: 3, safety: 1, engineering: 1 },
 	},
 ];
 
