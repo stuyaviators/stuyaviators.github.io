@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
 import {
+	clubMeetings,
 	crewMembers,
 	galleryPhotos,
 	listings,
@@ -38,11 +39,12 @@ const putMock = vi.fn(async (pathname: string) => ({
 vi.mock("@vercel/blob", () => ({ put: putMock }));
 
 const { auth } = await import("@/auth");
-const { updateTag } = await import("next/cache");
+const { revalidatePath, updateTag } = await import("next/cache");
 const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
 const announcementActions = await import("./announcement.ts");
 const crewActions = await import("./crew.ts");
+const meetingActions = await import("./meetings.ts");
 const testimonialActions = await import("./testimonials.ts");
 const galleryActions = await import("./gallery.ts");
 const inboxActions = await import("./inbox.ts");
@@ -105,6 +107,18 @@ const galleryInput = {
 	height: 900,
 };
 
+const meetingInput = {
+	title: "Flight sim night",
+	code: "FSD",
+	start: "2026-10-21T15:35",
+	end: "2026-10-21T17:00",
+	room: "313",
+	status: "scheduled",
+	description: "",
+	linkUrl: "",
+	linkLabel: "",
+};
+
 const notSignedIn = { ok: false, error: "Please sign in again." };
 const notAllowed = {
 	ok: false,
@@ -134,6 +148,7 @@ beforeEach(async () => {
 	signInAs(undefined);
 	putMock.mockClear();
 	vi.mocked(updateTag).mockClear();
+	vi.mocked(revalidatePath).mockClear();
 	delete process.env.BLOB_READ_WRITE_TOKEN;
 	delete process.env.DASHBOARD_OPEN_SIGNIN;
 });
@@ -234,6 +249,18 @@ describe("signed out", () => {
 			notSignedIn
 		);
 		expect(await testDb!.select().from(testimonials)).toHaveLength(0);
+	});
+
+	it("can't edit meetings", async () => {
+		const id = crypto.randomUUID();
+		expect(await meetingActions.addMeetingAction(meetingInput)).toEqual(
+			notSignedIn
+		);
+		expect(await meetingActions.updateMeetingAction(id, meetingInput)).toEqual(
+			notSignedIn
+		);
+		expect(await meetingActions.deleteMeetingAction(id)).toEqual(notSignedIn);
+		expect(await testDb!.select().from(clubMeetings)).toHaveLength(0);
 	});
 
 	it("can't triage the inbox", async () => {
@@ -546,6 +573,55 @@ describe("officers", () => {
 		expect(await testimonialActions.deleteTestimonialAction(mine.id)).toEqual({
 			ok: true,
 		});
+	});
+
+	it("adds, edits and removes meetings, and refreshes the board each time", async () => {
+		await addUserRow("meetings-officer@gmail.com", "officer");
+		signInAs("meetings-officer@gmail.com");
+		expect(await meetingActions.addMeetingAction(meetingInput)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("meetings");
+		expect(revalidatePath).toHaveBeenCalledWith("/meetings", "layout");
+		const [row] = await testDb!.select().from(clubMeetings);
+		expect(row).toMatchObject({
+			title: "Flight sim night",
+			createdBy: "meetings-officer@gmail.com",
+		});
+
+		vi.mocked(updateTag).mockClear();
+		expect(
+			await meetingActions.updateMeetingAction(row!.id, {
+				...meetingInput,
+				status: "cancelled",
+			})
+		).toEqual({ ok: true });
+		expect(updateTag).toHaveBeenCalledWith("meetings");
+		expect(
+			await meetingActions.addMeetingAction({ ...meetingInput, title: "" })
+		).toMatchObject({ ok: false, fieldErrors: { title: expect.any(String) } });
+
+		vi.mocked(updateTag).mockClear();
+		expect(await meetingActions.deleteMeetingAction(row!.id)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("meetings");
+		// Deleting only hides it: the row waits in the (admin-only) trash.
+		const [hidden] = await testDb!.select().from(clubMeetings);
+		expect(hidden?.deletedAt).not.toBeNull();
+	});
+
+	it("keeps meetings from people without the Meetings box", async () => {
+		await testDb!.insert(users).values({
+			email: "plain@gmail.com",
+			role: "contributor",
+			permissions: presets.contributor,
+		});
+		signInAs("plain@gmail.com");
+		expect(await meetingActions.addMeetingAction(meetingInput)).toEqual(
+			notAllowed
+		);
+		expect(await testDb!.select().from(clubMeetings)).toHaveLength(0);
 	});
 
 	it("gets field errors for a bad crew photo link", async () => {
