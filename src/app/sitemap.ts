@@ -13,6 +13,7 @@ const routes = [
 	"/flight-crew",
 	"/gallery",
 	"/stories",
+	"/newsletter",
 	"/connect",
 	"/join",
 	"/brand",

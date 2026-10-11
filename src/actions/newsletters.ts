@@ -33,6 +33,7 @@ const notFound = actionError("That newsletter no longer exists.");
 
 function refreshWebVersion(slug: string | undefined) {
 	updateTag(newslettersTag);
+	revalidatePath("/newsletter");
 	if (slug) {
 		revalidatePath(`/newsletter/${slug}`);
 	}

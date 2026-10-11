@@ -251,6 +251,27 @@ export async function getPublishedNewsletter(
 	return newsletter?.published ? newsletter : undefined;
 }
 
+/**
+Published newsletters that have a web version, newest first.
+*/
+export async function listPublishedNewsletters(
+	db: Database
+): Promise<Newsletter[]> {
+	return db
+		.select()
+		.from(newsletters)
+		.where(
+			and(
+				eq(newsletters.status, "published"),
+				isNotNull(newsletters.slug),
+				isNotNull(newsletters.published),
+				isNull(newsletters.deletedAt)
+			)
+		)
+		.orderBy(desc(newsletters.publishedAt))
+		.limit(100);
+}
+
 export async function listPresets(db: Database): Promise<NewsletterPreset[]> {
 	return db
 		.select()

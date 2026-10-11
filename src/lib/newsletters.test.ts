@@ -12,6 +12,7 @@ import {
 	getPublishedNewsletter,
 	listNewsletters,
 	listPresets,
+	listPublishedNewsletters,
 	publishNewsletter,
 	saveNewsletter,
 	setNewsletterDeleted,
@@ -185,6 +186,25 @@ describe("web versions", () => {
 		await setNewsletterDeleted(db, created.id, true, "a");
 		expect(await getPublishedNewsletter(db, "october")).toBeUndefined();
 		expect((await getNewsletter(db, created.id))?.status).toBe("draft");
+	});
+
+	it("lists published issues newest first, leaving out drafts, unpublished and deleted ones", async () => {
+		const first = await createNewsletter(db, draft("First"), "a");
+		const second = await createNewsletter(db, draft("Second"), "a");
+		const hidden = await createNewsletter(db, draft("Hidden"), "a");
+		await createNewsletter(db, draft("Never published"), "a");
+		await publishNewsletter(db, first.id, "september");
+		await publishNewsletter(db, second.id, "october");
+		await publishNewsletter(db, hidden.id, "hidden");
+		await unpublishNewsletter(db, hidden.id);
+
+		const issues = await listPublishedNewsletters(db);
+		expect(issues.map((issue) => issue.slug)).toEqual(["october", "september"]);
+
+		await setNewsletterDeleted(db, second.id, true, "a");
+		expect(
+			(await listPublishedNewsletters(db)).map((issue) => issue.slug)
+		).toEqual(["september"]);
 	});
 
 	it("keeps addresses unique and reserves real pages", async () => {
