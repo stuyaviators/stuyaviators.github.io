@@ -204,9 +204,65 @@ function PhotoGrid({
 }
 
 /**
+The viewer's caption: the photo's description, which an AI wrote and so is
+labeled as such. A mouse over the photo, or a tap or Enter on the caption,
+swaps it for the camera specs from the photo's metadata. Both texts share
+one grid cell so the caption never changes height.
+*/
+function Caption({
+	alt,
+	specs,
+	hovered,
+}: {
+	readonly alt: string;
+	readonly specs: string | undefined;
+	readonly hovered: boolean;
+}) {
+	const [isPinned, setIsPinned] = useState(false);
+	const isShowingSpecs = hovered || isPinned;
+	const fade =
+		"col-start-1 row-start-1 transition-opacity duration-300 motion-reduce:transition-none";
+	return (
+		<motion.figcaption
+			initial={{ opacity: 0, y: 8 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4, delay: 0.15 }}
+			className="mt-4 max-w-prose"
+		>
+			<button
+				type="button"
+				className="grid cursor-default rounded-lg px-2 py-1 text-center text-sm text-white/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+				onClick={() => {
+					setIsPinned((value) => !value);
+				}}
+			>
+				<span
+					aria-hidden={isShowingSpecs}
+					className={cn(fade, isShowingSpecs ? "opacity-0" : "opacity-100")}
+				>
+					{alt}
+					<span className="mt-1 block text-xs text-white/55">
+						AI-Generated caption · may be inaccurate · hover or tap for camera specs
+					</span>
+				</span>
+				<span
+					aria-hidden={!isShowingSpecs}
+					className={cn(fade, isShowingSpecs ? "opacity-100" : "opacity-0")}
+				>
+					{specs ?? "No camera specs found"}
+					<span className="mt-1 block text-xs text-white/55">
+						Camera specs from the photo&rsquo;s data
+					</span>
+				</span>
+			</button>
+		</motion.figcaption>
+	);
+}
+
+/**
 Photo grid with an accessible <dialog> lightbox (arrow keys,
-Escape). The viewer shows camera specs from the photo's metadata, when
-there are any, instead of a caption.
+Escape). Each photo in the viewer has a caption that swaps to the camera
+specs from the photo's metadata on hover.
 */
 export default function Lightbox({
 	images,
@@ -220,6 +276,7 @@ export default function Lightbox({
 	const [loadedIndex, setLoadedIndex] = useState<number | undefined>(
 		undefined
 	);
+	const [hovered, setHovered] = useState(false);
 	const isReducedMotion = useReducedMotion();
 
 	const open = (i: number, trigger: HTMLButtonElement) => {
@@ -231,6 +288,7 @@ export default function Lightbox({
 	const step = useCallback(
 		(delta: number) => {
 			setDirection(delta);
+			setHovered(false);
 			setIndex((i) =>
 				i === undefined ? i : (i + delta + images.length) % images.length
 			);
@@ -295,6 +353,13 @@ export default function Lightbox({
 								key={index}
 								custom={direction}
 								className="flex max-h-full max-w-full flex-col items-center"
+								onPointerEnter={(event) => {
+									// Only a real mouse hovers; a tap uses the caption's button.
+									setHovered(event.pointerType === "mouse");
+								}}
+								onPointerLeave={() => {
+									setHovered(false);
+								}}
 								initial={{
 									opacity: 0,
 									x: isReducedMotion ? 0 : direction * 80,
@@ -329,15 +394,12 @@ export default function Lightbox({
 									}}
 								/>
 								{/* Only once the photo has loaded. */}
-								{loadedIndex === index && formatSpec(current.spec) ? (
-									<motion.figcaption
-										initial={{ opacity: 0, y: 8 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ duration: 0.4, delay: 0.15 }}
-										className="mt-4 text-center text-sm text-white/75"
-									>
-										{formatSpec(current.spec)}
-									</motion.figcaption>
+								{loadedIndex === index ? (
+									<Caption
+										alt={current.alt}
+										specs={formatSpec(current.spec)}
+										hovered={hovered}
+									/>
 								) : null}
 							</motion.figure>
 						) : null}
