@@ -1,5 +1,6 @@
 "use client";
 
+import type { BeholdPost } from "@/lib/behold";
 import type { StaticImageData } from "next/image";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
@@ -15,6 +16,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Hero from "./Hero.tsx";
+import { SocialIcon } from "./icons.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
 
 /*
@@ -62,10 +64,6 @@ function setHeaderOverlay(isOverlay: boolean) {
 	}
 }
 
-function clamp01(value: number) {
-	return Math.min(1, Math.max(0, value));
-}
-
 function Contrail({ className }: { readonly className?: string }) {
 	return (
 		<svg aria-hidden className={className} viewBox="0 0 520 32" fill="none">
@@ -87,12 +85,94 @@ function Contrail({ className }: { readonly className?: string }) {
 	);
 }
 
+/**
+Where the video was: the latest Instagram posts, sliding in from the right
+as the video fades away. Without posts (no Behold feed), a link to follow.
+*/
+function InstagramPanel({
+	posts,
+	username,
+	isActive,
+	isWide,
+}: {
+	readonly posts: BeholdPost[];
+	readonly username: string;
+	readonly isActive: boolean;
+	readonly isWide: boolean;
+}) {
+	const tabIndex = isActive ? undefined : -1;
+	const shown = posts.slice(0, isWide ? 4 : 3);
+	return (
+		<div className="flex h-full flex-col gap-3 rounded-2xl border border-hairline bg-surface p-3 shadow-card sm:rounded-3xl sm:p-4">
+			<div className="flex items-center justify-between gap-3">
+				<p className="label flex min-w-0 items-center gap-2 text-accent-text">
+					<SocialIcon name="instagram" className="size-4 shrink-0" />
+					<span className="truncate">Latest on Instagram</span>
+				</p>
+				<a
+					href={`https://www.instagram.com/${username}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					tabIndex={tabIndex}
+					className="shrink-0 text-sm font-semibold text-brand hover:underline"
+				>
+					@{username}
+				</a>
+			</div>
+			{shown.length > 0 ? (
+				<ul
+					className={cn(
+						"grid min-h-0 flex-1 gap-2",
+						isWide ? "grid-cols-2 grid-rows-2" : "grid-cols-3 grid-rows-1"
+					)}
+				>
+					{shown.map((post) => (
+						<li key={post.id} className="min-h-0">
+							<a
+								href={post.permalink}
+								target="_blank"
+								rel="noopener noreferrer"
+								tabIndex={tabIndex}
+								className="group relative block size-full overflow-hidden rounded-xl"
+								style={{ backgroundColor: post.placeholder }}
+							>
+								<Image
+									src={post.sizes.medium.mediaUrl}
+									alt={post.prunedCaption || `Instagram post from @${username}`}
+									fill
+									unoptimized
+									sizes="(min-width: 1024px) 20vw, 30vw"
+									className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+								/>
+							</a>
+						</li>
+					))}
+				</ul>
+			) : (
+				<a
+					href={`https://www.instagram.com/${username}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					tabIndex={tabIndex}
+					className="flex flex-1 items-center justify-center rounded-xl bg-surface-2 text-center text-lg font-semibold text-brand"
+				>
+					Follow @{username} on Instagram
+				</a>
+			)}
+		</div>
+	);
+}
+
 export default function HomeIntro({
 	poster,
 	posterAlt,
+	posts,
+	username,
 }: {
 	readonly poster: StaticImageData;
 	readonly posterAlt: string;
+	readonly posts: BeholdPost[];
+	readonly username: string;
 }) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -101,7 +181,6 @@ export default function HomeIntro({
 	const [isPlaying, setIsPlaying] = useState(true);
 	const [isVideoVisible, setIsVideoVisible] = useState(false);
 	const [isIntroReady, setIsIntroReady] = useState(false);
-	const isDesktopRef = useRef(true);
 	const textRef = useRef<HTMLDivElement>(null);
 	const narrowInsetRef = useRef<CardInset>(cardInset.mobile);
 	const [narrowInset, setNarrowInset] = useState<CardInset>(cardInset.mobile);
@@ -114,16 +193,11 @@ export default function HomeIntro({
 		target: sectionRef,
 		offset: ["start start", "end end"],
 	});
-	// Interpolated per frame so it always matches the current breakpoint.
-	const clipPath = useTransform(scrollYProgress, (value) => {
-		const t = clamp01((value - 0.08) / 0.47);
-		const eased = 1 - (1 - t) ** 3;
-		const target = isDesktopRef.current
-			? cardInset.desktop
-			: narrowInsetRef.current;
-		const [top, right, bottom, left, radius] = target.map((n) => n * eased);
-		return `inset(${top}% ${right}% ${bottom}% ${left}% round ${radius}px)`;
-	});
+	// The video fades away upward while the Instagram panel slides in.
+	const videoOpacity = useTransform(scrollYProgress, [0.08, 0.5], [1, 0]);
+	const videoY = useTransform(scrollYProgress, [0.08, 0.5], ["0%", "-10%"]);
+	const panelX = useTransform(scrollYProgress, [0.4, 0.75], ["115%", "0%"]);
+	const panelOpacity = useTransform(scrollYProgress, [0.4, 0.55], [0, 1]);
 	const scrimOpacity = useTransform(scrollYProgress, [0.08, 0.45], [1, 0]);
 	const introOpacity = useTransform(scrollYProgress, [0.04, 0.28], [1, 0]);
 	const introY = useTransform(scrollYProgress, [0.04, 0.28], [0, -60]);
@@ -166,7 +240,6 @@ export default function HomeIntro({
 	useEffect(() => {
 		const query = globalThis.matchMedia("(min-width: 1024px)");
 		const update = () => {
-			isDesktopRef.current = query.matches;
 			setIsDesktop(query.matches);
 		};
 
@@ -244,8 +317,11 @@ export default function HomeIntro({
 			className="relative -mt-[5.5rem] h-[260svh]"
 		>
 			<div className="sticky top-0 h-svh overflow-hidden bg-bg">
-				{/* Video layer, clipped from full-screen down to a card. */}
-				<motion.div className="absolute inset-0 bg-ink" style={{ clipPath }}>
+				{/* Video layer: full-screen, then fades up and away. */}
+				<motion.div
+					className="absolute inset-0 bg-ink"
+					style={{ opacity: videoOpacity, y: videoY }}
+				>
 					<Image
 						src={poster}
 						alt={posterAlt}
@@ -371,28 +447,47 @@ export default function HomeIntro({
 					</div>
 				</motion.div>
 
+				{/* Stage 3: recent Instagram posts where the video was. */}
+				{isDesktop || narrowInset[0] !== 50 ? (
+					<motion.div
+						className={cn(
+							"absolute",
+							isSplit ? "pointer-events-auto" : "pointer-events-none"
+						)}
+						style={{
+							x: panelX,
+							opacity: panelOpacity,
+							...(() => {
+								const [top, right, bottom, left] = isDesktop
+									? cardInset.desktop
+									: narrowInset;
+								return {
+									top: `${top}%`,
+									right: `${right}%`,
+									bottom: `${bottom}%`,
+									left: `${left}%`,
+								};
+							})(),
+						}}
+					>
+						<InstagramPanel
+							posts={posts}
+							username={username}
+							isActive={isSplit}
+							isWide={isDesktop}
+						/>
+					</motion.div>
+				) : null}
+
 				<button
 					type="button"
 					aria-label={isPlaying ? "Pause video" : "Play video"}
 					aria-pressed={isPlaying}
 					className={cn(
-						"absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90",
-						// No card on a screen too short for it, so no button either.
-						isSplit && !isDesktop && narrowInset[0] === 50 && "hidden"
+						"absolute right-4 bottom-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90",
+						// The video is gone once the page is split.
+						isSplit && "hidden"
 					)}
-					style={
-						isSplit
-							? (() => {
-									const [, right, bottom] = isDesktop
-										? cardInset.desktop
-										: narrowInset;
-									return {
-										right: `calc(${right}% + 12px)`,
-										bottom: `calc(${bottom}% + 12px)`,
-									};
-								})()
-							: { right: 16, bottom: 16 }
-					}
 					onClick={() => {
 						setIsPlaying((value) => !value);
 					}}

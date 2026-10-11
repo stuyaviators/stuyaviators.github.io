@@ -14,6 +14,7 @@ import { home } from "@/content/home";
 import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { photos } from "@/content/photos";
+import { getInstagramFeed } from "@/lib/behold";
 import { getUpcomingMeetings } from "@/lib/meetings";
 import { getPublicTestimonials } from "@/lib/testimonials";
 import { ArrowRight } from "lucide-react";
@@ -29,12 +30,15 @@ export const revalidate = 900;
 export default async function Home() {
 	const upcoming = await getUpcomingMeetings();
 	const testimonials = await getPublicTestimonials();
+	const feed = await getInstagramFeed();
 
 	return (
 		<>
 			<HomeIntro
 				poster={photos.heroCessnaBackseat.src}
 				posterAlt={photos.heroCessnaBackseat.alt}
+				posts={feed?.posts.slice(0, 4) ?? []}
+				username={feed?.username ?? "stuyaviators"}
 			/>
 
 			<PinnedScene id="departures" length={0.5} labelledBy="departures-heading">
