@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { signInWithGoogle, signOutAction } from "@/actions/auth";
 import logo from "@/assets/brand/logo.png";
 import { auth } from "@/auth";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClasses } from "@/components/ui/Button";
 import { safeCallback } from "@/lib/auth-redirect";
 import { isGoogleConfigured } from "@/lib/dashboard-env";
 import { currentUser } from "@/lib/session";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -118,14 +119,9 @@ export default async function SignInPage({
 					</form>
 				) : null}
 
-				<p className="mt-6 text-center text-sm">
-					<Link
-						href="/"
-						className="text-brand underline-offset-4 hover:underline"
-					>
-						Back to stuyaviators site
-					</Link>
-				</p>
+				<Link href="/" className={buttonClasses("secondary", "mt-6 w-full")}>
+					<ArrowLeft aria-hidden className="size-4" /> Back to site
+				</Link>
 			</div>
 		</main>
 	);

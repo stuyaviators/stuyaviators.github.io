@@ -1,6 +1,5 @@
 "use client";
 
-import type { RoleName } from "@/lib/permissions";
 import { addedByLabel, canDelete } from "@/lib/permissions";
 import { createContext, useContext, useMemo } from "react";
 
@@ -11,7 +10,7 @@ import { createContext, useContext, useMemo } from "react";
  * before deleting; this just keeps the screen honest.
  */
 
-type Viewer = { email: string; role: RoleName };
+type Viewer = { email: string; permissions: number };
 
 type Value = {
 	canDeleteItem: (addedBy: string | undefined) => boolean;

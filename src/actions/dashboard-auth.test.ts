@@ -8,6 +8,7 @@ import {
 	testimonials,
 	users,
 } from "@/db/schema";
+import { presets } from "@/lib/permissions";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -116,7 +117,10 @@ async function count(
 }
 
 async function addUserRow(email: string, role: "admin" | "officer") {
-	const [row] = await testDb!.insert(users).values({ email, role }).returning();
+	const [row] = await testDb!
+		.insert(users)
+		.values({ email, role, permissions: presets[role] })
+		.returning();
 	return row!;
 }
 
@@ -244,11 +248,14 @@ describe("signed out", () => {
 	});
 
 	it("can't manage officers or settings", async () => {
-		expect(await officerActions.addOfficer("me@gmail.com", "admin")).toEqual(
-			notSignedIn
-		);
 		expect(
-			await officerActions.changeOfficerRole(crypto.randomUUID(), "admin")
+			await officerActions.addOfficer("me@gmail.com", presets.admin)
+		).toEqual(notSignedIn);
+		expect(
+			await officerActions.changeOfficerPermissions(
+				crypto.randomUUID(),
+				presets.admin
+			)
 		).toEqual(notSignedIn);
 		expect(await officerActions.removeOfficer(crypto.randomUUID())).toEqual(
 			notSignedIn
@@ -293,7 +300,7 @@ describe("signed in with Google, but not on the officer list", () => {
 			notSignedIn
 		);
 		expect(
-			await officerActions.addOfficer("stranger@gmail.com", "admin")
+			await officerActions.addOfficer("stranger@gmail.com", presets.admin)
 		).toEqual(notSignedIn);
 		expect(await count(listings)).toBe(0);
 		expect(await count(newsletters)).toBe(0);
@@ -594,12 +601,12 @@ describe("officers", () => {
 
 	it("can't manage officers or settings (admin only)", async () => {
 		const target = await addUserRow("someone@gmail.com", "officer");
-		expect(await officerActions.addOfficer("new@gmail.com", "officer")).toEqual(
-			notAllowed
-		);
-		expect(await officerActions.changeOfficerRole(target.id, "admin")).toEqual(
-			notAllowed
-		);
+		expect(
+			await officerActions.addOfficer("new@gmail.com", presets.officer)
+		).toEqual(notAllowed);
+		expect(
+			await officerActions.changeOfficerPermissions(target.id, presets.admin)
+		).toEqual(notAllowed);
 		expect(await officerActions.removeOfficer(target.id)).toEqual(notAllowed);
 		expect(
 			await settingsActions.saveEpsilonTokenAction("refresh-token-12345")
@@ -684,16 +691,18 @@ describe("admins", () => {
 
 	it("can add officers, change roles and remove them", async () => {
 		expect(
-			await officerActions.addOfficer(" New@Gmail.com ", "officer")
+			await officerActions.addOfficer(" New@Gmail.com ", presets.officer)
 		).toEqual({ ok: true });
 		const added = (await testDb!.select().from(users)).find(
 			(user) => user.email === "new@gmail.com"
 		)!;
 		expect(added.addedBy).toBe("admin@gmail.com");
 		expect(
-			await officerActions.addOfficer("new@gmail.com", "officer")
+			await officerActions.addOfficer("new@gmail.com", presets.officer)
 		).toMatchObject({ ok: false });
-		expect(await officerActions.changeOfficerRole(added.id, "admin")).toEqual({
+		expect(
+			await officerActions.changeOfficerPermissions(added.id, presets.admin)
+		).toEqual({
 			ok: true,
 		});
 		expect(await officerActions.removeOfficer(added.id)).toEqual({ ok: true });
@@ -701,13 +710,13 @@ describe("admins", () => {
 
 	it("validates emails and roles", async () => {
 		expect(
-			await officerActions.addOfficer("not-an-email", "officer")
+			await officerActions.addOfficer("not-an-email", presets.officer)
 		).toMatchObject({ ok: false });
 		expect(
-			await officerActions.addOfficer("a@gmail.com", "owner")
+			await officerActions.addOfficer("a@gmail.com", 99_999)
 		).toMatchObject({ ok: false });
 		expect(
-			await officerActions.changeOfficerRole(admin.id, "superuser")
+			await officerActions.changeOfficerPermissions(admin.id, -5)
 		).toMatchObject({ ok: false });
 		expect(await count(users)).toBe(1);
 	});
@@ -718,7 +727,7 @@ describe("admins", () => {
 			error: "There must always be at least one admin.",
 		});
 		expect(
-			await officerActions.changeOfficerRole(admin.id, "officer")
+			await officerActions.changeOfficerPermissions(admin.id, presets.officer)
 		).toMatchObject({ ok: false });
 		expect(await count(users)).toBe(1);
 	});

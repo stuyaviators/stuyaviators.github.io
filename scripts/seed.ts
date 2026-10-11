@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../src/db/schema.ts";
+import { allPermissions } from "../src/lib/permissions.ts";
 
 /*
  * Seeds the database: makes everyone in ADMIN_EMAILS an admin. Safe to run
@@ -41,6 +42,7 @@ const inserted = await db
 		emails.map((email) => ({
 			email,
 			role: "admin" as const,
+			permissions: allPermissions,
 			addedBy: "db:seed",
 		}))
 	)

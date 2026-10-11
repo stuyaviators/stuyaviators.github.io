@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import OfficersManager from "@/components/dashboard/OfficersManager";
 import { Notice, PageHeader } from "@/components/dashboard/ui";
 import { getDb } from "@/db";
-import { managedRoles } from "@/lib/permissions";
+import { grantableMask } from "@/lib/permissions";
 import { requirePageUser } from "@/lib/session";
 import { listUsers } from "@/lib/users";
 
@@ -23,7 +23,7 @@ export default async function OfficersPage() {
 				<OfficersManager
 					users={users}
 					currentId={user.id}
-					manageable={[...managedRoles(user.role)]}
+					grantable={grantableMask(user.permissions)}
 				/>
 			) : (
 				<Notice tone="bad">

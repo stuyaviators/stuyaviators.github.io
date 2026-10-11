@@ -6,6 +6,7 @@ import {
 	testimonials,
 	users,
 } from "@/db/schema";
+import { presets } from "@/lib/permissions";
 import { createTestDb } from "@/test/pglite";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -53,7 +54,10 @@ const authMock = auth as unknown as ReturnType<typeof vi.fn>;
 type Role = "admin" | "officer" | "manager" | "contributor" | "media";
 
 async function addPerson(email: string, role: Role) {
-	const [row] = await testDb!.insert(users).values({ email, role }).returning();
+	const [row] = await testDb!
+		.insert(users)
+		.values({ email, role, permissions: presets[role] })
+		.returning();
 	return row!;
 }
 
@@ -131,9 +135,9 @@ describe("contributor (cards and newsletters)", () => {
 				endsOn: "",
 			})
 		).toEqual(denied);
-		expect(await officerActions.addOfficer("x@stuy.edu", "media")).toEqual(
-			denied
-		);
+		expect(
+			await officerActions.addOfficer("x@stuy.edu", presets.media)
+		).toEqual(denied);
 		expect(await settingsActions.testEpsilonAction()).toEqual(denied);
 		expect(
 			await inboxActions.markSubmission(crypto.randomUUID(), "read")
@@ -242,9 +246,9 @@ describe("officer (all content)", () => {
 	});
 
 	it("still can't manage people or settings", async () => {
-		expect(await officerActions.addOfficer("x@stuy.edu", "media")).toEqual(
-			denied
-		);
+		expect(
+			await officerActions.addOfficer("x@stuy.edu", presets.media)
+		).toEqual(denied);
 		expect(await settingsActions.testEpsilonAction()).toEqual(denied);
 	});
 });
@@ -274,14 +278,14 @@ describe("manager (banner, inbox, and Contributors and Media)", () => {
 
 	it("can add Contributors and Media, but never anyone who could do more", async () => {
 		expect(
-			(await officerActions.addOfficer("a@stuy.edu", "contributor")).ok
+			(await officerActions.addOfficer("a@stuy.edu", presets.contributor)).ok
 		).toBe(true);
-		expect((await officerActions.addOfficer("b@stuy.edu", "media")).ok).toBe(
-			true
-		);
+		expect(
+			(await officerActions.addOfficer("b@stuy.edu", presets.media)).ok
+		).toBe(true);
 		const refused = await Promise.all(
 			["admin", "officer", "manager"].map(async (role) =>
-				officerActions.addOfficer(`${role}@stuy.edu`, role)
+				officerActions.addOfficer(`${role}@stuy.edu`, presets[role as Role])
 			)
 		);
 		expect(refused.map((result) => result.ok)).toEqual([false, false, false]);
@@ -296,19 +300,31 @@ describe("manager (banner, inbox, and Contributors and Media)", () => {
 		const officer = await addPerson("o@stuy.edu", "officer");
 		const admin = await addPerson("boss@stuy.edu", "admin");
 		expect(
-			(await officerActions.changeOfficerRole(contributor.id, "officer")).ok
+			(
+				await officerActions.changeOfficerPermissions(
+					contributor.id,
+					presets.officer
+				)
+			).ok
 		).toBe(false);
 		expect(
-			(await officerActions.changeOfficerRole(officer.id, "media")).ok
+			(await officerActions.changeOfficerPermissions(officer.id, presets.media))
+				.ok
 		).toBe(false);
 		expect(
-			(await officerActions.changeOfficerRole(manager.id, "admin")).ok
+			(await officerActions.changeOfficerPermissions(manager.id, presets.admin))
+				.ok
 		).toBe(false);
 		expect((await officerActions.removeOfficer(admin.id)).ok).toBe(false);
 		expect((await officerActions.removeOfficer(officer.id)).ok).toBe(false);
 		// What it may do: move a Contributor to Media, and remove one.
 		expect(
-			(await officerActions.changeOfficerRole(contributor.id, "media")).ok
+			(
+				await officerActions.changeOfficerPermissions(
+					contributor.id,
+					presets.media
+				)
+			).ok
 		).toBe(true);
 		expect((await officerActions.removeOfficer(contributor.id)).ok).toBe(true);
 		const remaining = await testDb!.select().from(users);
@@ -334,7 +350,8 @@ describe("admin", () => {
 		signInAs("boss@stuy.edu");
 		const added = await Promise.all(
 			["admin", "officer", "manager", "contributor", "media"].map(
-				async (role) => officerActions.addOfficer(`${role}@stuy.edu`, role)
+				async (role) =>
+					officerActions.addOfficer(`${role}@stuy.edu`, presets[role as Role])
 			)
 		);
 		expect(added.map((result) => result.ok)).toEqual([
@@ -345,9 +362,9 @@ describe("admin", () => {
 			true,
 		]);
 
-		expect((await officerActions.changeOfficerRole(boss.id, "media")).ok).toBe(
-			false
-		);
+		expect(
+			(await officerActions.changeOfficerPermissions(boss.id, presets.media)).ok
+		).toBe(false);
 		const rows = await testDb!
 			.select()
 			.from(users)

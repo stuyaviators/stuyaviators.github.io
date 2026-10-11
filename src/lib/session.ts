@@ -3,7 +3,7 @@ import type { User } from "@/lib/users";
 import { auth } from "@/auth";
 import { getDb } from "@/db";
 import { isOpenSignIn, localAdminEmail, localRole } from "@/lib/open-signin";
-import { canAccess } from "@/lib/permissions";
+import { canAccess, presets } from "@/lib/permissions";
 import { findUser } from "@/lib/users";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -29,6 +29,7 @@ function localAdmin(
 		name: name ?? null,
 		image: image ?? null,
 		role: localRole(),
+		permissions: presets[localRole()],
 		addedBy: "DASHBOARD_OPEN_SIGNIN",
 		createdAt: new Date(),
 		lastSignInAt: new Date(),
@@ -55,7 +56,7 @@ export const currentUser = cache(async (): Promise<User | undefined> => {
 });
 
 export function hasAccess(user: User, access: Access) {
-	return canAccess(user.role, access);
+	return canAccess(user.permissions, access);
 }
 
 /**

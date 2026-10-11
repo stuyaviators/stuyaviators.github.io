@@ -1,6 +1,8 @@
 import type { Database } from "@/db";
+import type { RoleName } from "@/lib/permissions";
 import type { User } from "./users.ts";
 import { galleryPhotos, testimonials, users } from "@/db/schema";
+import { presets } from "@/lib/permissions";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import { canDeleteRow, namesByEmail, ownerOf } from "./ownership.ts";
@@ -10,12 +12,13 @@ beforeEach(async () => {
 	db = await createTestDb();
 });
 
-const person = (email: string, role: User["role"]): User => ({
+const person = (email: string, role: RoleName): User => ({
 	id: crypto.randomUUID(),
 	email,
 	name: null,
 	image: null,
 	role,
+	permissions: presets[role],
 	addedBy: null,
 	createdAt: new Date(),
 	lastSignInAt: null,

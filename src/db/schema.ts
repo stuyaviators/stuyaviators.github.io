@@ -106,6 +106,7 @@ export const userRole = pgEnum("user_role", [
 	"manager",
 	"contributor",
 	"media",
+	"custom",
 ]);
 
 /**
@@ -118,7 +119,10 @@ export const users = pgTable(
 		email: text().notNull(), // Always stored lowercased
 		name: text(),
 		image: text(),
+		// The preset these boxes add up to ("custom" for any other mix).
 		role: userRole().notNull().default("officer"),
+		// The permission number: the ticked boxes added together (permissions.ts).
+		permissions: integer().notNull().default(0),
 		addedBy: text(),
 		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 		lastSignInAt: timestamp({ withTimezone: true }),

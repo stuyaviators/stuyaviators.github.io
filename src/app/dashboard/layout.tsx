@@ -82,7 +82,7 @@ export default async function DashboardLayout({
 	const newMessages =
 		db && hasAccess(user, "inbox") ? await countNewSubmissions(db) : 0;
 	const names = db ? await namesByEmail(db) : {};
-	const viewer = { email: user.email, role: user.role };
+	const viewer = { email: user.email, permissions: user.permissions };
 	// Only the screens this role can use.
 	const items = [...baseItems, ...adminItems]
 		.filter((item) => hasAccess(user, navAccess[item.icon]))

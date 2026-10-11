@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
 import { users } from "@/db/schema";
+import { presets } from "@/lib/permissions";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
@@ -9,7 +10,7 @@ import {
 	findUser,
 	listUsers,
 	removeUser,
-	setRole,
+	setPermissions,
 } from "./users.ts";
 
 let db: Database;
@@ -40,7 +41,10 @@ describe("authorizeSignIn", () => {
 			{ ...first, email: "PStuyvesant60@Stuy.edu" },
 			[first.email]
 		);
-		expect(user).toMatchObject({ email: first.email, role: "admin" });
+		expect(user).toMatchObject({
+			email: first.email,
+			permissions: presets.admin,
+		});
 		expect(user?.lastSignInAt).toBeInstanceOf(Date);
 	});
 
@@ -56,14 +60,22 @@ describe("authorizeSignIn", () => {
 
 	it("doesn't resurrect a removed admin from ADMIN_EMAILS", async () => {
 		await authorizeSignIn(db, first, [first.email]);
-		await addUser(db, { email: "second@gmail.com", role: "admin" }, "test");
+		await addUser(
+			db,
+			{ email: "second@gmail.com", permissions: presets.admin },
+			"test"
+		);
 		const removed = await findUser(db, first.email);
 		await removeUser(db, removed!.id);
 		expect(await authorizeSignIn(db, first, [first.email])).toBeUndefined();
 	});
 
 	it("lets an added officer in and records the visit", async () => {
-		await addUser(db, { email: "Officer@Gmail.com", role: "officer" }, "admin");
+		await addUser(
+			db,
+			{ email: "Officer@Gmail.com", permissions: presets.officer },
+			"admin"
+		);
 		const user = await authorizeSignIn(db, {
 			email: "officer@gmail.com",
 			name: "Amelia Earhart",
@@ -79,8 +91,16 @@ describe("authorizeSignIn", () => {
 
 describe("roles and the last-admin guard", () => {
 	async function twoPeople() {
-		await addUser(db, { email: "boss@gmail.com", role: "admin" }, "test");
-		await addUser(db, { email: "helper@gmail.com", role: "officer" }, "test");
+		await addUser(
+			db,
+			{ email: "boss@gmail.com", permissions: presets.admin },
+			"test"
+		);
+		await addUser(
+			db,
+			{ email: "helper@gmail.com", permissions: presets.officer },
+			"test"
+		);
 		const [boss, helper] = await Promise.all([
 			findUser(db, "boss@gmail.com"),
 			findUser(db, "helper@gmail.com"),
@@ -89,10 +109,14 @@ describe("roles and the last-admin guard", () => {
 	}
 
 	it("refuses duplicate emails", async () => {
-		await addUser(db, { email: "a@gmail.com", role: "officer" }, "x");
+		await addUser(
+			db,
+			{ email: "a@gmail.com", permissions: presets.officer },
+			"x"
+		);
 		const again = await addUser(
 			db,
-			{ email: "A@GMAIL.com", role: "admin" },
+			{ email: "A@GMAIL.com", permissions: presets.admin },
 			"x"
 		);
 		expect(again).toEqual({
@@ -103,7 +127,7 @@ describe("roles and the last-admin guard", () => {
 
 	it("can't demote the last admin", async () => {
 		const { boss } = await twoPeople();
-		expect(await setRole(db, boss.id, "officer")).toEqual({
+		expect(await setPermissions(db, boss.id, presets.officer)).toEqual({
 			ok: false,
 			error: "There must always be at least one admin.",
 		});
@@ -119,17 +143,21 @@ describe("roles and the last-admin guard", () => {
 
 	it("allows demoting an admin when another remains", async () => {
 		const { boss, helper } = await twoPeople();
-		expect(await setRole(db, helper.id, "admin")).toEqual({ ok: true });
-		expect(await setRole(db, boss.id, "officer")).toEqual({ ok: true });
+		expect(await setPermissions(db, helper.id, presets.admin)).toEqual({
+			ok: true,
+		});
+		expect(await setPermissions(db, boss.id, presets.officer)).toEqual({
+			ok: true,
+		});
 		expect((await findUser(db, boss.email))?.role).toBe("officer");
 	});
 
 	it("two admins demoting each other at once leaves one", async () => {
 		const { boss, helper } = await twoPeople();
-		await setRole(db, helper.id, "admin");
+		await setPermissions(db, helper.id, presets.admin);
 		await Promise.all([
-			setRole(db, boss.id, "officer"),
-			setRole(db, helper.id, "officer"),
+			setPermissions(db, boss.id, presets.officer),
+			setPermissions(db, helper.id, presets.officer),
 		]);
 		const remaining = (await db.select().from(users)).filter(
 			(user) => user.role === "admin"
@@ -147,7 +175,7 @@ describe("roles and the last-admin guard", () => {
 	it("reports a role change for someone who's gone", async () => {
 		const { helper } = await twoPeople();
 		await removeUser(db, helper.id);
-		expect(await setRole(db, helper.id, "admin")).toEqual({
+		expect(await setPermissions(db, helper.id, presets.admin)).toEqual({
 			ok: false,
 			error: "That person is no longer on the list.",
 		});

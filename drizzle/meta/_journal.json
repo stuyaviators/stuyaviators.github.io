@@ -57,6 +57,13 @@
       "when": 1791737911217,
       "tag": "0007_roles_and_owners",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791738945968,
+      "tag": "0008_permission_numbers",
+      "breakpoints": true
     }
   ]
 }

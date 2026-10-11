@@ -2,80 +2,91 @@
 
 import type { ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
-import { managedRoles } from "@/lib/permissions";
+import { grantableMask, isWithin, readMask } from "@/lib/permissions";
 import {
 	addUser,
 	emailSchema,
 	findUserById,
 	removeUser,
-	roles,
-	setRole,
+	setPermissions,
 } from "@/lib/users";
 import { z } from "zod";
 
 /*
- * Managing who can sign in, and with which role. Admins manage everyone;
- * managers only Contributors and Media (see managedRoles in permissions.ts),
- * so that role can't promote anyone, itself included. The database refuses
- * to remove or demote the last admin (src/lib/users.ts).
+ * Managing who can sign in and which boxes are ticked for them (the
+ * permission number, see permissions.ts). Nobody can give boxes they aren't
+ * allowed to give (grantableMask), or edit someone who holds boxes they can't
+ * give, so "Manage people" can't be used to climb past what it holds. The
+ * database refuses to remove or reduce the last admin (src/lib/users.ts).
  */
 
 const idSchema = z.uuid();
-const roleSchema = z.enum(roles);
 const missing = actionError("That person is no longer on the list.");
-const notAllowed = actionError("Your role can’t manage that role.");
+const notAllowed = actionError(
+	"You can’t give or change those permissions. Ask an admin."
+);
+const noBoxes = actionError("Tick at least one box.");
 
 export async function addOfficer(
 	email: string,
-	role: string
+	permissions: number
 ): Promise<ActionResult> {
 	return guarded("officers", async ({ user, db }) => {
-		const parsed = z
-			.object({ email: emailSchema, role: roleSchema })
-			.safeParse({ email, role });
+		const parsed = z.object({ email: emailSchema }).safeParse({ email });
 		if (!parsed.success) {
 			return invalid(parsed.error);
 		}
 
-		if (!managedRoles(user.role).includes(parsed.data.role)) {
+		const mask = readMask(permissions);
+		if (mask === undefined || mask === 0) {
+			return noBoxes;
+		}
+
+		if (!isWithin(mask, grantableMask(user.permissions))) {
 			return notAllowed;
 		}
 
-		const result = await addUser(db, parsed.data, user.email);
+		const result = await addUser(
+			db,
+			{ email: parsed.data.email, permissions: mask },
+			user.email
+		);
 		return result.ok
 			? result
 			: actionError(result.error, { email: result.error });
 	});
 }
 
-export async function changeOfficerRole(
+export async function changeOfficerPermissions(
 	id: string,
-	role: string
+	permissions: number
 ): Promise<ActionResult> {
 	return guarded("officers", async ({ user, db }) => {
-		const parsed = z
-			.object({ id: idSchema, role: roleSchema })
-			.safeParse({ id, role });
-		if (!parsed.success) {
+		if (!idSchema.safeParse(id).success) {
 			return missing;
 		}
 
-		const target = await findUserById(db, parsed.data.id);
+		const mask = readMask(permissions);
+		if (mask === undefined || mask === 0) {
+			return noBoxes;
+		}
+
+		const target = await findUserById(db, id);
 		if (target === undefined) {
 			return missing;
 		}
 
 		if (target.id === user.id) {
-			return actionError("You can’t change your own role.");
+			return actionError("You can’t change your own permissions.");
 		}
 
-		// Both the role they have now and the one they would get.
-		const allowed = managedRoles(user.role);
-		if (!allowed.includes(target.role) || !allowed.includes(parsed.data.role)) {
+		// Both what they hold now and what they would hold.
+		const allowed = grantableMask(user.permissions);
+		if (!isWithin(target.permissions, allowed) || !isWithin(mask, allowed)) {
 			return notAllowed;
 		}
 
-		const result = await setRole(db, parsed.data.id, parsed.data.role);
+		const result = await setPermissions(db, target.id, mask);
 		return result.ok ? result : actionError(result.error);
 	});
 }
@@ -89,7 +100,7 @@ export async function removeOfficer(id: string): Promise<ActionResult> {
 		const target = await findUserById(db, id);
 		if (
 			target !== undefined &&
-			!managedRoles(user.role).includes(target.role)
+			!isWithin(target.permissions, grantableMask(user.permissions))
 		) {
 			return notAllowed;
 		}
