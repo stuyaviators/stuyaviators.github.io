@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { listCrewRows } from "@/lib/crew";
 import { requirePageUser } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Flight crew" };
+export const metadata: Metadata = { title: "Flight Crew" };
 
 export default async function CrewDashboardPage() {
 	await requirePageUser();
@@ -28,7 +28,7 @@ export default async function CrewDashboardPage() {
 	return (
 		<>
 			<PageHeader
-				title="Flight crew"
+				title="Flight Crew"
 				description="The people on the Flight Crew page: officers, advisors, helpers and past leadership. Changes show up on the site within a minute or so."
 			/>
 			{db ? (

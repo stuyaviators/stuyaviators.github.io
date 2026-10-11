@@ -205,21 +205,20 @@ function PhotoGrid({
 
 /**
 The viewer's caption: the photo's description, which an AI wrote and so is
-labeled as such. A mouse over the photo, or a tap or Enter on the caption,
+labeled as such. A mouse over the caption, or a tap or Enter on it,
 swaps it for the camera specs from the photo's metadata. Both texts share
 one grid cell so the caption never changes height.
 */
 function Caption({
 	alt,
 	specs,
-	hovered,
 }: {
 	readonly alt: string;
 	readonly specs: string | undefined;
-	readonly hovered: boolean;
 }) {
 	const [isPinned, setIsPinned] = useState(false);
-	const isShowingSpecs = hovered || isPinned;
+	const [isHovered, setIsHovered] = useState(false);
+	const isShowingSpecs = isHovered || isPinned;
 	const fade =
 		"col-start-1 row-start-1 transition-opacity duration-300 motion-reduce:transition-none";
 	return (
@@ -231,7 +230,17 @@ function Caption({
 		>
 			<button
 				type="button"
-				className="grid cursor-default rounded-lg px-2 py-1 text-center text-sm text-white/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+				className={cn(
+					"grid cursor-pointer rounded-lg px-3 py-2 text-center text-sm transition-[color,background-color,transform] duration-200 hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+					isPinned ? "bg-white/15 text-white" : "text-white/75"
+				)}
+				onPointerEnter={(event) => {
+					// Only a real mouse hovers; a tap toggles with the click below.
+					setIsHovered(event.pointerType === "mouse");
+				}}
+				onPointerLeave={() => {
+					setIsHovered(false);
+				}}
 				onClick={() => {
 					setIsPinned((value) => !value);
 				}}
@@ -262,7 +271,7 @@ function Caption({
 /**
 Photo grid with an accessible <dialog> lightbox (arrow keys,
 Escape). Each photo in the viewer has a caption that swaps to the camera
-specs from the photo's metadata on hover.
+specs from the photo's metadata when the mouse is over it.
 */
 export default function Lightbox({
 	images,
@@ -276,7 +285,6 @@ export default function Lightbox({
 	const [loadedIndex, setLoadedIndex] = useState<number | undefined>(
 		undefined
 	);
-	const [hovered, setHovered] = useState(false);
 	const isReducedMotion = useReducedMotion();
 
 	const open = (i: number, trigger: HTMLButtonElement) => {
@@ -288,7 +296,6 @@ export default function Lightbox({
 	const step = useCallback(
 		(delta: number) => {
 			setDirection(delta);
-			setHovered(false);
 			setIndex((i) =>
 				i === undefined ? i : (i + delta + images.length) % images.length
 			);
@@ -353,13 +360,6 @@ export default function Lightbox({
 								key={index}
 								custom={direction}
 								className="flex max-h-full max-w-full flex-col items-center"
-								onPointerEnter={(event) => {
-									// Only a real mouse hovers; a tap uses the caption's button.
-									setHovered(event.pointerType === "mouse");
-								}}
-								onPointerLeave={() => {
-									setHovered(false);
-								}}
 								initial={{
 									opacity: 0,
 									x: isReducedMotion ? 0 : direction * 80,
@@ -398,7 +398,6 @@ export default function Lightbox({
 									<Caption
 										alt={current.alt}
 										specs={formatSpec(current.spec)}
-										hovered={hovered}
 									/>
 								) : null}
 							</motion.figure>
