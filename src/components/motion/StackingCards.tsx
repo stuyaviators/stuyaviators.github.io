@@ -105,7 +105,7 @@ export default function StackingCards({
 	}, [covers]);
 
 	return (
-		<ol className="relative pb-[18svh]">
+		<ol className="relative">
 			{items.map((child, index) => (
 				<StackCard
 					key={index}
@@ -117,6 +117,10 @@ export default function StackingCards({
 					{child}
 				</StackCard>
 			))}
+			{/* Room after the last card: the cards stay stacked on screen for a
+			    moment before the whole stack scrolls away. Padding wouldn't do:
+			    sticky cards only stay put inside the list's content. */}
+			<li aria-hidden className="h-[18svh]" />
 		</ol>
 	);
 }
