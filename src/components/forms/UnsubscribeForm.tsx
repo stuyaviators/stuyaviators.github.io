@@ -68,7 +68,7 @@ export default function UnsubscribeForm() {
 						<>
 							<LinkifyEmails text={state.message} />{" "}
 							{state.fallbackUrl ? (
-								<a href={state.fallbackUrl} className="underline">
+								<a href={state.fallbackUrl} className="text-link">
 									Email us instead
 								</a>
 							) : null}

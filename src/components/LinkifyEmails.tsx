@@ -30,7 +30,7 @@ export default function LinkifyEmails({ text }: { readonly text: string }) {
 					<Fragment key={index}>
 						<a
 							href={`mailto:${word}`}
-							className="font-medium underline underline-offset-2"
+							className="text-link"
 						>
 							{word}
 						</a>
