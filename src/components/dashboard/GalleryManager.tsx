@@ -15,11 +15,22 @@ import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextAreaField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
+import { uploadImageSized } from "@/lib/client-upload";
 import { cn } from "@/lib/cn";
-import { ArrowDown, ArrowUp, Images, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+	ArrowDown,
+	ArrowUp,
+	CheckCircle2,
+	CircleAlert,
+	Images,
+	Pencil,
+	Plus,
+	Trash2,
+	Upload,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 type Item = {
 	id: string;
@@ -86,6 +97,13 @@ export default function GalleryManager({
 					<AddPhotoForm
 						onDone={() => {
 							router.replace("/dashboard/gallery");
+							router.refresh();
+						}}
+					/>
+				</div>
+				<div className="mt-6 border-t border-hairline pt-5">
+					<BulkPhotoUpload
+						onDone={() => {
 							router.refresh();
 						}}
 					/>
@@ -256,6 +274,180 @@ function ReferenceNote({ reference }: { readonly reference: Reference }) {
 				</p>
 			)}
 		</Notice>
+	);
+}
+
+const maxBulk = 5;
+
+type BulkRow = {
+	name: string;
+	status: "waiting" | "uploading" | "describing" | "done" | "failed";
+	message?: string;
+};
+
+const bulkLabels: Record<BulkRow["status"], string> = {
+	waiting: "Waiting",
+	uploading: "Uploading…",
+	describing: "Writing the description…",
+	done: "Added",
+	failed: "Failed",
+};
+
+/**
+Upload several photos at once (up to five). Each is added to the gallery with
+an AI-written description, labeled as such; edit any of them afterwards.
+*/
+function BulkPhotoUpload({ onDone }: { readonly onDone: () => void }) {
+	const { toast } = useToast();
+	const input = useRef<HTMLInputElement>(null);
+	const [rows, setRows] = useState<BulkRow[]>([]);
+	const [isBusy, setIsBusy] = useState(false);
+	const [note, setNote] = useState<string>();
+
+	function update(index: number, patch: Partial<BulkRow>) {
+		setRows((current) =>
+			current.map((row, position) =>
+				position === index ? { ...row, ...patch } : row
+			)
+		);
+	}
+
+	async function didAdd(file: File, index: number): Promise<boolean> {
+		try {
+			update(index, { status: "uploading" });
+			const image = await uploadImageSized(file, "highlight");
+			update(index, { status: "describing" });
+			const result = await addGalleryPhotoAction({
+				alt: "",
+				imageUrl: image.url,
+				width: image.width,
+				height: image.height,
+			});
+			if (!result.ok) {
+				update(index, {
+					status: "failed",
+					message: result.fieldErrors?.alt ?? result.error,
+				});
+				return false;
+			}
+
+			update(index, { status: "done" });
+			return true;
+		} catch (error) {
+			update(index, {
+				status: "failed",
+				message:
+					error instanceof Error ? error.message : "Couldn’t add this photo.",
+			});
+			return false;
+		}
+	}
+
+	async function start(chosen: File[]) {
+		const files = chosen.slice(0, maxBulk);
+		setNote(
+			chosen.length > maxBulk
+				? `Only the first ${maxBulk} photos were used.`
+				: undefined
+		);
+		setRows(files.map((file) => ({ name: file.name, status: "waiting" })));
+		setIsBusy(true);
+		let added = 0;
+		// New photos go to the front, so add the last one first: the photos end
+		// up in the order they were chosen.
+		for (let index = files.length - 1; index >= 0; index--) {
+			const file = files[index];
+			// eslint-disable-next-line no-await-in-loop -- one at a time, in order.
+			if (file !== undefined && (await didAdd(file, index))) {
+				added++;
+			}
+		}
+
+		setIsBusy(false);
+		if (added > 0) {
+			toast(
+				added === 1
+					? "1 photo added to the gallery"
+					: `${added} photos added to the gallery`
+			);
+			onDone();
+		}
+
+		if (added < files.length) {
+			toast(
+				`${files.length - added} photo${files.length - added === 1 ? "" : "s"} couldn’t be added`,
+				"bad"
+			);
+		}
+	}
+
+	return (
+		<div>
+			<h3 className="text-lg">Add several photos at once</h3>
+			<p className="mt-1 text-sm text-muted">
+				Choose up to {maxBulk} photos. Each is added with a description written
+				by AI and labeled AI-Generated Caption; edit any of them afterwards.
+			</p>
+			<input
+				ref={input}
+				type="file"
+				accept="image/*"
+				multiple
+				className="sr-only"
+				tabIndex={-1}
+				aria-label={`Choose up to ${maxBulk} photos`}
+				onChange={(event) => {
+					const chosen = [...(event.target.files ?? [])];
+					event.target.value = "";
+					if (chosen.length > 0) {
+						void start(chosen);
+					}
+				}}
+			/>
+			<Button
+				className="mt-3"
+				variant="secondary"
+				disabled={isBusy}
+				onClick={() => input.current?.click()}
+			>
+				{isBusy ? <Spinner /> : <Upload aria-hidden className="size-4" />}
+				{isBusy ? "Adding photos…" : `Choose up to ${maxBulk} photos`}
+			</Button>
+			{note ? <p className="mt-2 text-sm text-muted">{note}</p> : null}
+			{rows.length > 0 ? (
+				<ul aria-live="polite" className="mt-4 space-y-2">
+					{rows.map((row, index) => (
+						<li
+							key={`${row.name}-${index}`}
+							className="flex items-start gap-3 rounded-xl border border-hairline bg-surface-2/60 px-3 py-2 text-sm"
+						>
+							{row.status === "done" ? (
+								<CheckCircle2
+									aria-hidden
+									className="mt-0.5 size-4 shrink-0 text-success"
+								/>
+							) : row.status === "failed" ? (
+								<CircleAlert
+									aria-hidden
+									className="mt-0.5 size-4 shrink-0 text-danger"
+								/>
+							) : row.status === "waiting" ? (
+								<span aria-hidden className="mt-0.5 size-4 shrink-0" />
+							) : (
+								<Spinner />
+							)}
+							<span className="min-w-0 flex-1 break-words">
+								<span className="font-medium">{row.name}</span>
+								<span className="text-muted">
+									{" "}
+									· {row.message ?? bulkLabels[row.status]}
+								</span>
+							</span>
+						</li>
+					))}
+				</ul>
+			) : null}
+		</div>
 	);
 }
 
