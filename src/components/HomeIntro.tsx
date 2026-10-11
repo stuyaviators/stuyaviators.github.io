@@ -3,6 +3,7 @@
 import type { StaticImageData } from "next/image";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
+import { useBlobUrl } from "@/lib/use-blob-url";
 import { ArrowRight, ChevronDown, Pause, Play } from "lucide-react";
 import {
 	motion,
@@ -12,7 +13,6 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useBlobUrl } from "@/lib/use-blob-url";
 import { useEffect, useRef, useState } from "react";
 import Hero from "./Hero.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
@@ -33,6 +33,26 @@ const cardInset = {
 	desktop: [24, 7, 22, 53, 16],
 	mobile: [12, 4, 62, 4, 16],
 } as const;
+
+type CardInset = readonly number[];
+
+/**
+The card's final position on a narrow screen, where the text sits below it:
+the card stops above the text however tall that is. On a screen too short
+to hold both, the card is dropped and the text gets the whole space.
+*/
+function narrowCardInset(
+	textHeight: number,
+	viewportHeight: number
+): CardInset {
+	const [top, right, defaultBottom, left, radius] = cardInset.mobile;
+	// The text sits 6svh above the bottom edge, with a small gap above it.
+	const needed = textHeight + viewportHeight * 0.06 + 24;
+	const bottom = Math.max(defaultBottom, (needed / viewportHeight) * 100);
+	return 100 - top - bottom >= 14
+		? [top, right, bottom, left, radius]
+		: [50, right, 50, left, 0];
+}
 
 function setHeaderOverlay(isOverlay: boolean) {
 	if (isOverlay) {
@@ -82,6 +102,9 @@ export default function HomeIntro({
 	const [isVideoVisible, setIsVideoVisible] = useState(false);
 	const [isIntroReady, setIsIntroReady] = useState(false);
 	const isDesktopRef = useRef(true);
+	const textRef = useRef<HTMLDivElement>(null);
+	const narrowInsetRef = useRef<CardInset>(cardInset.mobile);
+	const [narrowInset, setNarrowInset] = useState<CardInset>(cardInset.mobile);
 	const [isDesktop, setIsDesktop] = useState(true);
 	const [isSplit, setIsSplit] = useState(false);
 
@@ -95,7 +118,9 @@ export default function HomeIntro({
 	const clipPath = useTransform(scrollYProgress, (value) => {
 		const t = clamp01((value - 0.08) / 0.47);
 		const eased = 1 - (1 - t) ** 3;
-		const target = isDesktopRef.current ? cardInset.desktop : cardInset.mobile;
+		const target = isDesktopRef.current
+			? cardInset.desktop
+			: narrowInsetRef.current;
 		const [top, right, bottom, left, radius] = target.map((n) => n * eased);
 		return `inset(${top}% ${right}% ${bottom}% ${left}% round ${radius}px)`;
 	});
@@ -151,6 +176,29 @@ export default function HomeIntro({
 			query.removeEventListener("change", update);
 		};
 	}, []);
+
+	// Keep the narrow-screen card clear of the text below it.
+	useEffect(() => {
+		const text = textRef.current;
+		if (!text) {
+			return;
+		}
+
+		const measure = () => {
+			const next = narrowCardInset(text.offsetHeight, window.innerHeight);
+			narrowInsetRef.current = next;
+			setNarrowInset(next);
+		};
+
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(text);
+		globalThis.addEventListener("resize", measure);
+		return () => {
+			observer.disconnect();
+			globalThis.removeEventListener("resize", measure);
+		};
+	}, [isReducedMotion]);
 
 	// Fade the title in once the video is playing (never later than 1.6 s),
 	// and keep the video paused while the tab is hidden or the user paused it.
@@ -283,6 +331,7 @@ export default function HomeIntro({
 				>
 					<div className="mx-auto flex h-full max-w-6xl items-end px-4 pb-[6svh] sm:px-6 lg:items-center lg:px-8 lg:pb-0">
 						<div
+							ref={textRef}
 							className={cn(
 								"max-w-xl lg:max-w-[46%]",
 								isSplit && "pointer-events-auto"
@@ -326,13 +375,17 @@ export default function HomeIntro({
 					type="button"
 					aria-label={isPlaying ? "Pause video" : "Play video"}
 					aria-pressed={isPlaying}
-					className="absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90"
+					className={cn(
+						"absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90",
+						// No card on a screen too short for it, so no button either.
+						isSplit && !isDesktop && narrowInset[0] === 50 && "hidden"
+					)}
 					style={
 						isSplit
 							? (() => {
 									const [, right, bottom] = isDesktop
 										? cardInset.desktop
-										: cardInset.mobile;
+										: narrowInset;
 									return {
 										right: `calc(${right}% + 12px)`,
 										bottom: `calc(${bottom}% + 12px)`,
