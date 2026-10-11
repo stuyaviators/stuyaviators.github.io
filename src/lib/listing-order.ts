@@ -1,12 +1,13 @@
 import { listings } from "@/db/schema";
-import { asc, desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 
 /**
-Cards sort themselves: the soonest deadline first, cards without a deadline
-(rolling ones) after the dated ones, and the newest first among those.
-(Postgres puts empty deadlines last when sorting upward.)
+Cards sort themselves by when they are on: a scholarship's deadline, or an
+opportunity's start date (its deadline if it has no start date). The soonest
+comes first, cards with no date go after the dated ones, and the newest comes
+first among those.
 */
 export const deadlineOrder = [
-	asc(listings.deadline),
+	sql`coalesce(${listings.startDate}, ${listings.deadline}) asc nulls last`,
 	desc(listings.createdAt),
 ] as const;

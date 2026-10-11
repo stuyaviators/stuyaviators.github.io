@@ -13,7 +13,7 @@ import {
 import { formatDate } from "@/components/listings/ListingCard";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { daysUntil, isClosingSoon, isExpired } from "@/lib/listing-dates";
+import { isExpired, soonLabel } from "@/lib/listing-dates";
 import { listingPath } from "@/lib/listing-path";
 import { ExternalLink, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -42,7 +42,7 @@ export default function ListingRows({
 			<ul className="dash-stagger space-y-3">
 				{listings.map((listing) => {
 					const isPast = isExpired(listing);
-					const isClosing = isClosingSoon(listing);
+					const soon = soonLabel(listing);
 					return (
 						<li
 							key={listing.id}
@@ -63,11 +63,9 @@ export default function ListingRows({
 											<Badge tone="brand">Featured</Badge>
 										) : null}
 										{isPast ? <Badge tone="warn">Past</Badge> : null}
-										{isClosing ? (
-											<Badge tone="bad">
-												Closes in {daysUntil(listing.deadline ?? "")} d
-											</Badge>
-										) : null}
+										{soon === undefined ? null : (
+											<Badge tone="bad">{soon}</Badge>
+										)}
 										<AddedBy email={listing.createdBy ?? undefined} />
 									</div>
 									<h2 className="mt-2 text-lg font-semibold leading-snug">
@@ -76,7 +74,7 @@ export default function ListingRows({
 									<p className="text-sm text-muted">
 										{listing.organization}
 										{listing.deadline
-											? ` · Deadline ${formatDate(listing.deadline)}`
+											? ` · ${listing.kind === "opportunity" ? "RSVP by" : "Deadline"} ${formatDate(listing.deadline)}`
 											: ""}
 									</p>
 								</div>

@@ -2,7 +2,7 @@ import type { PassField } from "@/components/ui/BoardingPass";
 import type { Listing } from "@/lib/listings";
 import { Md } from "@/components/Md";
 import { BoardingPass } from "@/components/ui/BoardingPass";
-import { daysUntil, isClosingSoon } from "@/lib/listing-dates";
+import { soonLabel } from "@/lib/listing-dates";
 import { listingPath } from "@/lib/listing-path";
 import { renderMarkdown } from "@/lib/markdown";
 import { ArrowUpRight, Clock } from "lucide-react";
@@ -20,6 +20,18 @@ export function formatDate(value: string) {
 	return dateFormat.format(new Date(`${value}T00:00:00Z`));
 }
 
+/**
+The link's words: opportunities just say "Learn more", or "Learn more and
+RSVP" when they have an RSVP deadline; scholarships say "Learn more and apply".
+*/
+export function linkLabel(listing: Pick<Listing, "kind" | "deadline">) {
+	if (listing.kind === "scholarship") {
+		return "Learn more and apply";
+	}
+
+	return listing.deadline ? "Learn more and RSVP" : "Learn more";
+}
+
 export function stubFields(listing: Listing): PassField[] {
 	const isOpportunity = listing.kind === "opportunity";
 	let dates: string | undefined;
@@ -29,10 +41,20 @@ export function stubFields(listing: Listing): PassField[] {
 			: formatDate(listing.startDate);
 	}
 
+	let deadlineField: PassField | undefined;
+	if (listing.deadline) {
+		let label = "Deadline";
+		if (isOpportunity) {
+			// An opportunity's deadline is the date to RSVP by; with no start date
+			// it is the only date the card has.
+			label = listing.startDate ? "RSVP by" : "Date";
+		}
+
+		deadlineField = { label, value: formatDate(listing.deadline) };
+	}
+
 	const fields: Array<PassField | undefined> = [
-		listing.deadline
-			? { label: "Deadline", value: formatDate(listing.deadline) }
-			: undefined,
+		deadlineField,
 		listing.kind === "scholarship" && listing.amount
 			? { label: "Amount", value: listing.amount }
 			: undefined,
@@ -45,9 +67,15 @@ export function stubFields(listing: Listing): PassField[] {
 			: undefined,
 	];
 	const present = fields.filter((field) => field !== undefined);
-	return present.length > 0
-		? present
-		: [{ label: "Deadline", value: "Rolling" }];
+	if (present.length > 0) {
+		return present;
+	}
+
+	return [
+		isOpportunity
+			? { label: "Date", value: "Ongoing" }
+			: { label: "Deadline", value: "Rolling" },
+	];
 }
 
 export default function ListingCard({
@@ -58,11 +86,10 @@ export default function ListingCard({
 	readonly preview?: boolean;
 }) {
 	const path = listingPath(listing);
-	const isClosing = isClosingSoon(listing);
+	const soon = soonLabel(listing);
 	// The whole card opens its own page: the title's link is stretched over it
 	// and the links inside the card sit above that.
 	const isLinked = path !== undefined && !preview;
-	const days = listing.deadline ? daysUntil(listing.deadline) : undefined;
 	return (
 		<BoardingPass
 			highlight={listing.featured}
@@ -93,17 +120,12 @@ export default function ListingCard({
 						Featured
 					</span>
 				) : null}
-				{isClosing ? (
+				{soon === undefined ? null : (
 					<span className="label inline-flex items-center gap-1 rounded-sm bg-danger px-2 py-0.5 text-bg">
 						<Clock aria-hidden className="size-3" />
-						Closing soon
-						{days === 0
-							? " · today"
-							: days === 1
-								? " · 1 day"
-								: ` · ${days} days`}
+						{soon}
 					</span>
-				) : null}
+				)}
 			</div>
 			<h3 className="mt-2 text-xl">
 				{isLinked ? (
@@ -153,7 +175,7 @@ export default function ListingCard({
 				tabIndex={preview ? -1 : undefined}
 				className="relative z-10 mt-5 inline-flex items-center gap-1.5 font-semibold text-brand underline-offset-4 hover:underline"
 			>
-				Learn more and apply
+				{linkLabel(listing)}
 				<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 				<span className="sr-only">
 					(opens {listing.organization} in a new tab)
