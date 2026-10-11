@@ -2,7 +2,7 @@
 
 import type { PhotoSpec } from "@/content/photo-specs";
 import type { StaticImageData } from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Bot, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -206,10 +206,11 @@ function PhotoGrid({
 }
 
 /**
-The viewer's caption: the photo's description, which an AI wrote and so is
-labeled as such. A mouse over the caption, or a tap or Enter on it,
-swaps it for the camera specs from the photo's metadata. Both texts share
-one grid cell so the caption never changes height.
+The viewer's caption: the photo's description on one line. A mouse over it, or
+a tap or Enter on it, swaps it for the camera specs from the photo's metadata
+(italic "No data found" when there are none). A description written by AI gets
+a small robot with a tooltip saying so. Both texts share one grid cell, so the
+caption never changes height.
 */
 function Caption({
 	alt,
@@ -230,13 +231,13 @@ function Caption({
 			initial={{ opacity: 0, y: 8 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4, delay: 0.15 }}
-			className="mt-4 max-w-prose"
+			className="mt-4 flex max-w-prose items-start justify-center gap-1.5"
 		>
 			<button
 				type="button"
 				className={cn(
-					"grid cursor-pointer rounded-lg px-3 py-2 text-center text-sm transition-[color,background-color,transform] duration-200 hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-					isPinned ? "bg-white/15 text-white" : "text-white/75"
+					"grid cursor-pointer rounded-lg px-1 py-1 text-center text-sm transition-colors duration-200 hover:text-white active:text-white motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+					isPinned ? "text-white" : "text-white/70"
 				)}
 				onPointerEnter={(event) => {
 					// Only a real mouse hovers; a tap toggles with the click below.
@@ -254,21 +255,30 @@ function Caption({
 					className={cn(fade, isShowingSpecs ? "opacity-0" : "opacity-100")}
 				>
 					{alt}
-					<span className="mt-1 block text-xs text-white/55">
-						{isAi ? "AI-Generated caption · may be inaccurate · " : ""}
-						Hover or tap for camera specs
-					</span>
 				</span>
 				<span
 					aria-hidden={!isShowingSpecs}
 					className={cn(fade, isShowingSpecs ? "opacity-100" : "opacity-0")}
 				>
-					{specs ?? "No camera specs found"}
-					<span className="mt-1 block text-xs text-white/55">
-						Camera specs from the photo&rsquo;s data
-					</span>
+					{specs ?? <em>No data found</em>}
 				</span>
 			</button>
+			{isAi ? (
+				<span
+					tabIndex={0}
+					role="img"
+					aria-label="AI-Generated caption, may be inaccurate"
+					className="group/tip relative mt-1.5 inline-flex shrink-0 cursor-help rounded text-white/60 transition-colors duration-200 hover:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+				>
+					<Bot aria-hidden className="size-4" />
+					<span
+						aria-hidden
+						className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-56 -translate-x-1/2 rounded-md bg-black px-2.5 py-1.5 text-center text-xs text-white opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity duration-200 group-hover/tip:opacity-100 group-focus/tip:opacity-100 motion-reduce:transition-none"
+					>
+						AI-Generated caption. May be inaccurate.
+					</span>
+				</span>
+			) : null}
 		</motion.figcaption>
 	);
 }
