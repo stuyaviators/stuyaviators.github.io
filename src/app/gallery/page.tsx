@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import Lightbox from "@/components/Lightbox";
 import { Md } from "@/components/Md";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { galleryCopy } from "@/content/gallery";
@@ -28,7 +29,14 @@ export default function GalleryPage() {
 				intro={pageIntros.gallery.intro}
 				image={photos.galleryStrutCoastline.src}
 				imageAlt={photos.galleryStrutCoastline.alt}
-			/>
+			>
+				<ButtonLink href="#features" variant="accent">
+					Browse photos
+				</ButtonLink>
+				<ButtonLink href="#submit" variant="secondary">
+					Share your photos
+				</ButtonLink>
+			</PageHero>
 			<Section
 				id="features"
 				label={galleryCopy.featuresHeading}

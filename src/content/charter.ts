@@ -41,7 +41,7 @@ export const charter = {
 			paragraphs: [
 				"Most meetings run for approximately 75 minutes—from the end of school until 5:00 PM. Longer sessions may be held depending on the topic and activity planned.",
 				"The content of each meeting varies by meeting type, which rotates regularly based on student interest and demand. StuyAviators hosts a wide range of meeting types and activities, including but not limited to: Flight Simulator Demonstrations (FSD), Community-Led Presentations (CLP), Plane Crash Investigation Labs (PCI), Aviation Challenges & Competitions, Guest Speaker Events, and Group Trips. Recent additions include Student-Led Courses (e.g. General Aviation, Drone Basics, Learning to Fly) and Air Traffic Control Simulations (ATC).",
-				"You can learn more about each meeting type [here](/meetings).",
+				"You can learn more about each meeting type [here](/meetings#types).",
 			],
 		},
 		{

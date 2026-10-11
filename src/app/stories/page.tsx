@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import { Md, Paragraphs } from "@/components/Md";
 import { Stagger } from "@/components/TransitionProvider";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { pageIntros } from "@/content/pages";
@@ -30,7 +31,14 @@ export default function StoriesPage() {
 				intro={pageIntros.stories.intro}
 				image={photos.heroCessnaBackseat.src}
 				imageAlt={photos.heroCessnaBackseat.alt}
-			/>
+			>
+				<ButtonLink href="#stories" variant="accent">
+					Read stories
+				</ButtonLink>
+				<ButtonLink href="#share" variant="secondary">
+					Share yours
+				</ButtonLink>
+			</PageHero>
 			<Section
 				pin
 				id="stories"

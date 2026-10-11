@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { EpsilonWordmark, SocialIcon } from "@/components/icons";
 import { buttonClasses } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import StepSequence from "@/components/motion/StepSequence";
 import { SectionHeader } from "@/components/ui/Section";
@@ -27,7 +28,11 @@ export default function JoinPage() {
 				intro="StuyAviators is a low-commitment club open to every Stuyvesant student, whatever your experience. Here’s how to get on board."
 				image={photos.heroJoystick.src}
 				imageAlt={photos.heroJoystick.alt}
-			/>
+			>
+				<ButtonLink href="#steps" variant="accent">
+					See the four steps
+				</ButtonLink>
+			</PageHero>
 			<StepSequence
 				id="steps"
 				labelledBy="steps-heading"

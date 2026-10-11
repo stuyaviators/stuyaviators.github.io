@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Md, Paragraphs } from "@/components/Md";
 import { FlightStrip } from "@/components/ui/FlightStrip";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import CharterToc from "@/components/CharterToc";
 import { Container } from "@/components/ui/Section";
@@ -99,7 +100,14 @@ export default function CharterPage() {
 				intro={pageIntros.charter.intro}
 				image={photos.heroSimClassroom.src}
 				imageAlt={photos.heroSimClassroom.alt}
-			/>
+			>
+				<ButtonLink href="#purpose" variant="accent">
+					Read the charter
+				</ButtonLink>
+				<ButtonLink href="#code-of-conduct" variant="secondary">
+					Code of conduct
+				</ButtonLink>
+			</PageHero>
 			<Container className="grid gap-12 pb-24 lg:grid-cols-[13rem_1fr]">
 				<CharterToc items={toc} />
 				<div className="min-w-0">

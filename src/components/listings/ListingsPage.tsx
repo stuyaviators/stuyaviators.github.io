@@ -65,13 +65,10 @@ export default async function ListingsSection({
 							<h3 className="mt-2 text-2xl">No {noun} listed right now</h3>
 							<p className="mt-3 max-w-xl text-muted">{emptyText}</p>
 							<div className="mt-6 flex flex-wrap gap-3">
-								<Link
-									href="/connect#mailing-list"
-									className={buttonClasses("accent")}
-								>
+								<a href="#mailing-list" className={buttonClasses("accent")}>
 									<Bell aria-hidden className="size-4" /> Get notified on the
 									mailing list
-								</Link>
+								</a>
 								<Link href="/careers" className={buttonClasses("secondary")}>
 									Explore careers
 								</Link>

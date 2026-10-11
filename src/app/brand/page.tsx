@@ -87,6 +87,9 @@ export default function BrandPage() {
 				>
 					<Download aria-hidden className="size-4" /> Download brand kit (.zip)
 				</a>
+				<a href="#type" className={buttonClasses("secondary")}>
+					Typography
+				</a>
 			</PageHero>
 
 			<Section

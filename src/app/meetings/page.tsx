@@ -3,6 +3,7 @@ import DepartureBoard from "@/components/DepartureBoard";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import { Paragraphs } from "@/components/Md";
 import { Stagger } from "@/components/TransitionProvider";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import StackingCards from "@/components/motion/StackingCards";
 import { Section } from "@/components/ui/Section";
@@ -36,7 +37,14 @@ export default async function MeetingsPage() {
 				intro={pageIntros.meetings.intro}
 				image={photos.heroSimSetup.src}
 				imageAlt={photos.heroSimSetup.alt}
-			/>
+			>
+				<ButtonLink href="#upcoming" variant="accent">
+					Upcoming meetings
+				</ButtonLink>
+				<ButtonLink href="#types" variant="secondary">
+					Meeting types
+				</ButtonLink>
+			</PageHero>
 
 			<Section
 				pin

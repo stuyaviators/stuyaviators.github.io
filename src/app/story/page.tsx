@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Paragraphs } from "@/components/Md";
 import StoryTimeline from "@/components/StoryTimeline";
+import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { pageIntros } from "@/content/pages";
@@ -24,7 +25,11 @@ export default function StoryPage() {
 				intro={pageIntros.story.intro}
 				image={photos.heroLandingChallenge.src}
 				imageAlt={photos.heroLandingChallenge.alt}
-			/>
+			>
+				<ButtonLink href="#timeline" variant="accent">
+					Read the timeline
+				</ButtonLink>
+			</PageHero>
 			<Section
 				id="timeline"
 				label="Flight log"

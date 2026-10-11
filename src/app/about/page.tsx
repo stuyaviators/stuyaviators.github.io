@@ -36,7 +36,14 @@ export default function AboutPage() {
 				intro={pageIntros.about.intro}
 				image={photos.heroSimDisplay.src}
 				imageAlt={photos.heroSimDisplay.alt}
-			/>
+			>
+				<ButtonLink href="#skylab" variant="accent">
+					Project Skylab
+				</ButtonLink>
+				<ButtonLink href="#objectives" variant="secondary">
+					The three stages
+				</ButtonLink>
+			</PageHero>
 
 			<Section
 				pin
