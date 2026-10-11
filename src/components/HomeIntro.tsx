@@ -243,7 +243,7 @@ export default function HomeIntro({
 						)}
 					>
 						<p className="label text-accent-text">{site.eyebrow}</p>
-						<h1 className="mt-4 text-5xl font-semibold tracking-[-0.02em] sm:text-8xl lg:text-9xl">
+						<h1 className="mt-4 text-5xl font-semibold sm:text-8xl lg:text-9xl">
 							StuyAviators
 						</h1>
 						<Contrail className="mt-3 h-8 w-full max-w-xl text-white/90" />
@@ -280,7 +280,7 @@ export default function HomeIntro({
 							</p>
 							<p
 								aria-hidden
-								className="mt-3 text-4xl font-semibold tracking-[-0.015em] sm:text-6xl lg:mt-4 lg:text-7xl"
+								className="mt-3 text-4xl font-semibold sm:text-6xl lg:mt-4 lg:text-7xl"
 							>
 								StuyAviators
 							</p>

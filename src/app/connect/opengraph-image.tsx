@@ -5,7 +5,7 @@ export const alt = "Connect · StuyAviators";
 
 export default async function Image() {
 	return renderOg({
-		title: "Connect",
+		title: "Contact & Socials",
 		eyebrow: "Socials & contact",
 		photo: await readFile(
 			new URL("../../assets/photos/hero-sim-ryanair.jpg", import.meta.url)

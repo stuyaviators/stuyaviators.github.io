@@ -54,8 +54,8 @@ export function PageHero({
 
 	if (!image) {
 		return (
-			<header className="border-b border-hairline">
-				<Container className="py-16 sm:py-24">{content}</Container>
+			<header className="flex min-h-[80svh] flex-col justify-center">
+				<Container className="scene-exit py-16 sm:py-24">{content}</Container>
 			</header>
 		);
 	}
@@ -80,8 +80,8 @@ export function PageHero({
 				aria-hidden
 				className="absolute inset-0 -z-10 bg-black/60 lg:bg-transparent lg:bg-linear-to-r lg:from-black/85 lg:via-black/55 lg:to-black/15"
 			/>
-			<Container className="flex min-h-[28rem] flex-col justify-end py-14 sm:min-h-[34rem] sm:py-20">
-				<div className="text-lift max-w-3xl">{content}</div>
+			<Container className="flex min-h-[calc(100svh-5.5rem)] flex-col justify-end py-14 sm:py-24">
+				<div className="text-lift scene-exit max-w-3xl">{content}</div>
 			</Container>
 		</header>
 	);

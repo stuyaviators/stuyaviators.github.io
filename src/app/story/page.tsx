@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Paragraphs } from "@/components/Md";
+import StoryTimeline from "@/components/StoryTimeline";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import Waypoints from "@/components/Waypoints";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { story } from "@/content/story";
@@ -19,7 +19,7 @@ export default function StoryPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About · Our story"
+				eyebrow="About"
 				title="Our Story"
 				intro={pageIntros.story.intro}
 				image={photos.heroLandingChallenge.src}
@@ -30,7 +30,7 @@ export default function StoryPage() {
 				label="Flight log"
 				title="From hobby to initiative"
 			>
-				<Waypoints
+				<StoryTimeline
 					items={[
 						{
 							key: "founded",
@@ -72,8 +72,8 @@ export default function StoryPage() {
 							key: "speaker",
 							label: "Jan 8, 2025 · First guest speaker",
 							content: (
-								<figure className="max-w-2xl">
-									<div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-surface-2">
+								<figure>
+									<div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-2">
 										<Image
 											src={speaker.src}
 											alt={speaker.alt}

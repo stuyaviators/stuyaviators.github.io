@@ -1,8 +1,7 @@
-import type { CrewMember } from "@/content/crew";
 import type { Metadata } from "next";
+import CrewChart from "@/components/CrewChart";
 import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink, buttonClasses } from "@/components/ui/Button";
-import { Initials } from "@/components/ui/Initials";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { crewApplyUrl, crewGroups } from "@/content/crew";
@@ -10,10 +9,9 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { crewCopy, positions } from "@/content/positions";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "The Flight Crew",
+	title: "Flight Crew",
 	description: pageIntros.flightCrew.intro,
 	alternates: { canonical: "/flight-crew" },
 };
@@ -26,40 +24,12 @@ const commitmentLevel: Record<string, number> = {
 	"Very Low": 1,
 };
 
-function MemberCard({ member }: { readonly member: CrewMember }) {
-	const name = member.classOf
-		? `${member.name} (${member.classOf})`
-		: member.name;
-	return (
-		<li className="group overflow-hidden rounded-3xl bg-surface transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-			<div className="relative aspect-square bg-surface-2">
-				{member.photo ? (
-					<Image
-						src={member.photo}
-						alt={`Portrait of ${member.name}`}
-						fill
-						placeholder="blur"
-						sizes="(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw"
-						className="object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
-					/>
-				) : (
-					<Initials name={member.name} className="absolute inset-0" />
-				)}
-			</div>
-			<div className="border-t border-hairline p-4">
-				<p className="font-semibold">{name}</p>
-				<p className="label mt-1 text-muted">{member.role}</p>
-			</div>
-		</li>
-	);
-}
-
 export default function FlightCrewPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Community · Flight crew"
-				title="The Flight Crew"
+				eyebrow="Community"
+				title="Flight Crew"
 				intro={pageIntros.flightCrew.intro}
 				image={photos.heroClassroomMeeting.src}
 				imageAlt={photos.heroClassroomMeeting.alt}
@@ -67,29 +37,19 @@ export default function FlightCrewPage() {
 				<ButtonLink href={crewApplyUrl} variant="accent">
 					Apply now <ArrowUpRight aria-hidden className="btn-arrow size-4" />
 				</ButtonLink>
-				<ButtonLink href="#positions" variant="secondary">
-					See positions
+				<ButtonLink href="#crew" variant="secondary">
+					Meet the crew
 				</ButtonLink>
 			</PageHero>
 
-			{crewGroups.map((group, index) => (
-				<Section
-					key={group.id}
-					id={group.id}
-					label={group.title}
-					title={group.title}
-					intro={
-						group.introKey ? crewCopy.groupIntros[group.introKey] : undefined
-					}
-					className={index > 0 ? "pt-0 sm:pt-0" : undefined}
-				>
-					<ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-						{group.members.map((member) => (
-							<MemberCard key={member.name} member={member} />
-						))}
-					</ul>
-				</Section>
-			))}
+			<Section
+				id="crew"
+				label="2026–27"
+				title="Meet the crew"
+				intro={crewCopy.groupIntros.current}
+			>
+				<CrewChart groups={crewGroups} />
+			</Section>
 
 			<Section
 				id="positions"
@@ -148,8 +108,8 @@ export default function FlightCrewPage() {
 				</div>
 			</Section>
 
-			<section aria-labelledby="apply-heading" className="pb-20">
-				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+			<section aria-labelledby="apply-heading" className="scene-section pb-20">
+				<div className="scene mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 					<div className="on-dark rounded-3xl bg-ink px-6 py-12 sm:px-12 sm:py-16">
 						<h2 id="apply-heading" className="text-3xl">
 							{crewCopy.joinHeading}

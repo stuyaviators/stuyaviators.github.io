@@ -10,7 +10,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Future Careers",
+	title: "Careers",
 	description: pageIntros.careers.intro,
 	alternates: { canonical: "/careers" },
 };
@@ -24,8 +24,8 @@ export default function CareersPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore · Future careers"
-				title="Future Careers"
+				eyebrow="Explore"
+				title="Careers"
 				intro={pageIntros.careers.intro}
 				image={photos.eventAirlineBooth.src}
 				imageAlt={photos.eventAirlineBooth.alt}
@@ -63,10 +63,10 @@ export default function CareersPage() {
 				<CareerExplorer families={careerFamilies} />
 			</Section>
 
-			<Container className="pb-24">
+			<Container className="scene-section pb-24">
 				<section
 					aria-labelledby="start-h"
-					className="on-dark rounded-3xl bg-ink p-6 sm:p-12"
+					className="scene on-dark rounded-3xl bg-ink p-6 sm:p-12"
 				>
 					<p className="label text-accent-text">Start now</p>
 					<h2 id="start-h" className="mt-2 text-3xl sm:text-4xl">

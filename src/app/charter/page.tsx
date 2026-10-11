@@ -9,7 +9,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Club Charter & Rules",
+	title: "Charter & Rules",
 	description: pageIntros.charter.intro,
 	alternates: { canonical: "/charter" },
 };
@@ -59,16 +59,16 @@ export default function CharterPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About · Charter & rules"
-				title="Club Charter"
+				eyebrow="About"
+				title="Charter & Rules"
 				intro={pageIntros.charter.intro}
 				image={photos.heroSimClassroom.src}
 				imageAlt={photos.heroSimClassroom.alt}
 			/>
-			<Container className="grid gap-12 py-14 lg:grid-cols-[16rem_1fr] lg:py-20">
+			<Container className="grid gap-12 lg:grid-cols-[16rem_1fr]">
 				<nav
 					aria-label="On this page"
-					className="lg:sticky lg:top-28 lg:self-start"
+					className="pt-14 lg:sticky lg:top-28 lg:self-start"
 				>
 					<p className="label text-muted">On this page</p>
 					<ol className="mt-3 space-y-1 border-l border-hairline text-sm">
@@ -84,8 +84,8 @@ export default function CharterPage() {
 						))}
 					</ol>
 				</nav>
-				<div className="min-w-0 space-y-16">
-					<Stagger>
+				<div className="min-w-0">
+					<Stagger className="scene-section scene">
 						<FlightStrip label={charter.foundation.title} />
 						<p className="mt-5 max-w-3xl text-xl">
 							{charter.foundation.paragraphs[0]}
@@ -96,7 +96,7 @@ export default function CharterPage() {
 							key={section.id}
 							id={section.id}
 							aria-labelledby={`${section.id}-h`}
-							className="scroll-mt-28"
+							className="scene-section scene scroll-mt-28 py-10"
 						>
 							<FlightStrip index={index + 1} label="Charter" />
 							<h2 id={`${section.id}-h`} className="mt-4 text-3xl">
@@ -112,7 +112,7 @@ export default function CharterPage() {
 					<section
 						id={expectations.codeOfConduct.id}
 						aria-labelledby="coc-h"
-						className="scroll-mt-28"
+						className="scene-section scene scroll-mt-28 py-10"
 					>
 						<FlightStrip index={7} label="Rules & expectations" />
 						<h2 id="coc-h" className="mt-4 text-3xl">
@@ -126,7 +126,7 @@ export default function CharterPage() {
 					<section
 						id={expectations.attendance.id}
 						aria-labelledby="att-h"
-						className="scroll-mt-28"
+						className="scene-section scene scroll-mt-28 py-10"
 					>
 						<FlightStrip index={8} label="Rules & expectations" />
 						<h2 id="att-h" className="mt-4 text-3xl">
@@ -140,7 +140,7 @@ export default function CharterPage() {
 					<section
 						id={expectations.etiquette.id}
 						aria-labelledby="eti-h"
-						className="scroll-mt-28"
+						className="scene-section scene scroll-mt-28 py-10"
 					>
 						<FlightStrip index={9} label="Rules & expectations" />
 						<h2 id="eti-h" className="mt-4 text-3xl">
@@ -154,7 +154,7 @@ export default function CharterPage() {
 					<section
 						id={expectations.cancellations.id}
 						aria-labelledby="can-h"
-						className="scroll-mt-28"
+						className="scene-section scene scroll-mt-28 py-10"
 					>
 						<FlightStrip index={10} label="Rules & expectations" />
 						<h2 id="can-h" className="mt-4 text-3xl">

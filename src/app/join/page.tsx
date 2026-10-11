@@ -22,7 +22,7 @@ export default function JoinPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Join · Pre-flight checklist"
+				eyebrow="Join"
 				title="Join StuyAviators"
 				intro="StuyAviators is a low-commitment club open to every Stuyvesant student, whatever your experience. Here’s how to get on board."
 				image={photos.heroJoystick.src}

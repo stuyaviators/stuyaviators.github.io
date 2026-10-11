@@ -25,8 +25,8 @@ export default function StoriesPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Community · Member stories"
-				title="Share Your Story"
+				eyebrow="Community"
+				title="Member Stories"
 				intro={pageIntros.stories.intro}
 				image={photos.heroCessnaBackseat.src}
 				imageAlt={photos.heroCessnaBackseat.alt}

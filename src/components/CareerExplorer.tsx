@@ -247,7 +247,7 @@ export default function CareerExplorer({
 
 	return (
 		<div>
-			<div>
+			<div className="below-header sticky z-20 -mx-4 bg-bg/85 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 sm:-mx-3 sm:rounded-3xl sm:px-3">
 				<label className="relative block">
 					<span className="sr-only">Search careers</span>
 					<Search

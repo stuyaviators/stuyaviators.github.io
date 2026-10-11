@@ -1,7 +1,7 @@
 "use client";
 
 import type { ElementType } from "react";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 /**
 Word-by-word reveal with blur-to-sharp and slide-up, triggered once when the
@@ -57,16 +57,20 @@ export default function RevealText({
 			aria-label={text}
 			style={{ "--reveal-delay": `${delay}ms` } as React.CSSProperties}
 		>
+			{/* The space sits between the inline-block words, not inside them:
+			    trailing spaces inside an inline-block collapse, which ran words
+			    together. */}
 			{words.map((word, index) => (
-				<span
-					key={`${word}-${index}`}
-					aria-hidden
-					className="reveal-word"
-					style={{ "--i": index } as React.CSSProperties}
-				>
-					<span>{word}</span>
+				<Fragment key={`${word}-${index}`}>
+					<span
+						aria-hidden
+						className="reveal-word"
+						style={{ "--i": index } as React.CSSProperties}
+					>
+						<span>{word}</span>
+					</span>
 					{index < words.length - 1 ? " " : null}
-				</span>
+				</Fragment>
 			))}
 		</Tag>
 	);

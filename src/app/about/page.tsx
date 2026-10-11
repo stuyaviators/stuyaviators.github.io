@@ -12,7 +12,7 @@ import { photos } from "@/content/photos";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "Our Mission & Project Skylab",
+	title: "Mission & Skylab",
 	description: pageIntros.about.intro,
 	alternates: { canonical: "/about" },
 };
@@ -28,8 +28,8 @@ export default function AboutPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="About · Our mission"
-				title="Our Mission"
+				eyebrow="About"
+				title="Mission & Skylab"
 				intro={pageIntros.about.intro}
 				image={photos.heroSimDisplay.src}
 				imageAlt={photos.heroSimDisplay.alt}

@@ -30,7 +30,7 @@ export default async function MeetingsPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore · Meetings"
+				eyebrow="Explore"
 				title="Meetings"
 				intro={pageIntros.meetings.intro}
 				image={photos.heroSimSetup.src}

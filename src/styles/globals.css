@@ -97,7 +97,6 @@
 	--font-display:
 		var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui,
 		sans-serif;
-	--font-wordmark: var(--font-goudy), Georgia, serif;
 	--font-label: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 	--font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 	--shadow-card: var(--shadow);
@@ -117,7 +116,6 @@
 		font-family: var(--font-sans);
 		font-size: 1.0625rem;
 		line-height: 1.6;
-		letter-spacing: -0.003em;
 		overflow-x: clip;
 	}
 
@@ -127,7 +125,9 @@
 	h4 {
 		font-family: var(--font-display);
 		line-height: 1.1;
-		letter-spacing: -0.01em;
+		/* Inter Tight is already tightly spaced; extra negative tracking
+		   cramps it. */
+		letter-spacing: 0;
 		font-weight: 600;
 		text-wrap: balance;
 	}
@@ -576,4 +576,120 @@ dialog[open]::backdrop {
 
 :root[data-theme="dark"] .only-light {
 	display: none;
+}
+
+/* ───────────── One section at a time ─────────────
+   Each page section fills the screen (.scene-section) and its content
+   (.scene) rises in as it enters and recedes as it leaves, driven by scroll
+   position. Page heroes only animate out (.scene-exit). Browsers without
+   scroll-driven animations, and reduced-motion visitors, scroll normally. */
+.scene-section {
+	display: flex;
+	min-height: 100svh;
+	flex-direction: column;
+	justify-content: center;
+}
+
+@keyframes scene-in {
+	from {
+		opacity: 0;
+		transform: translateY(6vh) scale(0.96);
+	}
+}
+
+@keyframes scene-out {
+	to {
+		opacity: 0;
+		transform: translateY(-5vh) scale(0.96);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+
+	@supports (animation-timeline: view()) {
+		/* The exit animation only fills forwards, so before it starts the
+		   entrance animation's end state (fully visible) shows. */
+		.scene {
+			animation:
+				scene-in linear both,
+				scene-out linear forwards;
+			animation-timeline: view(), view();
+			animation-range:
+				entry 0% entry 60%,
+				exit 40% exit 100%;
+		}
+
+		.scene-exit {
+			animation: scene-out linear forwards;
+			animation-timeline: view();
+			animation-range: exit 25% exit 100%;
+		}
+	}
+}
+
+/* Ambient sky (SkyBackground). */
+.sky-flights {
+	opacity: 0.16;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .sky-flights {
+		opacity: 0.4;
+	}
+}
+
+:root[data-theme="dark"] .sky-flights {
+	opacity: 0.4;
+}
+
+.orb {
+	position: absolute;
+	border-radius: 9999px;
+	filter: blur(20px);
+	animation: orb-drift var(--d, 40s) ease-in-out infinite alternate;
+}
+
+@keyframes orb-drift {
+	to {
+		transform: translate(var(--dx, 0), var(--dy, 0)) scale(1.15);
+	}
+}
+
+.star {
+	animation: twinkle var(--d, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+
+@keyframes twinkle {
+	0%,
+	100% {
+		opacity: 0.15;
+	}
+
+	50% {
+		opacity: 0.9;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sky-flights {
+		display: none;
+	}
+
+	.orb,
+	.star {
+		animation: none;
+	}
+}
+
+/* Sticky toolbars sit just under the header, sliding up when it hides. */
+.below-header {
+	top: 5.75rem;
+	transition: top 0.3s var(--ease-out-expo);
+}
+
+:root[data-header-hidden] .below-header {
+	top: 0.75rem;
 }

@@ -402,6 +402,11 @@ export default function Header() {
 
 	const isVisible = !isHidden || isNavOpen || openGroup !== undefined;
 
+	// Lets sticky page toolbars sit under the header only while it's shown.
+	useEffect(() => {
+		document.documentElement.toggleAttribute("data-header-hidden", !isVisible);
+	}, [isVisible]);
+
 	return (
 		<>
 			<a
@@ -444,7 +449,7 @@ export default function Header() {
 								isScrolled ? "size-9" : "size-10"
 							)}
 						/>
-						<span className="font-wordmark text-lg leading-none tracking-[0.13em] text-brand uppercase">
+						<span className="font-display text-xl leading-none font-semibold text-text">
 							StuyAviators
 						</span>
 					</Link>

@@ -61,8 +61,8 @@ export default function BrandPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Brand guidelines"
-				title="StuyAviators brand"
+				eyebrow="About"
+				title="Brand Guidelines"
 				intro="Logos, colors and type for flyers, slides, shirts and social posts. Please follow these guidelines whenever you use the StuyAviators name or logo."
 			>
 				<a
@@ -196,7 +196,7 @@ export default function BrandPage() {
 				title="Type"
 				intro="Our type follows Airbus’s brand typography: Inter Tight for display and graphic design, Inter for everything you read on screen. All are free on Google Fonts."
 			>
-				<div className="grid gap-6 lg:grid-cols-3">
+				<div className="grid gap-6 md:grid-cols-2">
 					{typefaces.map((face) => (
 						<Stagger key={face.id}>
 							<article className="flex h-full flex-col rounded-3xl bg-surface p-6 sm:p-8">

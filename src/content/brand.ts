@@ -80,14 +80,14 @@ export type Typeface = {
 
 /**
 Type system, following Airbus's brand typography (Inter Tight for display
-and graphic design, Inter for the web), plus the logo wordmark face.
+and graphic design, Inter for the web).
 */
 export const typefaces: Typeface[] = [
 	{
 		id: "inter-tight",
 		name: "Inter Tight",
 		role: "Display",
-		use: "Headlines, big numbers, posters, slides and social graphics.",
+		use: "Headlines, the StuyAviators wordmark, big numbers, posters, slides and social graphics.",
 		variable: "var(--font-inter-tight)",
 		weights: [
 			{ value: 400, name: "Regular" },
@@ -110,15 +110,6 @@ export const typefaces: Typeface[] = [
 			{ value: 700, name: "Bold" },
 		],
 		href: "https://fonts.google.com/specimen/Inter",
-	},
-	{
-		id: "goudy",
-		name: "Goudy Bookletter 1911",
-		role: "Wordmark",
-		use: "Only the STUYAVIATORS wordmark beside the logo. Never for body text.",
-		variable: "var(--font-goudy)",
-		weights: [{ value: 400, name: "Regular" }],
-		href: "https://fonts.google.com/specimen/Goudy+Bookletter+1911",
 	},
 ];
 

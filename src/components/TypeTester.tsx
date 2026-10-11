@@ -86,8 +86,6 @@ export default function TypeTester({
 									? weight
 									: 400,
 								lineHeight: 1.1,
-								letterSpacing: face.id === "inter-tight" ? "-0.01em" : undefined,
-								textTransform: face.id === "goudy" ? "uppercase" : undefined,
 							}}
 						>
 							{text || "Cleared for takeoff"}

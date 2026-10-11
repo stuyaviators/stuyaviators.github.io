@@ -278,6 +278,11 @@ review on request.
 | 2026-10-10 | Mailing list | Sign-up is a site-wide modal (any `#mailing-list` link opens it) instead of a footer form. |
 | 2026-10-10 | Nav & footer | Four even dropdowns: About (+ Brand Guidelines), Explore, Community, Connect (Contact & Socials, Mailing List, Officer Login). Footer mirrors them and reads "Stuyvesant High School's Official Aviation Club". |
 | 2026-10-10 | Careers (revised) | Quiz shows one question at a time and ends with animated % match scores; searchable career explorer with family filters and expandable role cards. |
+| 2026-10-10 | Wordmark | Navbar "StuyAviators" wordmark set in Inter Tight semibold; Goudy Bookletter 1911 dropped. Heading letter-spacing reset to Inter Tight's default; animated headings no longer run words together. |
+| 2026-10-10 | Scroll | Every page is a sequence of full-screen sections that rise in and recede on scroll (CSS scroll-driven animations; normal scrolling where unsupported or with reduced motion). In-page links scroll smoothly. |
+| 2026-10-10 | Titles | Page titles match the dropdown labels (Mission & Skylab, Charter & Rules, Brand Guidelines, Careers, Flight Crew, Gallery, Member Stories, Contact & Socials); eyebrows name the dropdown group. |
+| 2026-10-10 | Crew | Centered animated org chart with circular portraits: advisors → captains → first officer → officers → crew. Past leadership flanks it in faded black and white. |
+| 2026-10-10 | Motion | Story page flight-path timeline (drawn path, plane, swinging milestones); gallery columns drift at different speeds; ambient sky with planes on dotted paths (both themes) and stars/orbs (dark mode). |
 
 ### D2: what's cut vs kept
 

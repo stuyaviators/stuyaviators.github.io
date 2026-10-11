@@ -17,7 +17,7 @@ export default function ScholarshipsPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Explore · Scholarships"
+				eyebrow="Explore"
 				title="Scholarships"
 				intro={pageIntros.scholarships.intro}
 				image={photos.heroCessnaSunset.src}

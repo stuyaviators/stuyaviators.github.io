@@ -46,9 +46,9 @@ export function Section({
 		<section
 			id={id}
 			aria-labelledby={hasTitle ? headingId : undefined}
-			className={cn("py-16 sm:py-24", className)}
+			className={cn("scene-section py-16 sm:py-24", className)}
 		>
-			<Container>
+			<Container className="scene">
 				{eyebrow !== undefined || hasTitle ? (
 					<Stagger className="mb-8 sm:mb-10">
 						{eyebrow ? <FlightStrip label={eyebrow} /> : null}

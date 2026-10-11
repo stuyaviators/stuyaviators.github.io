@@ -21,8 +21,8 @@ export default function GalleryPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Community · Gallery"
-				title="Community Highlights"
+				eyebrow="Community"
+				title="Gallery"
 				intro={pageIntros.gallery.intro}
 				image={photos.galleryStrutCoastline.src}
 				imageAlt={photos.galleryStrutCoastline.alt}

@@ -19,7 +19,7 @@ import Image from "next/image";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-	title: "Connect",
+	title: "Contact & Socials",
 	description: pageIntros.contact.intro,
 	alternates: { canonical: "/connect" },
 };
@@ -29,8 +29,8 @@ export default async function ConnectPage() {
 	return (
 		<>
 			<PageHero
-				eyebrow="Connect · Socials & contact"
-				title="Connect"
+				eyebrow="Connect"
+				title="Contact & Socials"
 				intro={pageIntros.socials.intro}
 				image={photos.heroSimRyanair.src}
 				imageAlt={photos.heroSimRyanair.alt}

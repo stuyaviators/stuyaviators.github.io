@@ -58,7 +58,7 @@ export default async function Home() {
 					<FlightStrip label="Our mission" />
 					<ScrollHighlight
 						text="Aviation didn’t formally exist at Stuyvesant—so we built the space for it."
-						className="mt-6 max-w-5xl font-display text-4xl leading-[1.1] font-semibold tracking-[-0.015em] sm:text-6xl lg:text-7xl"
+						className="mt-6 max-w-5xl font-display text-4xl leading-[1.1] font-semibold sm:text-6xl lg:text-7xl"
 					/>
 					<ButtonLink href="/about" variant="secondary" className="mt-10">
 						About Project Skylab{" "}
@@ -129,8 +129,11 @@ export default async function Home() {
 				poster={photos.homeGrassRunway.src}
 			/>
 
-			<section aria-labelledby="join-heading" className="py-24 sm:py-32">
-				<Container>
+			<section
+				aria-labelledby="join-heading"
+				className="scene-section py-24 sm:py-32"
+			>
+				<Container className="scene">
 					<div className="clip-reveal on-dark relative isolate overflow-hidden rounded-3xl bg-ink px-6 py-16 sm:px-12 sm:py-24">
 						<div className="absolute inset-0 -z-20">
 							<Parallax distance={60}>
