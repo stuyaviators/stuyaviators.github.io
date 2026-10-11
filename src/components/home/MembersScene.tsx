@@ -6,6 +6,7 @@ import BackgroundVideo from "@/components/motion/BackgroundVideo";
 import PinnedScene, { useSceneProgress } from "@/components/motion/PinnedScene";
 import RevealText from "@/components/motion/RevealText";
 import { Container } from "@/components/ui/Section";
+import { cn } from "@/lib/cn";
 import { Quote } from "lucide-react";
 import { motion, useTransform } from "motion/react";
 
@@ -14,13 +15,35 @@ type Testimonial = { readonly quote: string; readonly author: string };
 /*
  * "What our members say": the club video grows from a rounded card to full
  * screen as the section locks, then each quote takes its turn while you
- * scroll. Unpinned (reduced motion, short screens) it's a plain grid.
+ * scroll, one at a time however many there are. Only reduced motion gets a
+ * plain grid. Long quotes get smaller type, and a quote that still doesn't
+ * fit the screen scrolls inside its card, so nothing is ever cut off.
  */
-function QuoteCard({ item }: { readonly item: Testimonial }) {
+function quoteSize(quote: string) {
+	if (quote.length > 400) {
+		return "text-base sm:text-lg";
+	}
+
+	return quote.length > 250 ? "text-base sm:text-xl" : "text-lg sm:text-xl";
+}
+
+function QuoteCard({
+	item,
+	isSequenced = false,
+}: {
+	readonly item: Testimonial;
+	readonly isSequenced?: boolean;
+}) {
 	return (
-		<figure className="rounded-3xl border border-white/15 bg-black/30 p-6 backdrop-blur-md sm:p-8">
+		<figure
+			className={cn(
+				"rounded-3xl border border-white/15 bg-black/30 p-6 backdrop-blur-md sm:p-8",
+				// Leaves room for the heading, intro and dots above and below.
+				isSequenced && "max-h-[calc(100svh-19rem)] overflow-y-auto"
+			)}
+		>
 			<Quote aria-hidden className="size-7 text-brand" />
-			<blockquote className="mt-4 text-lg leading-relaxed sm:text-xl">
+			<blockquote className={cn("mt-4 leading-relaxed", quoteSize(item.quote))}>
 				“{item.quote}”
 			</blockquote>
 			<figcaption className="label mt-5 text-muted">— {item.author}</figcaption>
@@ -45,17 +68,21 @@ function SequencedQuote({
 	const isLast = index === total - 1;
 	const opacity = useTransform(
 		progress,
-		isLast ? [start - 0.04, start + 0.04] : [start - 0.04, start + 0.04, end - 0.04, end + 0.04],
+		isLast
+			? [start - 0.04, start + 0.04]
+			: [start - 0.04, start + 0.04, end - 0.04, end + 0.04],
 		isLast ? [0, 1] : [0, 1, 1, 0]
 	);
 	const y = useTransform(
 		progress,
-		isLast ? [start - 0.04, start + 0.04] : [start - 0.04, start + 0.04, end - 0.04, end + 0.04],
+		isLast
+			? [start - 0.04, start + 0.04]
+			: [start - 0.04, start + 0.04, end - 0.04, end + 0.04],
 		isLast ? [24, 0] : [24, 0, 0, -24]
 	);
 	return (
 		<motion.div className="[grid-area:1/1]" style={{ opacity, y }}>
-			<QuoteCard item={item} />
+			<QuoteCard item={item} isSequenced />
 		</motion.div>
 	);
 }
@@ -172,9 +199,11 @@ export default function MembersScene(props: {
 }) {
 	return (
 		<PinnedScene
-			length={1.6}
+			// Each quote gets its own stretch of scrolling.
+			length={Math.max(1.6, props.testimonials.length * 0.45)}
 			labelledBy="members-heading"
 			isEntranceAnimated={false}
+			isAlwaysPinned
 			className="on-dark isolate"
 		>
 			<MembersContent {...props} />
