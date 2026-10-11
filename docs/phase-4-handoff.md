@@ -14,6 +14,15 @@ breaking changes: check `node_modules/next/dist/docs/` before using a Next API.
 - The user still has to: set the env vars in Vercel (they do this; never you), finish Google
   branding re-verification, and later do Phase 5 (`gh-pages` redirect branch, README, cutover).
 
+## Phase 4 status (done, awaiting review)
+Built and committed on `rebuild`: submissions inbox (with story -> testimonial and photo ->
+gallery shortcuts), announcement banner, meetings calendar (`/meetings/calendar.ics` + buttons),
+newsletter archive (`/newsletter`), deadline digest, flight crew, testimonials and gallery
+(dashboard CRUD, one-click import of the bundled content, static fallback while the table is
+empty), and a dynamic OG image for each published newsletter. Migrations 0002-0004 are applied to
+the Neon DB. **Not done:** dynamic OG images for opportunities/scholarships, which need a
+per-card route first (asked, undecided).
+
 ## Phase 4: what was approved
 Build (decisions log, 2026-10-10 "P3"): submissions inbox, flight crew in the dashboard,
 announcement banner, events calendar (page + `.ics`), testimonials + gallery in the
