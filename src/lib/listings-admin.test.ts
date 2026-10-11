@@ -41,6 +41,10 @@ function parse(overrides: Record<string, unknown> = {}) {
 	return listingInput.safeParse({ ...valid, ...overrides });
 }
 
+function parsed(overrides: Record<string, unknown> = {}) {
+	return listingInput.parse({ ...valid, ...overrides });
+}
+
 function failure(overrides: Record<string, unknown>) {
 	const result = parse(overrides);
 	expect(result.success).toBe(false);
@@ -280,5 +284,42 @@ describe("trash", () => {
 		expect(
 			await setListingStatus(db, card.id, "published", "x")
 		).toBeUndefined();
+	});
+});
+
+describe("card addresses", () => {
+	it("gives each new card a slug from its title, and keeps it when the title changes", async () => {
+		const created = await createListing(db, parsed(), "a");
+		expect(created.slug).toBe("aviation-scholarship");
+
+		const renamed = await updateListing(
+			db,
+			created.id,
+			parsed({ title: "A brand new name" }),
+			"a"
+		);
+		expect(renamed?.slug).toBe("aviation-scholarship");
+	});
+
+	it("adds a number when a title is already used, per kind", async () => {
+		const first = await createListing(db, parsed(), "a");
+		const second = await createListing(db, parsed(), "a");
+		const third = await createListing(db, parsed(), "a");
+		const opportunity = await createListing(
+			db,
+			parsed({ kind: "opportunity" }),
+			"a"
+		);
+		expect([first.slug, second.slug, third.slug]).toEqual([
+			"aviation-scholarship",
+			"aviation-scholarship-2",
+			"aviation-scholarship-3",
+		]);
+		expect(opportunity.slug).toBe("aviation-scholarship");
+	});
+
+	it("falls back for titles with no letters or digits", async () => {
+		const created = await createListing(db, parsed({ title: "★★★" }), "a");
+		expect(created.slug).toBe("listing");
 	});
 });

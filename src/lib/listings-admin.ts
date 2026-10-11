@@ -1,8 +1,9 @@
 import type { Database } from "@/db";
 import type { Listing, ListingKind } from "@/lib/listings";
 import { listings } from "@/db/schema";
+import { listingSlug } from "@/lib/listing-slug";
 import { optionalUrl } from "@/lib/newsletter/types";
-import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, isNull, like, sql } from "drizzle-orm";
 import { z } from "zod";
 
 /*
@@ -135,6 +136,28 @@ export async function getListing(
 	return listing;
 }
 
+/**
+A slug no other card of this kind uses: "nasa-camp", then "nasa-camp-2", …
+*/
+export async function availableListingSlug(
+	db: Database,
+	kind: ListingKind,
+	title: string
+): Promise<string> {
+	const base = listingSlug(title);
+	const taken = await db
+		.select({ slug: listings.slug })
+		.from(listings)
+		.where(and(eq(listings.kind, kind), like(listings.slug, `${base}%`)));
+	const used = new Set(taken.map((row) => row.slug));
+	let slug = base;
+	for (let attempt = 2; used.has(slug); attempt++) {
+		slug = `${base}-${attempt}`;
+	}
+
+	return slug;
+}
+
 export async function createListing(
 	db: Database,
 	values: ListingValues,
@@ -152,6 +175,7 @@ export async function createListing(
 		.insert(listings)
 		.values({
 			...columns(values),
+			slug: await availableListingSlug(db, values.kind, values.title),
 			sortOrder: next,
 			createdBy: by,
 			updatedBy: by,

@@ -15,9 +15,11 @@ import { formatDate } from "@/components/listings/ListingCard";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { daysUntil, isClosingSoon, isExpired } from "@/lib/listing-dates";
+import { listingPath } from "@/lib/listing-path";
 import {
 	ArrowDown,
 	ArrowUp,
+	ExternalLink,
 	Eye,
 	EyeOff,
 	Pencil,
@@ -119,6 +121,17 @@ export default function ListingRows({
 										</>
 									) : (
 										<>
+											{listing.status === "published" &&
+											listingPath(listing) !== undefined ? (
+												<Link
+													href={listingPath(listing) ?? "/"}
+													target="_blank"
+													className={buttonClasses("ghost")}
+												>
+													<ExternalLink aria-hidden className="size-4" /> View
+													page
+												</Link>
+											) : null}
 											<Button
 												variant="ghost"
 												aria-label={`Move ${listing.title} up`}

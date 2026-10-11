@@ -26,8 +26,10 @@ const idSchema = z.uuid();
 
 function refreshPublicPages() {
 	updateTag(listingsTag);
-	revalidatePath("/opportunities");
-	revalidatePath("/scholarships");
+	// "layout" also covers each card's own page below the list.
+	revalidatePath("/opportunities", "layout");
+	revalidatePath("/scholarships", "layout");
+	revalidatePath("/sitemap.xml");
 }
 
 const notFound = actionError("That card no longer exists.");

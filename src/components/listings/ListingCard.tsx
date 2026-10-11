@@ -3,9 +3,11 @@ import type { Listing } from "@/lib/listings";
 import { Md } from "@/components/Md";
 import { BoardingPass } from "@/components/ui/BoardingPass";
 import { daysUntil, isClosingSoon } from "@/lib/listing-dates";
+import { listingPath } from "@/lib/listing-path";
 import { renderMarkdown } from "@/lib/markdown";
 import { ArrowUpRight, Clock } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
 	month: "short",
@@ -18,7 +20,7 @@ export function formatDate(value: string) {
 	return dateFormat.format(new Date(`${value}T00:00:00Z`));
 }
 
-function stubFields(listing: Listing): PassField[] {
+export function stubFields(listing: Listing): PassField[] {
 	const isOpportunity = listing.kind === "opportunity";
 	let dates: string | undefined;
 	if (isOpportunity && listing.startDate) {
@@ -55,6 +57,7 @@ export default function ListingCard({
 	readonly listing: Listing;
 	readonly preview?: boolean;
 }) {
+	const path = listingPath(listing);
 	const isClosing = isClosingSoon(listing);
 	const days = listing.deadline ? daysUntil(listing.deadline) : undefined;
 	return (
@@ -94,7 +97,15 @@ export default function ListingCard({
 					</span>
 				) : null}
 			</div>
-			<h3 className="mt-2 text-xl">{listing.title}</h3>
+			<h3 className="mt-2 text-xl">
+				{path && !preview ? (
+					<Link href={path} className="hover:underline">
+						{listing.title}
+					</Link>
+				) : (
+					listing.title
+				)}
+			</h3>
 			<p className="label mt-1 text-muted">{listing.organization}</p>
 			<p className="mt-3">
 				<Md>{listing.summary}</Md>

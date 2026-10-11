@@ -10,6 +10,7 @@ function card(overrides: Partial<Listing> = {}): Listing {
 	return {
 		id: crypto.randomUUID(),
 		kind: "scholarship",
+		slug: "aviation-scholarship",
 		title: "Aviation Scholarship",
 		organization: "Peter Stuyvesant Foundation",
 		summary: "Money for flight training.",

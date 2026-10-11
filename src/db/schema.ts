@@ -27,6 +27,9 @@ export const listings = pgTable(
 	{
 		id: uuid().primaryKey().defaultRandom(),
 		kind: listingKind().notNull(),
+		// The card's own page: /opportunities/<slug>. Set when it is created
+		// and kept when the title changes, so shared links keep working.
+		slug: text(),
 		title: text().notNull(),
 		organization: text().notNull(),
 		summary: text().notNull(),
@@ -49,7 +52,10 @@ export const listings = pgTable(
 		updatedBy: text(),
 		deletedAt: timestamp({ withTimezone: true }),
 	},
-	(table) => [index("listings_kind_status_idx").on(table.kind, table.status)]
+	(table) => [
+		index("listings_kind_status_idx").on(table.kind, table.status),
+		uniqueIndex("listings_kind_slug_idx").on(table.kind, table.slug),
+	]
 );
 
 export const submissionType = pgEnum("submission_type", [

@@ -36,6 +36,13 @@
       "when": 1791725504659,
       "tag": "0004_testimonials_gallery",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791732469098,
+      "tag": "0005_listing_slugs",
+      "breakpoints": true
     }
   ]
 }

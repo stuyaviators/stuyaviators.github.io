@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/content/site";
+import { listingPath } from "@/lib/listing-path";
+import { getPublishedListings } from "@/lib/listings";
+import { getNewsletterArchive } from "@/lib/newsletters-public";
 
 const routes = [
 	"",
@@ -21,8 +24,20 @@ const routes = [
 	"/terms",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-	return routes.map((route) => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	const [opportunities, scholarships, issues] = await Promise.all([
+		getPublishedListings("opportunity"),
+		getPublishedListings("scholarship"),
+		getNewsletterArchive(),
+	]);
+	const pages = [
+		...routes,
+		...[...opportunities, ...scholarships].flatMap(
+			(listing) => listingPath(listing) ?? []
+		),
+		...issues.map((issue) => `/newsletter/${issue.slug}`),
+	];
+	return pages.map((route) => ({
 		url: `${site.url}${route}`,
 		changeFrequency:
 			route === "" || route === "/meetings" ? "weekly" : "monthly",

@@ -66,6 +66,7 @@ function previewListing(kind: ListingKind, values: Values): Listing {
 	return {
 		id: "preview",
 		kind,
+		slug: null,
 		title: values.title.trim() || "Card title",
 		organization: values.organization.trim() || "Organization",
 		summary: values.summary.trim() || "A short description appears here.",
