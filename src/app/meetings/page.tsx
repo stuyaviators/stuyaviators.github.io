@@ -4,6 +4,7 @@ import SubmissionForm from "@/components/forms/SubmissionForm";
 import { Paragraphs } from "@/components/Md";
 import { Stagger } from "@/components/TransitionProvider";
 import { PageHero } from "@/components/ui/PageHero";
+import StackingCards from "@/components/motion/StackingCards";
 import { Section } from "@/components/ui/Section";
 import { charter } from "@/content/charter";
 import { meetingImages } from "@/content/meeting-images";
@@ -54,43 +55,40 @@ export default async function MeetingsPage() {
 				title="What happens at a meeting"
 				intro={meetings.typesIntro}
 			>
-				{/* Vertical scroll: each card locks under the header and the next
-				    one slides up over it. */}
-				<ol className="grid gap-6">
+				<StackingCards>
 					{meetings.types.map((type, index) => {
 						const photo = meetingImages[index];
 						return (
-							<li
+							<article
 								key={type.name}
 								id={type.code?.toLowerCase() ?? `type-${index + 1}`}
-								className="scroll-mt-28 motion-safe:sticky"
-								style={{ top: `calc(6.5rem + ${index * 0.75}rem)` }}
+								className="grid h-full scroll-mt-28 grid-rows-[11rem_1fr] overflow-hidden rounded-3xl border border-hairline bg-surface shadow-card sm:grid-rows-[14rem_1fr] md:grid-cols-[1fr_1.1fr] md:grid-rows-1"
 							>
-								<article className="grid overflow-hidden rounded-3xl border border-hairline bg-surface shadow-card md:grid-cols-[1fr_1.1fr]">
-									<div className="relative aspect-[16/10] bg-surface-2 md:aspect-auto md:min-h-[22rem]">
-										<Image
-											src={photo.src}
-											alt={photo.alt}
-											fill
-											placeholder="blur"
-											sizes="(min-width: 768px) 50vw, 100vw"
-											className="object-cover"
-										/>
-									</div>
-									<div className="p-6 sm:p-10">
-										<p className="label text-accent-text">
-											{type.code ?? `Type ${String(index + 1).padStart(2, "0")}`}
-											{type.isNew ? " · New pilot session" : ""}
-										</p>
-										<h3 className="mt-2 text-2xl sm:text-3xl">{type.name}</h3>
-										<p className="mt-2 font-medium text-muted">{type.tagline}</p>
-										<p className="mt-4">{type.description}</p>
-									</div>
-								</article>
-							</li>
+								<div className="relative bg-surface-2">
+									<Image
+										src={photo.src}
+										alt={photo.alt}
+										fill
+										placeholder="blur"
+										sizes="(min-width: 768px) 50vw, 100vw"
+										className="object-cover"
+									/>
+								</div>
+								<div className="min-h-0 overflow-hidden p-6 sm:p-10">
+									<p className="label text-accent-text">
+										{type.code ?? `Type ${String(index + 1).padStart(2, "0")}`}
+										{type.isNew ? " · New pilot session" : ""}
+									</p>
+									<h3 className="mt-2 text-2xl sm:text-3xl">{type.name}</h3>
+									<p className="mt-2 font-medium text-muted">{type.tagline}</p>
+									<p className="mt-4 line-clamp-5 sm:line-clamp-6 md:line-clamp-none">
+										{type.description}
+									</p>
+								</div>
+							</article>
 						);
 					})}
-				</ol>
+				</StackingCards>
 			</Section>
 
 			<Section pin id="schedule" label="Schedule" title="When we meet">
