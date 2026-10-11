@@ -18,7 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-	title: { default: "Dashboard", template: "%s - Dashboard" },
+	title: { default: "Dashboard", template: "%s · Dashboard" },
 	robots: { index: false, follow: false },
 };
 

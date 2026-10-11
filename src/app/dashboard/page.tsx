@@ -16,9 +16,9 @@ import { hasRole, requirePageUser } from "@/lib/session";
 import { Check, ExternalLink, Minus } from "lucide-react";
 import Link from "next/link";
 
-// The layout's "- Dashboard" template skips pages in its own folder.
+// The layout's "· Dashboard" template skips pages in its own folder.
 export const metadata: Metadata = {
-	title: { absolute: "Overview - Dashboard" },
+	title: { absolute: "Overview · Dashboard" },
 };
 
 type SearchParameters = { denied?: string };

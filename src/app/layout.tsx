@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL(site.url),
 	title: {
 		default: "StuyAviators · Stuyvesant High School’s Aviation Club",
-		template: "%s - StuyAviators",
+		template: "%s · StuyAviators",
 	},
 	description: site.tagline,
 	// Google Search Console ownership check (needed for Google sign-in
