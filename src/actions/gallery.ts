@@ -1,16 +1,18 @@
 "use server";
 
-import type { ActionResult } from "@/lib/action-guard";
+import type { Database } from "@/db";
+import type { ActionError, ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
 import { CaptionError, captionPhoto } from "@/lib/ai-caption";
 import {
 	addGalleryPhoto,
-	altSchema,
 	deleteGalleryPhoto,
 	galleryTag,
+	getGalleryRow,
 	importStaticGallery,
 	moveGalleryPhoto,
 	newPhotoSchema,
+	optionalAltSchema,
 	updateGalleryAlt,
 } from "@/lib/gallery";
 import { hitRateLimit } from "@/lib/rate-limit";
@@ -29,6 +31,34 @@ function refresh() {
 	revalidatePath("/gallery");
 }
 
+/**
+The AI description for a photo whose description was left blank.
+*/
+async function writeCaption(
+	db: Database,
+	email: string,
+	imageUrl: string
+): Promise<ActionError | { ok: true; alt: string }> {
+	// The free tier is small, so keep one officer from using it all up.
+	const limit = await hitRateLimit(db, `caption:${email}`, 40, 3600);
+	if (!limit.allowed) {
+		return actionError(
+			"Too many automatic descriptions this hour. Type one instead.",
+			{ alt: "Type a description instead." }
+		);
+	}
+
+	try {
+		return { ok: true, alt: await captionPhoto(imageUrl) };
+	} catch (error) {
+		if (error instanceof CaptionError) {
+			return actionError(error.message, { alt: error.message });
+		}
+
+		throw error;
+	}
+}
+
 export async function addGalleryPhotoAction(
 	input: unknown
 ): Promise<ActionResult> {
@@ -38,37 +68,21 @@ export async function addGalleryPhotoAction(
 			return invalid(parsed.error);
 		}
 
-		await addGalleryPhoto(db, parsed.data, user.email);
-		refresh();
-		return { ok: true };
-	});
-}
-
-/**
-A suggested description for a photo that was just uploaded. Nothing is saved:
-the officer reads it, edits it if needed and then adds the photo.
-*/
-export async function suggestCaptionAction(
-	imageUrl: string
-): Promise<ActionResult<{ caption: string }>> {
-	return guarded("officer", async ({ user, db }) => {
-		// The free tier is small, so keep one officer from using it all up.
-		const limit = await hitRateLimit(db, `caption:${user.email}`, 40, 3600);
-		if (!limit.allowed) {
-			return actionError(
-				"Too many automatic captions this hour. Type one instead."
-			);
-		}
-
-		try {
-			return { ok: true, caption: await captionPhoto(imageUrl) };
-		} catch (error) {
-			if (error instanceof CaptionError) {
-				return actionError(error.message);
+		// Blank description: AI writes it, and the photo is labeled as such.
+		const isBlank = parsed.data.alt === "";
+		let { alt } = parsed.data;
+		if (isBlank) {
+			const written = await writeCaption(db, user.email, parsed.data.imageUrl);
+			if (!written.ok) {
+				return written;
 			}
 
-			throw error;
+			alt = written.alt;
 		}
+
+		await addGalleryPhoto(db, { ...parsed.data, alt }, user.email, isBlank);
+		refresh();
+		return { ok: true };
 	});
 }
 
@@ -81,11 +95,32 @@ export async function updateGalleryAltAction(
 			return missing;
 		}
 
-		const parsed = altSchema.safeParse(alt);
+		const parsed = optionalAltSchema.safeParse(alt);
 		if (!parsed.success) {
-			const message =
-				parsed.error.issues.at(0)?.message ?? "Describe the photo";
+			const message = "Keep the description under 300 characters";
 			return actionError(message, { alt: message });
+		}
+
+		const existing = await getGalleryRow(db, id);
+		if (!existing) {
+			return missing;
+		}
+
+		if (parsed.data === "") {
+			// Blank again: have AI write a fresh one (uploaded photos only).
+			if (existing.imageUrl === null) {
+				const message = "Describe the photo for people who can't see it";
+				return actionError(message, { alt: message });
+			}
+
+			const written = await writeCaption(db, user.email, existing.imageUrl);
+			if (!written.ok) {
+				return written;
+			}
+
+			await updateGalleryAlt(db, id, written.alt, user.email, true);
+			refresh();
+			return { ok: true };
 		}
 
 		const updated = await updateGalleryAlt(db, id, parsed.data, user.email);

@@ -25,8 +25,13 @@ export const altSchema = z
 	.min(1, "Describe the photo for people who can't see it")
 	.max(300);
 
+/**
+The description is optional: left blank, AI writes it when the photo is saved.
+*/
+export const optionalAltSchema = z.string().trim().max(300);
+
 export const newPhotoSchema = z.object({
-	alt: altSchema,
+	alt: optionalAltSchema,
 	imageUrl: optionalBlobUrl.refine((value) => value !== "", {
 		message: "Upload a photo",
 	}),
@@ -35,6 +40,18 @@ export const newPhotoSchema = z.object({
 });
 
 export type NewPhotoInput = z.infer<typeof newPhotoSchema>;
+
+export async function getGalleryRow(
+	db: Database,
+	id: string
+): Promise<GalleryRow | undefined> {
+	const rows = await db
+		.select()
+		.from(galleryTable)
+		.where(eq(galleryTable.id, id))
+		.limit(1);
+	return rows.at(0);
+}
 
 export async function listGalleryRows(db: Database): Promise<GalleryRow[]> {
 	return db
@@ -49,7 +66,8 @@ New photos go first: the newest is the one people want to see.
 export async function addGalleryPhoto(
 	db: Database,
 	input: NewPhotoInput,
-	by: string
+	by: string,
+	isAiCaption = false
 ) {
 	const lowest = await db
 		.select({
@@ -58,6 +76,7 @@ export async function addGalleryPhoto(
 		.from(galleryTable);
 	await db.insert(galleryTable).values({
 		alt: input.alt,
+		isAiCaption,
 		imageUrl: input.imageUrl,
 		width: input.width,
 		height: input.height,
@@ -70,11 +89,16 @@ export async function updateGalleryAlt(
 	db: Database,
 	id: string,
 	alt: string,
-	by: string
+	by: string,
+	isAiCaption?: boolean
 ): Promise<GalleryRow | undefined> {
+	// An edit takes the AI label off; saving the same text keeps it.
+	const flag =
+		isAiCaption ??
+		sql`case when ${galleryTable.alt} = ${alt} then ${galleryTable.isAiCaption} else false end`;
 	const rows = await db
 		.update(galleryTable)
-		.set({ alt, updatedAt: new Date(), updatedBy: by })
+		.set({ alt, isAiCaption: flag, updatedAt: new Date(), updatedBy: by })
 		.where(eq(galleryTable.id, id))
 		.returning();
 	return rows.at(0);
@@ -128,6 +152,8 @@ export async function importStaticGallery(db: Database): Promise<number> {
 	const rows = [...galleryPhotos, ...spotlightPhotos].map(
 		(photoKey, sortOrder) => ({
 			alt: photos[photoKey].alt,
+			// These descriptions were written by AI.
+			isAiCaption: true,
 			photoKey,
 			sortOrder,
 			updatedBy: "import",
@@ -148,18 +174,25 @@ export function toLightboxImage(row: GalleryRow): LightboxImage | undefined {
 		return {
 			src: { src: row.imageUrl, width: row.width, height: row.height },
 			alt: row.alt,
+			isAiCaption: row.isAiCaption,
 		};
 	}
 
 	const key = row.photoKey ?? undefined;
 	return isPhotoKey(key)
-		? { src: photos[key].src, alt: row.alt, spec: photoSpecs[key] }
+		? {
+				src: photos[key].src,
+				alt: row.alt,
+				isAiCaption: row.isAiCaption,
+				spec: photoSpecs[key],
+			}
 		: undefined;
 }
 
 function bundledImages(): LightboxImage[] {
 	return [...galleryPhotos, ...spotlightPhotos].map((key) => ({
 		...photos[key],
+		isAiCaption: true,
 		spec: photoSpecs[key],
 	}));
 }

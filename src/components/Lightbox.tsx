@@ -11,6 +11,8 @@ import BlobImage from "./BlobImage.tsx";
 export type LightboxImage = {
 	src: StaticImageData;
 	alt: string;
+	// The description was written by AI, so the viewer says so.
+	isAiCaption?: boolean;
 	spec?: PhotoSpec;
 };
 
@@ -211,9 +213,11 @@ one grid cell so the caption never changes height.
 */
 function Caption({
 	alt,
+	isAi,
 	specs,
 }: {
 	readonly alt: string;
+	readonly isAi: boolean;
 	readonly specs: string | undefined;
 }) {
 	const [isPinned, setIsPinned] = useState(false);
@@ -251,7 +255,8 @@ function Caption({
 				>
 					{alt}
 					<span className="mt-1 block text-xs text-white/55">
-						AI-Generated caption · may be inaccurate · hover or tap for camera specs
+						{isAi ? "AI-Generated caption · may be inaccurate · " : ""}
+						Hover or tap for camera specs
 					</span>
 				</span>
 				<span
@@ -397,6 +402,7 @@ export default function Lightbox({
 								{loadedIndex === index ? (
 									<Caption
 										alt={current.alt}
+										isAi={current.isAiCaption === true}
 										specs={formatSpec(current.spec)}
 									/>
 								) : null}

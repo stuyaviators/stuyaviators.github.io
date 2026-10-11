@@ -46,6 +46,8 @@ export default async function GalleryDashboardPage({
 			id: row.id,
 			alt: row.alt,
 			src: row.imageUrl ?? bundled,
+			isAi: row.isAiCaption,
+			canWrite: row.imageUrl !== null,
 		};
 	});
 

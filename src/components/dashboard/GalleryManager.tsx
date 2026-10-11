@@ -5,13 +5,12 @@ import {
 	deleteGalleryPhotoAction,
 	importGalleryAction,
 	moveGalleryPhotoAction,
-	suggestCaptionAction,
 	updateGalleryAltAction,
 } from "@/actions/gallery";
 import Confirm from "@/components/dashboard/Confirm";
 import { ImageField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
-import { Card, Notice } from "@/components/dashboard/ui";
+import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextAreaField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -21,7 +20,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-type Item = { id: string; alt: string; src: string | undefined };
+type Item = {
+	id: string;
+	alt: string;
+	src: string | undefined;
+	isAi: boolean;
+	// Uploaded photos can have AI write a new description.
+	canWrite: boolean;
+};
 type Reference = { name: string; link: string; message: string };
 
 export default function GalleryManager({
@@ -112,6 +118,7 @@ export default function GalleryManager({
 								{editingId === item.id ? (
 									<AltForm
 										initial={item.alt}
+										canWrite={item.canWrite}
 										onDone={() => {
 											setEditingId(undefined);
 											router.refresh();
@@ -122,7 +129,14 @@ export default function GalleryManager({
 										id={item.id}
 									/>
 								) : (
-									<p className="text-sm">{item.alt}</p>
+									<>
+										<p className="text-sm">{item.alt}</p>
+										{item.isAi ? (
+											<p className="mt-1">
+												<Badge>AI-generated</Badge>
+											</p>
+										) : null}
+									</>
 								)}
 							</div>
 							{editingId === item.id ? null : (
@@ -235,35 +249,6 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 	const [alt, setAlt] = useState("");
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [message, setMessage] = useState<string>();
-	const [isWriting, setIsWriting] = useState(false);
-	const [caption, setCaption] = useState<{ tone: "good" | "neutral"; text: string }>();
-
-	/*
-	 * Asks for a suggested description of a photo that was just uploaded.
-	 */
-	async function suggest(url: string) {
-		setCaption(undefined);
-		setIsWriting(true);
-		try {
-			const result = await suggestCaptionAction(url);
-			if (!result.ok) {
-				setCaption({ tone: "neutral", text: result.error });
-				return;
-			}
-
-			// Never replace what the officer typed while we were waiting.
-			setAlt((current) => (current.trim() === "" ? result.caption : current));
-			setCaption({
-				tone: "good",
-				text: "Written by AI. Check it and fix anything that’s wrong; visitors see it labeled as AI-generated.",
-			});
-		} catch {
-			setCaption({ tone: "neutral", text: "Couldn’t write a caption. Type one instead." });
-		} finally {
-			setIsWriting(false);
-		}
-	}
-
 	function submit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setErrors({});
@@ -279,7 +264,6 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 					setImageUrl("");
 					setSize({ width: 0, height: 0 });
 					setAlt("");
-					setCaption(undefined);
 					onDone();
 				} else {
 					setErrors(result.fieldErrors ?? {});
@@ -295,6 +279,7 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 		<form onSubmit={submit} noValidate className="grid gap-4">
 			<ImageField
 				label="Photo"
+				isRequired
 				purpose="highlight"
 				value={imageUrl}
 				error={errors.imageUrl ?? errors.width ?? errors.height}
@@ -304,27 +289,20 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 				}}
 				onUploaded={(image) => {
 					setSize({ width: image.width, height: image.height });
-					if (alt.trim() === "") {
-						void suggest(image.url);
-					}
 				}}
 			/>
 			<TextAreaField
 				label="Description"
+				optional
 				rows={2}
 				value={alt}
 				maxLength={300}
 				error={errors.alt}
-				hint={
-					isWriting
-						? "Writing a suggestion from the photo…"
-						: "What's in the photo, for people who can't see it. For example: “A Cessna 172 on final approach over the Hudson”."
-				}
+				hint="What's in the photo, for people who can't see it. Leave it blank and AI writes one when you add the photo; visitors then see it labeled AI-generated. If you write or change it yourself, the label goes away."
 				onChange={(event) => {
 					setAlt(event.target.value);
 				}}
 			/>
-			{caption ? <Notice tone={caption.tone}>{caption.text}</Notice> : null}
 			{message ? <Notice tone="bad">{message}</Notice> : null}
 			<div>
 				<Button type="submit" disabled={isPending}>
@@ -339,11 +317,13 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 function AltForm({
 	id,
 	initial,
+	canWrite,
 	onDone,
 	onCancel,
 }: {
 	readonly id: string;
 	readonly initial: string;
+	readonly canWrite: boolean;
 	readonly onDone: () => void;
 	readonly onCancel: () => void;
 }) {
@@ -372,10 +352,16 @@ function AltForm({
 		<form onSubmit={submit} noValidate className="grid gap-3">
 			<TextAreaField
 				label="Description"
+				optional={canWrite}
 				rows={2}
 				value={alt}
 				maxLength={300}
 				error={error}
+				hint={
+					canWrite
+						? "Clear it and save to have AI write a new one. Any change you make removes the AI-generated label."
+						: "Any change you make removes the AI-generated label."
+				}
 				onChange={(event) => {
 					setAlt(event.target.value);
 				}}

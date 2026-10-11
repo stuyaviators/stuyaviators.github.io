@@ -97,8 +97,10 @@ export function ImageField({
 	error,
 	hint,
 	onUploaded,
+	isRequired = false,
 }: {
 	readonly label?: string;
+	readonly isRequired?: boolean;
 	readonly purpose: UploadPurpose;
 	readonly value: string;
 	readonly onChange: (url: string) => void;
@@ -145,7 +147,9 @@ export function ImageField({
 		<div>
 			<label htmlFor={id} className="text-sm font-semibold">
 				{label}
-				<span className="ml-1.5 font-normal text-muted">(optional)</span>
+				{isRequired ? null : (
+					<span className="ml-1.5 font-normal text-muted">(optional)</span>
+				)}
 			</label>
 			<div className="mt-1.5 flex flex-wrap items-center gap-2">
 				<input

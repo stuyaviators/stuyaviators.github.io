@@ -73,6 +73,7 @@ describe("gallery", () => {
 		expect(first === undefined ? undefined : toLightboxImage(first)).toEqual({
 			src: { src: url, width: 1600, height: 900 },
 			alt: "Newer",
+			isAiCaption: false,
 		});
 	});
 
@@ -91,16 +92,55 @@ describe("gallery", () => {
 		expect(await alts()).toEqual(["B"]);
 	});
 
-	it("only accepts uploaded photos with a size and a description", () => {
+	it("labels AI descriptions, and an edit takes the label off", async () => {
+		await addGalleryPhoto(db, photo("Written by AI"), "a", true);
+		const [row] = await listGalleryRows(db);
+		expect(row?.isAiCaption).toBe(true);
+		expect(
+			row === undefined ? undefined : toLightboxImage(row)?.isAiCaption
+		).toBe(true);
+		// Saving the same text keeps the label; changing it removes it.
+		const same = await updateGalleryAlt(
+			db,
+			row?.id ?? "",
+			"Written by AI",
+			"x"
+		);
+		expect(same?.isAiCaption).toBe(true);
+		const edited = await updateGalleryAlt(db, row?.id ?? "", "My words", "x");
+		expect(edited?.isAiCaption).toBe(false);
+		// A fresh AI description puts it back.
+		const again = await updateGalleryAlt(
+			db,
+			row?.id ?? "",
+			"New AI text",
+			"x",
+			true
+		);
+		expect(again?.isAiCaption).toBe(true);
+	});
+
+	it("labels the imported bundled photos as AI descriptions", async () => {
+		await importStaticGallery(db);
+		const rows = await listGalleryRows(db);
+		expect(rows.every((item) => item.isAiCaption)).toBe(true);
+		expect((await getPublicGallery()).every((image) => image.isAiCaption)).toBe(
+			true
+		);
+	});
+
+	it("only accepts uploaded photos with a size, and a description is optional", () => {
 		expect(newPhotoSchema.safeParse(photo("Ok")).success).toBe(true);
 		for (const bad of [
 			{ ...photo("Ok"), imageUrl: "" },
 			{ ...photo("Ok"), imageUrl: "https://example.org/a.jpg" },
 			{ ...photo("Ok"), width: 0 },
 			{ ...photo("Ok"), height: 1.5 },
-			{ ...photo(" ") },
+			{ ...photo("x".repeat(301)) },
 		]) {
 			expect(newPhotoSchema.safeParse(bad).success).toBe(false);
 		}
+
+		expect(newPhotoSchema.safeParse(photo("  ")).data?.alt).toBe("");
 	});
 });

@@ -235,6 +235,8 @@ export const galleryPhotos = pgTable("gallery_photos", {
 	width: integer(),
 	height: integer(),
 	photoKey: text(),
+	// The description was written by AI. Cleared as soon as an officer edits it.
+	isAiCaption: boolean().notNull().default(false),
 	sortOrder: integer().notNull().default(0),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

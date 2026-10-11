@@ -43,6 +43,13 @@
       "when": 1791732469098,
       "tag": "0005_listing_slugs",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791735566733,
+      "tag": "0006_gallery_ai_caption",
+      "breakpoints": true
     }
   ]
 }
