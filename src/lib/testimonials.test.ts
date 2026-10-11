@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
 import { home } from "@/content/home";
+import { didMoveToTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -10,7 +11,6 @@ vi.mock("next/cache", () => ({
 
 const {
 	addTestimonial,
-	deleteTestimonial,
 	getPublicTestimonials,
 	importStaticTestimonials,
 	listTestimonials,
@@ -57,8 +57,12 @@ describe("testimonials", () => {
 			"a"
 		);
 		expect(edited?.quote).toBe("Edited");
-		expect(await deleteTestimonial(db, three?.id ?? "")).toBe(1);
-		expect(await deleteTestimonial(db, three?.id ?? "")).toBe(0);
+		expect(await didMoveToTrash(db, "testimonial", three?.id ?? "", "a")).toBe(
+			true
+		);
+		expect(await didMoveToTrash(db, "testimonial", three?.id ?? "", "a")).toBe(
+			false
+		);
 		expect(await texts()).toEqual(["One", "Two"]);
 		expect(
 			await updateTestimonial(

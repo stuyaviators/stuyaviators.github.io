@@ -6,7 +6,6 @@ import { actionError, guarded, invalid } from "@/lib/action-guard";
 import { CaptionError, captionPhoto } from "@/lib/ai-caption";
 import {
 	addGalleryPhoto,
-	deleteGalleryPhoto,
 	galleryTag,
 	getGalleryRow,
 	importStaticGallery,
@@ -17,6 +16,7 @@ import {
 } from "@/lib/gallery";
 import { canDeleteRow, notYours } from "@/lib/ownership";
 import { hitRateLimit } from "@/lib/rate-limit";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -168,7 +168,7 @@ export async function deleteGalleryPhotoAction(
 			return notYours;
 		}
 
-		if ((await deleteGalleryPhoto(db, id)) === 0) {
+		if (!(await didMoveToTrash(db, "gallery", id, user.email))) {
 			return missing;
 		}
 

@@ -6,12 +6,12 @@ import {
 	addCrewMember,
 	crewMemberSchema,
 	crewTag,
-	deleteCrewMember,
 	importStaticCrew,
 	moveCrewMember,
 	updateCrewMember,
 } from "@/lib/crew";
 import { canDeleteRow, notYours } from "@/lib/ownership";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -100,8 +100,7 @@ export async function deleteCrewMemberAction(
 			return notYours;
 		}
 
-		const removed = await deleteCrewMember(db, id);
-		if (removed === 0) {
+		if (!(await didMoveToTrash(db, "crew", id, user.email))) {
 			return missing;
 		}
 

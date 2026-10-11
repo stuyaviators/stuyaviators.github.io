@@ -15,11 +15,13 @@ type Viewer = { email: string; permissions: number };
 type Value = {
 	canDeleteItem: (addedBy: string | undefined) => boolean;
 	addedBy: (email: string | undefined) => string | undefined;
+	personName: (email: string | undefined) => string | undefined;
 };
 
 const ViewerContext = createContext<Value>({
 	canDeleteItem: () => false,
 	addedBy: () => undefined,
+	personName: () => undefined,
 });
 
 export function ViewerProvider({
@@ -35,6 +37,8 @@ export function ViewerProvider({
 		() => ({
 			canDeleteItem: (addedBy) => canDelete(viewer, addedBy),
 			addedBy: (email) => addedByLabel(email, names),
+			personName: (email) =>
+				email === undefined ? undefined : (names[email.toLowerCase()] ?? email),
 		}),
 		[viewer, names]
 	);

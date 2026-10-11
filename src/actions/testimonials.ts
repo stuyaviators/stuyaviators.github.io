@@ -5,13 +5,13 @@ import { actionError, guarded, invalid } from "@/lib/action-guard";
 import { canDeleteRow, notYours } from "@/lib/ownership";
 import {
 	addTestimonial,
-	deleteTestimonial,
 	importStaticTestimonials,
 	moveTestimonial,
 	testimonialSchema,
 	testimonialsTag,
 	updateTestimonial,
 } from "@/lib/testimonials";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -101,7 +101,7 @@ export async function deleteTestimonialAction(
 			return notYours;
 		}
 
-		if ((await deleteTestimonial(db, id)) === 0) {
+		if (!(await didMoveToTrash(db, "testimonial", id, user.email))) {
 			return missing;
 		}
 

@@ -10,7 +10,7 @@ import { getDb } from "@/db";
 import { crewMembers } from "@/db/schema";
 import { optionalBlobUrl } from "@/lib/blob-url";
 import { crewGroupIds } from "@/lib/crew-groups";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
 
@@ -47,6 +47,7 @@ export async function listCrewRows(db: Database): Promise<CrewRow[]> {
 	return db
 		.select()
 		.from(crewMembers)
+		.where(isNull(crewMembers.deletedAt))
 		.orderBy(asc(crewMembers.sortOrder), asc(crewMembers.createdAt));
 }
 
@@ -115,14 +116,6 @@ export async function updateCrewMember(
 		.where(eq(crewMembers.id, id))
 		.returning();
 	return rows.at(0);
-}
-
-export async function deleteCrewMember(db: Database, id: string) {
-	const rows = await db
-		.delete(crewMembers)
-		.where(eq(crewMembers.id, id))
-		.returning({ id: crewMembers.id });
-	return rows.length;
 }
 
 /**

@@ -1,14 +1,13 @@
 import type { Database } from "@/db";
+import { didDeleteFromTrash, didMoveToTrash, didRestoreFromTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	createListing,
-	deleteForever,
 	getListing,
 	listForDashboard,
 	listingInput,
 	moveListing,
-	setDeleted,
 	setListingStatus,
 	updateListing,
 } from "./listings-admin.ts";
@@ -255,32 +254,37 @@ describe("ordering", () => {
 });
 
 describe("trash", () => {
-	it("hides trashed cards, restores them as drafts, and deletes forever only from the trash", async () => {
+	it("hides trashed cards, restores them as drafts, and deletes for good only from the trash", async () => {
 		const card = await createListing(
 			db,
 			listingInput.parse({ ...valid, status: "published" }),
 			"x"
 		);
 
-		await deleteForever(db, card.id); // Not in the trash: must survive.
+		// Not in the trash: deleting for good must leave it alone.
+		expect(await didDeleteFromTrash(db, "listing", card.id)).toBe(false);
 		expect(await getListing(db, card.id)).toBeDefined();
 
-		await setDeleted(db, card.id, true, "x");
+		expect(await didMoveToTrash(db, "listing", card.id, "y")).toBe(true);
 		expect(await listForDashboard(db, "scholarship")).toHaveLength(0);
-		expect(await listForDashboard(db, "scholarship", "trash")).toHaveLength(1);
+		expect(await getListing(db, card.id)).toMatchObject({ deletedBy: "y" });
 
-		await setDeleted(db, card.id, false, "x");
+		expect(await didRestoreFromTrash(db, "listing", card.id, "x")).toBe(true);
 		const restored = await getListing(db, card.id);
-		expect(restored).toMatchObject({ deletedAt: null, status: "draft" });
+		expect(restored).toMatchObject({
+			deletedAt: null,
+			deletedBy: null,
+			status: "draft",
+		});
 
-		await setDeleted(db, card.id, true, "x");
-		await deleteForever(db, card.id);
+		await didMoveToTrash(db, "listing", card.id, "x");
+		expect(await didDeleteFromTrash(db, "listing", card.id)).toBe(true);
 		expect(await getListing(db, card.id)).toBeUndefined();
 	});
 
 	it("won't publish a trashed card", async () => {
 		const card = await createListing(db, listingInput.parse(valid), "x");
-		await setDeleted(db, card.id, true, "x");
+		await didMoveToTrash(db, "listing", card.id, "x");
 		expect(
 			await setListingStatus(db, card.id, "published", "x")
 		).toBeUndefined();

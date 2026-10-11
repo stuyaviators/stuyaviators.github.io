@@ -133,12 +133,8 @@ export async function addUser(
 		: { ok: false, error: `${email} is already on the list.` };
 }
 
-const lastAdmin = "There must always be at least one admin.";
-
 /**
-Replaces someone's permission number. A single statement refuses to take the
-last admin's settings or people-managing boxes away, so two admins editing
-each other at once can't leave the club with none.
+Replaces someone's permission number.
 */
 export async function setPermissions(
 	db: Database,
@@ -148,40 +144,22 @@ export async function setPermissions(
 	const updated = await db
 		.update(users)
 		.set({ permissions, role: roleFor(permissions) })
-		.where(
-			sql`${users.id} = ${id} and ((${permissions}::int & ${adminMask}::int) = ${adminMask}::int or (${users.permissions} & ${adminMask}::int) <> ${adminMask}::int or (select count(*) from ${users} where (${users.permissions} & ${adminMask}::int) = ${adminMask}::int) > 1)`
-		)
+		.where(eq(users.id, id))
 		.returning({ id: users.id });
-	if (updated.length > 0) {
-		return { ok: true };
-	}
-
-	const isStillListed = (await findUserById(db, id)) !== undefined;
-	return {
-		ok: false,
-		error: isStillListed ? lastAdmin : "That person is no longer on the list.",
-	};
+	return updated.length > 0
+		? { ok: true }
+		: { ok: false, error: "That person is no longer on the list." };
 }
 
 /**
-Removes someone from the allowlist; never the last admin.
+Removes someone from the allowlist. Removing someone already gone is fine.
 */
 export async function removeUser(
 	db: Database,
 	id: string
 ): Promise<UserResult> {
-	const removed = await db
-		.delete(users)
-		.where(
-			sql`${users.id} = ${id} and ((${users.permissions} & ${adminMask}::int) <> ${adminMask}::int or (select count(*) from ${users} where (${users.permissions} & ${adminMask}::int) = ${adminMask}::int) > 1)`
-		)
-		.returning({ id: users.id });
-	if (removed.length > 0) {
-		return { ok: true };
-	}
-
-	const isStillListed = (await findUserById(db, id)) !== undefined;
-	return isStillListed ? { ok: false, error: lastAdmin } : { ok: true };
+	await db.delete(users).where(eq(users.id, id));
+	return { ok: true };
 }
 
 export async function findUserById(db: Database, id: string) {

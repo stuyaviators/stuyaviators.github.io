@@ -16,8 +16,7 @@ import { z } from "zod";
  * Managing who can sign in and which boxes are ticked for them (the
  * permission number, see permissions.ts). Nobody can give boxes they aren't
  * allowed to give (grantableMask), or edit someone who holds boxes they can't
- * give, so "Manage people" can't be used to climb past what it holds. The
- * database refuses to remove or reduce the last admin (src/lib/users.ts).
+ * give, so "Manage people" can't be used to climb past what it holds.
  */
 
 const idSchema = z.uuid();

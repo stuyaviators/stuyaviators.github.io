@@ -64,6 +64,13 @@
       "when": 1791738945968,
       "tag": "0008_permission_numbers",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791740074076,
+      "tag": "0009_trash",
+      "breakpoints": true
     }
   ]
 }

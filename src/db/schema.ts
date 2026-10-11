@@ -51,6 +51,7 @@ export const listings = pgTable(
 		createdBy: text(),
 		updatedBy: text(),
 		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
 	},
 	(table) => [
 		index("listings_kind_status_idx").on(table.kind, table.status),
@@ -166,6 +167,7 @@ export const newsletters = pgTable(
 		createdBy: text(),
 		updatedBy: text(),
 		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
 	},
 	(table) => [uniqueIndex("newsletters_slug_idx").on(table.slug)]
 );
@@ -179,6 +181,8 @@ export const newsletterPresets = pgTable("newsletter_presets", {
 	data: jsonb().$type<NewsletterData>().notNull(),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	createdBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
 });
 
 /**
@@ -216,6 +220,8 @@ export const crewMembers = pgTable(
 		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 		createdBy: text(),
 		updatedBy: text(),
+		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
 	},
 	(table) => [
 		index("crew_members_group_idx").on(table.groupId, table.sortOrder),
@@ -234,6 +240,8 @@ export const testimonials = pgTable("testimonials", {
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	createdBy: text(),
 	updatedBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
 });
 
 /**
@@ -254,4 +262,6 @@ export const galleryPhotos = pgTable("gallery_photos", {
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	createdBy: text(),
 	updatedBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
 });

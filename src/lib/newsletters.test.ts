@@ -1,13 +1,12 @@
 import type { Database } from "@/db";
 import { defaultNewsletter } from "@/lib/newsletter/defaults";
+import { didDeleteFromTrash, didMoveToTrash, didRestoreFromTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	availableSlug,
 	createNewsletter,
 	createPreset,
-	deleteNewsletterForever,
-	deletePreset,
 	getNewsletter,
 	getPublishedNewsletter,
 	listNewsletters,
@@ -15,7 +14,6 @@ import {
 	listPublishedNewsletters,
 	publishNewsletter,
 	saveNewsletter,
-	setNewsletterDeleted,
 	slugSchema,
 	unpublishNewsletter,
 } from "./newsletters.ts";
@@ -124,7 +122,7 @@ describe("saving drafts", () => {
 
 	it("says so when the newsletter was deleted meanwhile", async () => {
 		const created = await createNewsletter(db, draft(), "a");
-		await setNewsletterDeleted(db, created.id, true, "b");
+		await didMoveToTrash(db, "newsletter", created.id, "b");
 		const result = await saveNewsletter(
 			db,
 			created.id,
@@ -183,7 +181,7 @@ describe("web versions", () => {
 		expect(await getPublishedNewsletter(db, "october")).toBeUndefined();
 
 		await publishNewsletter(db, created.id, "october");
-		await setNewsletterDeleted(db, created.id, true, "a");
+		await didMoveToTrash(db, "newsletter", created.id, "a");
 		expect(await getPublishedNewsletter(db, "october")).toBeUndefined();
 		expect((await getNewsletter(db, created.id))?.status).toBe("draft");
 	});
@@ -201,7 +199,7 @@ describe("web versions", () => {
 		const issues = await listPublishedNewsletters(db);
 		expect(issues.map((issue) => issue.slug)).toEqual(["october", "september"]);
 
-		await setNewsletterDeleted(db, second.id, true, "a");
+		await didMoveToTrash(db, "newsletter", second.id, "a");
 		expect(
 			(await listPublishedNewsletters(db)).map((issue) => issue.slug)
 		).toEqual(["september"]);
@@ -247,19 +245,20 @@ describe("web versions", () => {
 });
 
 describe("trash and presets", () => {
-	it("moves to the trash, restores, and deletes forever only from the trash", async () => {
+	it("moves to the trash, restores, and deletes for good only from the trash", async () => {
 		const created = await createNewsletter(db, draft(), "a");
-		await deleteNewsletterForever(db, created.id);
+		expect(await didDeleteFromTrash(db, "newsletter", created.id)).toBe(false);
 		expect(await getNewsletter(db, created.id)).toBeDefined();
 
-		await setNewsletterDeleted(db, created.id, true, "a");
+		expect(await didMoveToTrash(db, "newsletter", created.id, "a")).toBe(true);
 		expect(await listNewsletters(db)).toHaveLength(0);
-		expect(await listNewsletters(db, "trash")).toHaveLength(1);
-		await setNewsletterDeleted(db, created.id, false, "a");
+		expect(await didRestoreFromTrash(db, "newsletter", created.id, "a")).toBe(
+			true
+		);
 		expect(await listNewsletters(db)).toHaveLength(1);
 
-		await setNewsletterDeleted(db, created.id, true, "a");
-		await deleteNewsletterForever(db, created.id);
+		await didMoveToTrash(db, "newsletter", created.id, "a");
+		expect(await didDeleteFromTrash(db, "newsletter", created.id)).toBe(true);
 		expect(await getNewsletter(db, created.id)).toBeUndefined();
 	});
 
@@ -279,7 +278,7 @@ describe("trash and presets", () => {
 			"Deadline digest",
 			"Monthly update",
 		]);
-		await deletePreset(db, presets[0]!.id);
+		await didMoveToTrash(db, "preset", presets[0]!.id, "a");
 		expect(await listPresets(db)).toHaveLength(1);
 	});
 });

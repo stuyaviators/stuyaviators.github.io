@@ -10,19 +10,17 @@ import {
 	availableSlug,
 	createNewsletter,
 	createPreset,
-	deleteNewsletterForever,
-	deletePreset,
 	getNewsletter,
 	getPreset,
 	newslettersTag,
 	publishNewsletter,
 	saveNewsletter,
-	setNewsletterDeleted,
 	slugSchema,
 	titleSchema,
 	unpublishNewsletter,
 } from "@/lib/newsletters";
 import { canDeleteRow, notYours } from "@/lib/ownership";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -228,7 +226,8 @@ export async function unpublishNewsletterAction(
 }
 
 /**
-Soft delete (also takes the web version down); restorable from the trash.
+Deleting a newsletter hides it and takes its web version down; it waits in the
+admin-only trash.
 */
 export async function trashNewsletter(id: string): Promise<ActionResult> {
 	return guarded("newsletters", async ({ user, db }) => {
@@ -241,36 +240,11 @@ export async function trashNewsletter(id: string): Promise<ActionResult> {
 		}
 
 		const newsletter = await getNewsletter(db, id);
-		await setNewsletterDeleted(db, id, true, user.email);
+		if (!(await didMoveToTrash(db, "newsletter", id, user.email))) {
+			return notFound;
+		}
+
 		refreshWebVersion(newsletter?.slug ?? undefined);
-		return { ok: true };
-	});
-}
-
-export async function restoreNewsletter(id: string): Promise<ActionResult> {
-	return guarded("newsletters", async ({ user, db }) => {
-		if (!idSchema.safeParse(id).success) {
-			return notFound;
-		}
-
-		await setNewsletterDeleted(db, id, false, user.email);
-		return { ok: true };
-	});
-}
-
-export async function deleteNewsletterForeverAction(
-	id: string
-): Promise<ActionResult> {
-	return guarded("newsletters", async ({ user, db }) => {
-		if (!idSchema.safeParse(id).success) {
-			return notFound;
-		}
-
-		if (!(await canDeleteRow(db, user, "newsletter", id))) {
-			return notYours;
-		}
-
-		await deleteNewsletterForever(db, id);
 		return { ok: true };
 	});
 }
@@ -305,7 +279,8 @@ export async function deletePresetAction(id: string): Promise<ActionResult> {
 			return notYours;
 		}
 
-		await deletePreset(db, id);
-		return { ok: true };
+		return (await didMoveToTrash(db, "preset", id, user.email))
+			? { ok: true }
+			: actionError("That preset no longer exists.");
 	});
 }

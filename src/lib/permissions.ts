@@ -14,6 +14,8 @@ export type Permission = {
 	label: string;
 	hint: string;
 	value: number;
+	// Only shown to people who can give it (admins); everyone else never sees it.
+	isSecret?: boolean;
 };
 
 const permissionKeys = [
@@ -27,6 +29,7 @@ const permissionKeys = [
 	"officers",
 	"settings",
 	"deleteOthers",
+	"trash",
 ] as const;
 export type PermissionKey = (typeof permissionKeys)[number];
 
@@ -95,6 +98,13 @@ export const permissionList: readonly Permission[] = [
 		hint: "Without this, you can only delete what you added",
 		value: 512,
 	},
+	{
+		key: "trash",
+		label: "Trash",
+		hint: "Everything anyone deletes waits here for 30 days. Only this can see it, restore from it or delete for good",
+		value: 1024,
+		isSecret: true,
+	},
 ];
 
 export const allPermissions = permissionList.reduce(
@@ -120,18 +130,13 @@ export const areas = permissionKeys.filter(
 	(key): key is Exclude<PermissionKey, "deleteOthers"> => key !== "deleteOthers"
 );
 
-export const roles = [
-	"admin",
-	"officer",
-	"manager",
-	"contributor",
-	"media",
-] as const;
+export const roles = ["admin", "officer", "manager", "contributor"] as const;
 export type RoleName = (typeof roles)[number];
 /*
- * What is stored: a preset's name, or "custom" for any other mix of boxes.
+ * What is stored: a preset's name, "custom" for any other mix of boxes, or
+ * the retired "media" preset (still a value in the database).
  */
-export type StoredRole = RoleName | "custom";
+export type StoredRole = RoleName | "custom" | "media";
 
 /**
 The ready-made sets of boxes.
@@ -143,14 +148,19 @@ export const presets: Record<RoleName, number> = {
 		"newsletters",
 		"gallery",
 		"testimonials",
-		"crew",
 		"announcement",
 		"inbox",
 		"deleteOthers",
 	]),
-	manager: maskOf(["announcement", "inbox", "officers"]),
-	contributor: maskOf(["listings", "newsletters"]),
-	media: maskOf(["gallery", "testimonials", "crew"]),
+	manager: maskOf([
+		"listings",
+		"newsletters",
+		"gallery",
+		"testimonials",
+		"announcement",
+		"inbox",
+	]),
+	contributor: maskOf(["listings", "newsletters", "gallery", "testimonials"]),
 };
 
 const uploadMask = maskOf([
@@ -256,20 +266,18 @@ export const roleLabels: Record<StoredRole, string> = {
 	officer: "Officer",
 	manager: "Manager",
 	contributor: "Contributor",
-	media: "Media",
+	media: "Media (retired)",
 	custom: "Custom",
 };
 
 export const roleDescriptions: Record<RoleName, string> = {
 	admin: "Everything, including settings and who can do what.",
 	officer:
-		"All content: cards, newsletters, gallery, testimonials, Flight Crew, the banner and the inbox. Can delete anything.",
+		"Opportunities, scholarships, newsletters, gallery, testimonials, the banner and the inbox. Not the Flight Crew page. Can delete anything.",
 	manager:
-		"The banner, the inbox, and adding people with the plain content boxes. Deletes only what they added.",
+		"Everything a Contributor does, plus the banner and the inbox. Not the Flight Crew page, and can't manage people. Deletes only what they added.",
 	contributor:
-		"Opportunities, scholarships and newsletters. Deletes only what they added.",
-	media:
-		"Gallery, testimonials and the Flight Crew page. Deletes only what they added.",
+		"Opportunities, scholarships, newsletters, gallery and testimonials. Deletes only what they added.",
 };
 
 /**

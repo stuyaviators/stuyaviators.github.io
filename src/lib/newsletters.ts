@@ -31,18 +31,11 @@ export const slugSchema = z
 	})
 	.max(80);
 
-export async function listNewsletters(
-	db: Database,
-	view: "active" | "trash" = "active"
-): Promise<Newsletter[]> {
+export async function listNewsletters(db: Database): Promise<Newsletter[]> {
 	return db
 		.select()
 		.from(newsletters)
-		.where(
-			view === "trash"
-				? isNotNull(newsletters.deletedAt)
-				: isNull(newsletters.deletedAt)
-		)
+		.where(isNull(newsletters.deletedAt))
 		.orderBy(desc(newsletters.updatedAt));
 }
 
@@ -205,33 +198,6 @@ export async function unpublishNewsletter(db: Database, id: string) {
 		.where(eq(newsletters.id, id));
 }
 
-export async function setNewsletterDeleted(
-	db: Database,
-	id: string,
-	isDeleted: boolean,
-	by: string
-) {
-	await db
-		.update(newsletters)
-		.set({
-			deletedAt: isDeleted ? new Date() : null,
-			// Deleting also takes the web version down.
-			...(isDeleted && { status: "draft" as const }),
-			updatedBy: by,
-			updatedAt: new Date(),
-		})
-		.where(eq(newsletters.id, id));
-}
-
-/**
-Permanent; only for newsletters already in the trash.
-*/
-export async function deleteNewsletterForever(db: Database, id: string) {
-	await db
-		.delete(newsletters)
-		.where(and(eq(newsletters.id, id), isNotNull(newsletters.deletedAt)));
-}
-
 export async function getPublishedNewsletter(
 	db: Database,
 	slug: string
@@ -276,6 +242,7 @@ export async function listPresets(db: Database): Promise<NewsletterPreset[]> {
 	return db
 		.select()
 		.from(newsletterPresets)
+		.where(isNull(newsletterPresets.deletedAt))
 		.orderBy(asc(newsletterPresets.name));
 }
 
@@ -286,7 +253,9 @@ export async function getPreset(
 	const presetRows = await db
 		.select()
 		.from(newsletterPresets)
-		.where(eq(newsletterPresets.id, id))
+		.where(
+			and(eq(newsletterPresets.id, id), isNull(newsletterPresets.deletedAt))
+		)
 		.limit(1);
 	const preset = presetRows.at(0);
 	return preset;
@@ -298,8 +267,4 @@ export async function createPreset(
 	by: string
 ) {
 	await db.insert(newsletterPresets).values({ ...input, createdBy: by });
-}
-
-export async function deletePreset(db: Database, id: string) {
-	await db.delete(newsletterPresets).where(eq(newsletterPresets.id, id));
 }

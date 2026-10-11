@@ -12,6 +12,7 @@ import {
 	Plane,
 	Quote,
 	Settings,
+	Trash2,
 	Users,
 	UsersRound,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const icons = {
 	newsletter: Newspaper,
 	officers: Users,
 	settings: Settings,
+	trash: Trash2,
 } as const;
 
 export type NavItem = {

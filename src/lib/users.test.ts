@@ -89,7 +89,7 @@ describe("authorizeSignIn", () => {
 	});
 });
 
-describe("roles and the last-admin guard", () => {
+describe("permissions", () => {
 	async function twoPeople() {
 		await addUser(
 			db,
@@ -125,44 +125,15 @@ describe("roles and the last-admin guard", () => {
 		});
 	});
 
-	it("can't demote the last admin", async () => {
-		const { boss } = await twoPeople();
-		expect(await setPermissions(db, boss.id, presets.officer)).toEqual({
-			ok: false,
-			error: "There must always be at least one admin.",
-		});
-		expect((await findUser(db, boss.email))?.role).toBe("admin");
-	});
-
-	it("can't remove the last admin", async () => {
-		const { boss } = await twoPeople();
-		const result = await removeUser(db, boss.id);
-		expect(result.ok).toBe(false);
-		expect(await findUser(db, boss.email)).toBeDefined();
-	});
-
-	it("allows demoting an admin when another remains", async () => {
-		const { boss, helper } = await twoPeople();
+	it("changes someone's boxes, and the matching role follows", async () => {
+		const { helper } = await twoPeople();
 		expect(await setPermissions(db, helper.id, presets.admin)).toEqual({
 			ok: true,
 		});
-		expect(await setPermissions(db, boss.id, presets.officer)).toEqual({
-			ok: true,
-		});
-		expect((await findUser(db, boss.email))?.role).toBe("officer");
-	});
-
-	it("two admins demoting each other at once leaves one", async () => {
-		const { boss, helper } = await twoPeople();
-		await setPermissions(db, helper.id, presets.admin);
-		await Promise.all([
-			setPermissions(db, boss.id, presets.officer),
-			setPermissions(db, helper.id, presets.officer),
-		]);
-		const remaining = (await db.select().from(users)).filter(
-			(user) => user.role === "admin"
-		);
-		expect(remaining.length).toBeGreaterThanOrEqual(1);
+		expect((await findUser(db, helper.email))?.role).toBe("admin");
+		expect(await setPermissions(db, helper.id, 5)).toEqual({ ok: true });
+		const custom = await findUser(db, helper.email);
+		expect(custom).toMatchObject({ role: "custom", permissions: 5 });
 	});
 
 	it("removes officers, and removing someone already gone is fine", async () => {

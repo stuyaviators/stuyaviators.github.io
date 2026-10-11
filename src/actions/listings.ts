@@ -5,15 +5,14 @@ import { actionError, guarded, invalid } from "@/lib/action-guard";
 import { listingsTag } from "@/lib/listings";
 import {
 	createListing,
-	deleteForever,
 	getListing,
 	listingInput,
 	moveListing,
-	setDeleted,
 	setListingStatus,
 	updateListing,
 } from "@/lib/listings-admin";
 import { canDeleteRow, notYours } from "@/lib/ownership";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -117,7 +116,7 @@ export async function moveListingAction(
 }
 
 /**
-Soft delete: the card moves to the trash and can be restored.
+Deleting a card hides it everywhere (it waits in the admin-only trash).
 */
 export async function trashListing(id: string): Promise<ActionResult> {
 	return guarded("listings", async ({ user, db }) => {
@@ -129,38 +128,11 @@ export async function trashListing(id: string): Promise<ActionResult> {
 			return notYours;
 		}
 
-		await setDeleted(db, id, true, user.email);
-		refreshPublicPages();
-		return { ok: true };
-	});
-}
-
-export async function restoreListing(id: string): Promise<ActionResult> {
-	return guarded("listings", async ({ user, db }) => {
-		if (!idSchema.safeParse(id).success) {
+		if (!(await didMoveToTrash(db, "listing", id, user.email))) {
 			return notFound;
 		}
 
-		await setDeleted(db, id, false, user.email);
 		refreshPublicPages();
-		return { ok: true };
-	});
-}
-
-/**
-Permanent; only for cards already in the trash.
-*/
-export async function deleteListingForever(id: string): Promise<ActionResult> {
-	return guarded("listings", async ({ user, db }) => {
-		if (!idSchema.safeParse(id).success) {
-			return notFound;
-		}
-
-		if (!(await canDeleteRow(db, user, "listing", id))) {
-			return notYours;
-		}
-
-		await deleteForever(db, id);
 		return { ok: true };
 	});
 }

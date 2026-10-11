@@ -1,6 +1,7 @@
 import type { Database } from "@/db";
 import { crewGroups } from "@/content/crew";
 import { crewGroupOptions } from "@/lib/crew-groups";
+import { didMoveToTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -12,7 +13,6 @@ vi.mock("next/cache", () => ({
 const {
 	addCrewMember,
 	crewMemberSchema,
-	deleteCrewMember,
 	getPublicCrew,
 	importStaticCrew,
 	listCrewRows,
@@ -102,8 +102,12 @@ describe("managing people", () => {
 			"a@b.co"
 		);
 		expect(updated).toMatchObject({ name: "Renamed", classOf: null });
-		expect(await deleteCrewMember(db, second?.id ?? "")).toBe(1);
-		expect(await deleteCrewMember(db, second?.id ?? "")).toBe(0);
+		expect(await didMoveToTrash(db, "crew", second?.id ?? "", "a@b.co")).toBe(
+			true
+		);
+		expect(await didMoveToTrash(db, "crew", second?.id ?? "", "a@b.co")).toBe(
+			false
+		);
 		expect(await listCrewRows(db)).toHaveLength(1);
 	});
 

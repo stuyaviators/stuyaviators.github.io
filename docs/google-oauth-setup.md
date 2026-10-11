@@ -105,9 +105,9 @@ afterwards. Nothing here is set automatically.
 - `ADMIN_EMAILS` (comma separated) is only used to create the **first** admin: the first time
   one of those accounts signs in while the officer list has **no admins at all**. After that,
   the database is the only source of truth.
-- Admins manage everyone else on **Dashboard → Officers**: add an email with the role
-  `officer` (edits content) or `admin` (also manages officers and settings). The last admin
-  can't be removed or demoted.
+- Admins manage everyone else on **Dashboard → Officers**: add an email and tick what they can
+  do (or pick a role to tick a ready-made set). Each person gets a permission number: one value
+  per ticked box, added together. Roles: Admin (everything), Officer, Manager, Contributor.
 - Removing someone takes effect on their very next click, even if they're still signed in.
 - The email must match the Google account's **verified** primary email.
 

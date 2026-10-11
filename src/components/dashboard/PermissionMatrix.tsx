@@ -13,11 +13,26 @@ import { Check, X } from "lucide-react";
 The roles side by side: a tick or a cross for every box, and the permission
 number each role adds up to.
 */
-export default function PermissionMatrix() {
+export default function PermissionMatrix({
+	showSecret = false,
+}: {
+	// Show the boxes that only admins can see (the Trash).
+	readonly showSecret?: boolean;
+}) {
+	const shown = permissionList.filter(
+		(permission) => showSecret || permission.isSecret !== true
+	);
 	return (
 		<div className="overflow-x-auto">
-			<table className="w-full min-w-[34rem] border-collapse text-sm">
+			<table className="w-full min-w-[34rem] table-fixed border-collapse text-sm">
 				<caption className="sr-only">What each role can do</caption>
+				{/* The first column takes what's left; every role gets the same width. */}
+				<colgroup>
+					<col />
+					{roles.map((role) => (
+						<col key={role} className="w-24 sm:w-28" />
+					))}
+				</colgroup>
 				<thead>
 					<tr className="border-b border-hairline text-left">
 						<th scope="col" className="py-2 pr-3 font-semibold">
@@ -36,7 +51,7 @@ export default function PermissionMatrix() {
 					</tr>
 				</thead>
 				<tbody>
-					{permissionList.map((permission) => (
+					{shown.map((permission) => (
 						<tr key={permission.key} className="border-b border-hairline">
 							<th scope="row" className="py-2 pr-3 text-left font-normal">
 								{permission.label}

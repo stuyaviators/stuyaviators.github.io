@@ -17,7 +17,7 @@ export default async function OfficersPage() {
 		<>
 			<PageHeader
 				title="Officers"
-				description="Who can sign in to this dashboard, and what each person can do. There is always at least one admin."
+				description="Who can sign in to this dashboard, and what each person can do."
 			/>
 			{db ? (
 				<OfficersManager

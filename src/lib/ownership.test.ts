@@ -34,10 +34,10 @@ async function addQuote(createdBy: string | undefined) {
 
 describe("who added what", () => {
 	it("reads the recorded creator, and knows when a row is gone", async () => {
-		const id = await addQuote("media@stuy.edu");
+		const id = await addQuote("contrib@stuy.edu");
 		expect(await ownerOf(db, "testimonial", id)).toEqual({
 			found: true,
-			owner: "media@stuy.edu",
+			owner: "contrib@stuy.edu",
 		});
 		expect(await ownerOf(db, "testimonial", crypto.randomUUID())).toEqual({
 			found: false,
@@ -46,10 +46,10 @@ describe("who added what", () => {
 	});
 
 	it("lets a media account delete its own work but not other people's", async () => {
-		const mine = await addQuote("media@stuy.edu");
+		const mine = await addQuote("contrib@stuy.edu");
 		const theirs = await addQuote("someone@stuy.edu");
 		const unknown = await addQuote(undefined);
-		const media = person("media@stuy.edu", "media");
+		const media = person("contrib@stuy.edu", "contributor");
 		expect(await canDeleteRow(db, media, "testimonial", mine)).toBe(true);
 		expect(await canDeleteRow(db, media, "testimonial", theirs)).toBe(false);
 		expect(await canDeleteRow(db, media, "testimonial", unknown)).toBe(false);
@@ -70,7 +70,7 @@ describe("who added what", () => {
 	});
 
 	it("treats a missing row as deletable so the action can say it's gone", async () => {
-		const media = person("media@stuy.edu", "media");
+		const media = person("contrib@stuy.edu", "contributor");
 		expect(await canDeleteRow(db, media, "gallery", crypto.randomUUID())).toBe(
 			true
 		);
@@ -79,14 +79,24 @@ describe("who added what", () => {
 	it("works for the gallery too", async () => {
 		const rows = await db
 			.insert(galleryPhotos)
-			.values({ alt: "A plane", createdBy: "media@stuy.edu" })
+			.values({ alt: "A plane", createdBy: "contrib@stuy.edu" })
 			.returning({ id: galleryPhotos.id });
 		const id = rows[0]?.id ?? "";
 		expect(
-			await canDeleteRow(db, person("media@stuy.edu", "media"), "gallery", id)
+			await canDeleteRow(
+				db,
+				person("contrib@stuy.edu", "contributor"),
+				"gallery",
+				id
+			)
 		).toBe(true);
 		expect(
-			await canDeleteRow(db, person("other@stuy.edu", "media"), "gallery", id)
+			await canDeleteRow(
+				db,
+				person("other@stuy.edu", "contributor"),
+				"gallery",
+				id
+			)
 		).toBe(false);
 	});
 });
@@ -95,7 +105,7 @@ describe("names", () => {
 	it("maps emails to display names, falling back to the email", async () => {
 		await db.insert(users).values([
 			{ email: "a@stuy.edu", name: "Alex", role: "officer" },
-			{ email: "b@stuy.edu", role: "media" },
+			{ email: "b@stuy.edu", role: "contributor" },
 		]);
 		expect(await namesByEmail(db)).toEqual({
 			"a@stuy.edu": "Alex",

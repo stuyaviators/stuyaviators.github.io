@@ -26,7 +26,9 @@ describe("the permission number", () => {
 
 	it("adds up the ticked boxes", () => {
 		expect(maskOf(["listings", "newsletters"])).toBe(3);
-		expect(maskOf(["gallery", "testimonials", "crew"])).toBe(28);
+		expect(maskOf(["listings", "newsletters", "gallery", "testimonials"])).toBe(
+			15
+		);
 		expect(maskOf([])).toBe(0);
 	});
 
@@ -53,13 +55,13 @@ describe("the permission number", () => {
 });
 
 describe("the ready-made roles", () => {
-	it("match the numbers saved in the database migration", () => {
+	it("are Admin, Officer, Manager and Contributor", () => {
+		expect(roles).toEqual(["admin", "officer", "manager", "contributor"]);
 		expect(presets).toEqual({
-			admin: 1023,
-			officer: 639,
-			manager: 224,
-			contributor: 3,
-			media: 28,
+			admin: 2047,
+			officer: 623,
+			manager: 111,
+			contributor: 15,
 		});
 	});
 
@@ -68,60 +70,62 @@ describe("the ready-made roles", () => {
 			expect(roleFor(presets[role])).toBe(role);
 		}
 
-		expect(roleFor(maskOf(["listings", "gallery"]))).toBe("custom");
+		expect(roleFor(maskOf(["listings", "crew"]))).toBe("custom");
 		expect(roleFor(0)).toBe("custom");
 	});
 
-	it("only admins reach settings", () => {
+	it("only admins reach settings or manage people", () => {
 		expect(
 			roles.filter((role) => canAccess(presets[role], "settings"))
 		).toEqual(["admin"]);
+		expect(
+			roles.filter((role) => canAccess(presets[role], "officers"))
+		).toEqual(["admin"]);
 	});
 
-	it("officers edit all content, delete anything, but not people or settings", () => {
-		for (const area of [
+	it("contributors do cards, newsletters, gallery and testimonials", () => {
+		expect(
+			areas.filter((area) => canAccess(presets.contributor, area))
+		).toEqual(["listings", "newsletters", "gallery", "testimonials"]);
+	});
+
+	it("officers are contributors plus the banner and inbox, but not the Flight Crew", () => {
+		expect(areas.filter((area) => canAccess(presets.officer, area))).toEqual([
 			"listings",
 			"newsletters",
 			"gallery",
 			"testimonials",
-			"crew",
 			"announcement",
 			"inbox",
-		] as const) {
-			expect(canAccess(presets.officer, area)).toBe(true);
-		}
-
-		expect(canAccess(presets.officer, "officers")).toBe(false);
-		expect(canAccess(presets.officer, "settings")).toBe(false);
+		]);
+		expect(canAccess(presets.officer, "crew")).toBe(false);
 		expect(hasPermission(presets.officer, "deleteOthers")).toBe(true);
 	});
 
-	it("contributors do cards and newsletters only", () => {
-		expect(
-			areas.filter((area) => canAccess(presets.contributor, area))
-		).toEqual(["listings", "newsletters"]);
-	});
-
-	it("media do gallery, testimonials and the crew only", () => {
-		expect(areas.filter((area) => canAccess(presets.media, area))).toEqual([
+	it("managers are contributors plus the banner and inbox: no Flight Crew, no people", () => {
+		expect(areas.filter((area) => canAccess(presets.manager, area))).toEqual([
+			"listings",
+			"newsletters",
 			"gallery",
 			"testimonials",
-			"crew",
-		]);
-	});
-
-	it("managers do the banner, inbox and people only", () => {
-		expect(areas.filter((area) => canAccess(presets.manager, area))).toEqual([
 			"announcement",
 			"inbox",
-			"officers",
+		]);
+		expect(canAccess(presets.manager, "crew")).toBe(false);
+		expect(hasPermission(presets.manager, "deleteOthers")).toBe(false);
+		// The same as an officer, minus deleting other people's items.
+		expect(presets.manager).toBe(presets.officer - 512);
+	});
+
+	it("only admins reach the Flight Crew page", () => {
+		expect(roles.filter((role) => canAccess(presets[role], "crew"))).toEqual([
+			"admin",
 		]);
 	});
 
 	it("uploads need a box with pictures; anyone signed in passes 'any'", () => {
 		expect(canAccess(presets.contributor, "upload")).toBe(true);
-		expect(canAccess(presets.media, "upload")).toBe(true);
-		expect(canAccess(presets.manager, "upload")).toBe(false);
+		expect(canAccess(maskOf(["inbox", "announcement"]), "upload")).toBe(false);
 		expect(canAccess(0, "any")).toBe(true);
 	});
 });
@@ -138,7 +142,7 @@ describe("deleting", () => {
 	});
 
 	it("is only your own work without it", () => {
-		for (const role of ["contributor", "media", "manager"] as const) {
+		for (const role of ["contributor", "manager"] as const) {
 			const user = { permissions: presets[role], email };
 			expect(canDelete(user, email)).toBe(true);
 			expect(canDelete(user, email.toUpperCase())).toBe(true);
@@ -162,21 +166,20 @@ describe("giving boxes to other people", () => {
 		expect(grantableMask(presets.admin)).toBe(allPermissions);
 	});
 
-	it("a manager can only give the plain content boxes, so it can't climb", () => {
-		const given = grantableMask(presets.manager);
+	it("no ready-made role but Admin can give anything", () => {
+		for (const role of ["officer", "manager", "contributor"] as const) {
+			expect(grantableMask(presets[role])).toBe(0);
+		}
+	});
+
+	it("a custom 'Manage people' without settings can only give the plain content boxes", () => {
+		const given = grantableMask(maskOf(["officers", "gallery"]));
 		expect(given).toBe(
 			maskOf(["listings", "newsletters", "gallery", "testimonials", "crew"])
 		);
 		expect(isWithin(presets.contributor, given)).toBe(true);
-		expect(isWithin(presets.media, given)).toBe(true);
 		for (const role of ["officer", "manager", "admin"] as const) {
 			expect(isWithin(presets[role], given)).toBe(false);
-		}
-	});
-
-	it("without 'Manage people' you can give nothing", () => {
-		for (const role of ["officer", "contributor", "media"] as const) {
-			expect(grantableMask(presets[role])).toBe(0);
 		}
 	});
 

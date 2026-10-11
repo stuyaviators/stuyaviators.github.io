@@ -3,7 +3,7 @@ import { home } from "@/content/home";
 import { getDb } from "@/db";
 import { testimonials } from "@/db/schema";
 import { moveId } from "@/lib/reorder";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq, isNull, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
 
@@ -28,6 +28,7 @@ export async function listTestimonials(db: Database): Promise<Testimonial[]> {
 	return db
 		.select()
 		.from(testimonials)
+		.where(isNull(testimonials.deletedAt))
 		.orderBy(asc(testimonials.sortOrder), asc(testimonials.createdAt));
 }
 
@@ -64,14 +65,6 @@ export async function updateTestimonial(
 		.where(eq(testimonials.id, id))
 		.returning();
 	return rows.at(0);
-}
-
-export async function deleteTestimonial(db: Database, id: string) {
-	const rows = await db
-		.delete(testimonials)
-		.where(eq(testimonials.id, id))
-		.returning({ id: testimonials.id });
-	return rows.length;
 }
 
 /**

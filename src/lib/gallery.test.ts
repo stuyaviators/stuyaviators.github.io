@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
 import { galleryPhotos, photos, spotlightPhotos } from "@/content/photos";
+import { didMoveToTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -10,7 +11,6 @@ vi.mock("next/cache", () => ({
 
 const {
 	addGalleryPhoto,
-	deleteGalleryPhoto,
 	getPublicGallery,
 	importStaticGallery,
 	listGalleryRows,
@@ -87,8 +87,8 @@ describe("gallery", () => {
 		expect((await updateGalleryAlt(db, a?.id ?? "", "Renamed", "x"))?.alt).toBe(
 			"Renamed"
 		);
-		expect(await deleteGalleryPhoto(db, a?.id ?? "")).toBe(1);
-		expect(await deleteGalleryPhoto(db, a?.id ?? "")).toBe(0);
+		expect(await didMoveToTrash(db, "gallery", a?.id ?? "", "x")).toBe(true);
+		expect(await didMoveToTrash(db, "gallery", a?.id ?? "", "x")).toBe(false);
 		expect(await alts()).toEqual(["B"]);
 	});
 

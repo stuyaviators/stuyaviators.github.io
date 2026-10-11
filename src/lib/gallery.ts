@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { galleryPhotos as galleryTable } from "@/db/schema";
 import { optionalBlobUrl } from "@/lib/blob-url";
 import { moveId } from "@/lib/reorder";
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
 
@@ -48,7 +48,7 @@ export async function getGalleryRow(
 	const rows = await db
 		.select()
 		.from(galleryTable)
-		.where(eq(galleryTable.id, id))
+		.where(and(eq(galleryTable.id, id), isNull(galleryTable.deletedAt)))
 		.limit(1);
 	return rows.at(0);
 }
@@ -57,6 +57,7 @@ export async function listGalleryRows(db: Database): Promise<GalleryRow[]> {
 	return db
 		.select()
 		.from(galleryTable)
+		.where(isNull(galleryTable.deletedAt))
 		.orderBy(asc(galleryTable.sortOrder), asc(galleryTable.createdAt));
 }
 
@@ -103,14 +104,6 @@ export async function updateGalleryAlt(
 		.where(eq(galleryTable.id, id))
 		.returning();
 	return rows.at(0);
-}
-
-export async function deleteGalleryPhoto(db: Database, id: string) {
-	const rows = await db
-		.delete(galleryTable)
-		.where(eq(galleryTable.id, id))
-		.returning({ id: galleryTable.id });
-	return rows.length;
 }
 
 export async function moveGalleryPhoto(

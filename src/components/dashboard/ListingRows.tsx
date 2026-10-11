@@ -2,10 +2,8 @@
 
 import type { Listing } from "@/lib/listings";
 import {
-	deleteListingForever,
 	moveListingAction,
 	publishListing,
-	restoreListing,
 	trashListing,
 } from "@/actions/listings";
 import Confirm from "@/components/dashboard/Confirm";
@@ -28,26 +26,22 @@ import {
 	Eye,
 	EyeOff,
 	Pencil,
-	RotateCcw,
 	Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-type Pending = { id: string; title: string; mode: "trash" | "forever" };
+type Pending = { id: string; title: string };
 
 export default function ListingRows({
 	listings,
 	slug,
-	view,
 }: {
 	readonly listings: Listing[];
 	readonly slug: string;
-	readonly view: "active" | "trash";
 }) {
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [pending, setPending] = useState<Pending>();
-	const isTrash = view === "trash";
 	const { canDeleteItem } = useViewer();
 
 	return (
@@ -99,143 +93,98 @@ export default function ListingRows({
 									</p>
 								</div>
 								<div className="flex flex-wrap items-center gap-1.5">
-									{isTrash ? (
-										<>
-											<Button
-												variant="secondary"
-												disabled={isPending}
-												onClick={() => {
-													markLeaving(listing.id);
-													run(
-														async () => restoreListing(listing.id),
-														undefined,
-														`Restored “${listing.title}”`
-													);
-												}}
-											>
-												<RotateCcw aria-hidden className="size-4" /> Restore
-											</Button>
-											<Button
-												variant="ghost"
-												className="text-danger"
-												title={
-													canDeleteItem(listing.createdBy ?? undefined)
-														? undefined
-														: blockedDeleteHint
-												}
-												disabled={
-													isPending ||
-													!canDeleteItem(listing.createdBy ?? undefined)
-												}
-												onClick={() => {
-													setPending({
-														id: listing.id,
-														title: listing.title,
-														mode: "forever",
-													});
-												}}
-											>
-												<Trash2 aria-hidden className="size-4" /> Delete forever
-											</Button>
-										</>
-									) : (
-										<>
-											{listing.status === "published" &&
-											listingPath(listing) !== undefined ? (
-												<Link
-													href={listingPath(listing) ?? "/"}
-													target="_blank"
-													className={buttonClasses("ghost")}
-												>
-													<ExternalLink aria-hidden className="size-4" /> View
-													page
-												</Link>
-											) : null}
-											<Button
-												variant="ghost"
-												aria-label={`Move ${listing.title} up`}
-												disabled={isPending || index === 0}
-												onClick={() => {
-													run(
-														async () => moveListingAction(listing.id, "up"),
-														undefined,
-														"Moved up"
-													);
-												}}
-											>
-												<ArrowUp aria-hidden className="size-4" />
-											</Button>
-											<Button
-												variant="ghost"
-												aria-label={`Move ${listing.title} down`}
-												disabled={isPending || index === listings.length - 1}
-												onClick={() => {
-													run(
-														async () => moveListingAction(listing.id, "down"),
-														undefined,
-														"Moved down"
-													);
-												}}
-											>
-												<ArrowDown aria-hidden className="size-4" />
-											</Button>
-											<Button
-												variant="secondary"
-												disabled={isPending}
-												onClick={() => {
-													run(
-														async () =>
-															publishListing(
-																listing.id,
-																listing.status !== "published"
-															),
-														undefined,
-														listing.status === "published"
-															? `Unpublished “${listing.title}”`
-															: `Published “${listing.title}”`
-													);
-												}}
-											>
-												{listing.status === "published" ? (
-													<>
-														<EyeOff aria-hidden className="size-4" /> Unpublish
-													</>
-												) : (
-													<>
-														<Eye aria-hidden className="size-4" /> Publish
-													</>
-												)}
-											</Button>
+									<>
+										{listing.status === "published" &&
+										listingPath(listing) !== undefined ? (
 											<Link
-												href={`/dashboard/${slug}/${listing.id}`}
-												className={buttonClasses("secondary")}
+												href={listingPath(listing) ?? "/"}
+												target="_blank"
+												className={buttonClasses("ghost")}
 											>
-												<Pencil aria-hidden className="size-4" /> Edit
+												<ExternalLink aria-hidden className="size-4" /> View
+												page
 											</Link>
-											<Button
-												variant="ghost"
-												aria-label={`Move ${listing.title} to trash`}
-												title={
-													canDeleteItem(listing.createdBy ?? undefined)
-														? undefined
-														: blockedDeleteHint
-												}
-												disabled={
-													isPending ||
-													!canDeleteItem(listing.createdBy ?? undefined)
-												}
-												onClick={() => {
-													setPending({
-														id: listing.id,
-														title: listing.title,
-														mode: "trash",
-													});
-												}}
-											>
-												<Trash2 aria-hidden className="size-4" />
-											</Button>
-										</>
-									)}
+										) : null}
+										<Button
+											variant="ghost"
+											aria-label={`Move ${listing.title} up`}
+											disabled={isPending || index === 0}
+											onClick={() => {
+												run(
+													async () => moveListingAction(listing.id, "up"),
+													undefined,
+													"Moved up"
+												);
+											}}
+										>
+											<ArrowUp aria-hidden className="size-4" />
+										</Button>
+										<Button
+											variant="ghost"
+											aria-label={`Move ${listing.title} down`}
+											disabled={isPending || index === listings.length - 1}
+											onClick={() => {
+												run(
+													async () => moveListingAction(listing.id, "down"),
+													undefined,
+													"Moved down"
+												);
+											}}
+										>
+											<ArrowDown aria-hidden className="size-4" />
+										</Button>
+										<Button
+											variant="secondary"
+											disabled={isPending}
+											onClick={() => {
+												run(
+													async () =>
+														publishListing(
+															listing.id,
+															listing.status !== "published"
+														),
+													undefined,
+													listing.status === "published"
+														? `Unpublished “${listing.title}”`
+														: `Published “${listing.title}”`
+												);
+											}}
+										>
+											{listing.status === "published" ? (
+												<>
+													<EyeOff aria-hidden className="size-4" /> Unpublish
+												</>
+											) : (
+												<>
+													<Eye aria-hidden className="size-4" /> Publish
+												</>
+											)}
+										</Button>
+										<Link
+											href={`/dashboard/${slug}/${listing.id}`}
+											className={buttonClasses("secondary")}
+										>
+											<Pencil aria-hidden className="size-4" /> Edit
+										</Link>
+										<Button
+											variant="ghost"
+											aria-label={`Delete ${listing.title}`}
+											title={
+												canDeleteItem(listing.createdBy ?? undefined)
+													? undefined
+													: blockedDeleteHint
+											}
+											disabled={
+												isPending ||
+												!canDeleteItem(listing.createdBy ?? undefined)
+											}
+											onClick={() => {
+												setPending({ id: listing.id, title: listing.title });
+											}}
+										>
+											<Trash2 aria-hidden className="size-4" />
+										</Button>
+									</>
 								</div>
 							</div>
 						</li>
@@ -245,17 +194,9 @@ export default function ListingRows({
 
 			<Confirm
 				isOpen={pending !== undefined}
-				title={
-					pending?.mode === "forever" ? "Delete forever?" : "Move to trash?"
-				}
-				description={
-					pending?.mode === "forever"
-						? `“${pending.title}” will be gone for good. This can’t be undone.`
-						: `“${pending?.title ?? ""}” will disappear from the public page. You can restore it from the trash.`
-				}
-				confirmLabel={
-					pending?.mode === "forever" ? "Delete forever" : "Move to trash"
-				}
+				title="Delete this card?"
+				description={`“${pending?.title ?? ""}” will disappear from the public page.`}
+				confirmLabel="Delete"
 				onCancel={() => {
 					setPending(undefined);
 				}}
@@ -264,17 +205,10 @@ export default function ListingRows({
 						return;
 					}
 
-					const { id, mode, title } = pending;
+					const { id, title } = pending;
 					setPending(undefined);
 					markLeaving(id);
-					run(
-						async () =>
-							mode === "forever" ? deleteListingForever(id) : trashListing(id),
-						undefined,
-						mode === "forever"
-							? `Deleted “${title}” forever`
-							: `Moved “${title}” to the trash`
-					);
+					run(async () => trashListing(id), undefined, `Deleted “${title}”`);
 				}}
 			/>
 		</>

@@ -31,6 +31,7 @@ function card(overrides: Partial<Listing> = {}): Listing {
 		createdBy: null,
 		updatedBy: null,
 		deletedAt: null,
+		deletedBy: null,
 		...overrides,
 	};
 }

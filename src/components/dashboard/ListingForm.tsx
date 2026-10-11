@@ -111,6 +111,7 @@ function previewListing(kind: ListingKind, values: Values): Listing {
 		createdBy: null,
 		updatedBy: null,
 		deletedAt: null,
+		deletedBy: null,
 	};
 }
 

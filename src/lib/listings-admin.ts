@@ -103,24 +103,13 @@ function columns(values: ListingValues) {
 
 export async function listForDashboard(
 	db: Database,
-	kind: ListingKind,
-	view: "active" | "trash" = "active"
+	kind: ListingKind
 ): Promise<Listing[]> {
 	return db
 		.select()
 		.from(listings)
-		.where(
-			and(
-				eq(listings.kind, kind),
-				view === "trash"
-					? isNotNull(listings.deletedAt)
-					: isNull(listings.deletedAt)
-			)
-		)
-		.orderBy(
-			view === "trash" ? desc(listings.deletedAt) : asc(listings.sortOrder),
-			asc(listings.createdAt)
-		);
+		.where(and(eq(listings.kind, kind), isNull(listings.deletedAt)))
+		.orderBy(asc(listings.sortOrder), asc(listings.createdAt));
 }
 
 export async function getListing(
@@ -204,24 +193,6 @@ export async function updateListing(
 	return updated;
 }
 
-export async function setDeleted(
-	db: Database,
-	id: string,
-	isDeleted: boolean,
-	by: string
-) {
-	await db
-		.update(listings)
-		.set({
-			deletedAt: isDeleted ? new Date() : null,
-			// Restored cards come back as drafts so nothing reappears by surprise.
-			...(!isDeleted && { status: "draft" as const }),
-			updatedBy: by,
-			updatedAt: new Date(),
-		})
-		.where(eq(listings.id, id));
-}
-
 export async function setListingStatus(
 	db: Database,
 	id: string,
@@ -235,12 +206,6 @@ export async function setListingStatus(
 		.returning();
 	const updated = updatedRows.at(0);
 	return updated;
-}
-
-export async function deleteForever(db: Database, id: string) {
-	await db
-		.delete(listings)
-		.where(and(eq(listings.id, id), isNotNull(listings.deletedAt)));
 }
 
 /**

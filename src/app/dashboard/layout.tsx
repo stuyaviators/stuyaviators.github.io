@@ -17,6 +17,7 @@ import { isOpenSignIn } from "@/lib/open-signin";
 import { namesByEmail } from "@/lib/ownership";
 import { roleLabels } from "@/lib/permissions";
 import { hasAccess, requirePageUser } from "@/lib/session";
+import { purgeTrashIfDue } from "@/lib/trash";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,10 +66,12 @@ const navAccess: Record<NavItem["icon"], Access> = {
 	newsletter: "newsletters",
 	officers: "officers",
 	settings: "settings",
+	trash: "trash",
 };
 const adminItems: NavItem[] = [
 	{ href: "/dashboard/officers", label: "Officers", icon: "officers" },
 	{ href: "/dashboard/settings", label: "Settings", icon: "settings" },
+	{ href: "/dashboard/trash", label: "Trash", icon: "trash" },
 ];
 
 export default async function DashboardLayout({
@@ -81,6 +84,10 @@ export default async function DashboardLayout({
 	const db = getDb();
 	const newMessages =
 		db && hasAccess(user, "inbox") ? await countNewSubmissions(db) : 0;
+	if (db) {
+		await purgeTrashIfDue(db);
+	}
+
 	const names = db ? await namesByEmail(db) : {};
 	const viewer = { email: user.email, permissions: user.permissions };
 	// Only the screens this role can use.

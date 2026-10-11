@@ -39,6 +39,11 @@ export default function PermissionPicker({
 		(permission) => (value & permission.value) !== 0
 	);
 	const offered = roles.filter((role) => isWithin(presets[role], grantable));
+	// Secret boxes are only shown to people who can give them.
+	const boxes = permissionList.filter(
+		(permission) =>
+			permission.isSecret !== true || (grantable & permission.value) !== 0
+	);
 
 	function tick(amount: number, isOn: boolean) {
 		setTyped(undefined);
@@ -91,7 +96,7 @@ export default function PermissionPicker({
 			<fieldset disabled={isDisabled} className="space-y-3">
 				<legend className="text-sm font-semibold">Can do</legend>
 				<div className="grid gap-3 sm:grid-cols-2">
-					{permissionList.map((permission) => (
+					{boxes.map((permission) => (
 						<CheckboxField
 							key={permission.key}
 							label={`${permission.label} (+${permission.value})`}

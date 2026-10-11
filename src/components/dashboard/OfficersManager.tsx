@@ -16,7 +16,12 @@ import { useAction } from "@/components/dashboard/use-action";
 import { TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { isWithin, presets, roleLabels } from "@/lib/permissions";
+import {
+	hasPermission,
+	isWithin,
+	presets,
+	roleLabels,
+} from "@/lib/permissions";
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -259,7 +264,7 @@ export default function OfficersManager({
 					too.
 				</p>
 				<div className="mt-4">
-					<PermissionMatrix />
+					<PermissionMatrix showSecret={hasPermission(grantable, "trash")} />
 				</div>
 				<p className="mt-4 text-sm text-muted">
 					Without “Delete other people’s items”, someone can edit anything their

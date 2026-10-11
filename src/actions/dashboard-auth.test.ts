@@ -48,6 +48,7 @@ const galleryActions = await import("./gallery.ts");
 const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
+const trashActions = await import("./trash.ts");
 const uploadRoute = await import("@/app/api/upload/route");
 const renderRoute = await import("@/app/api/newsletter/render/route");
 const { defaultNewsletter } = await import("@/lib/newsletter/defaults");
@@ -116,7 +117,10 @@ async function count(
 	return (await testDb!.select().from(table)).length;
 }
 
-async function addUserRow(email: string, role: "admin" | "officer") {
+async function addUserRow(
+	email: string,
+	role: "admin" | "officer" | "manager"
+) {
 	const [row] = await testDb!
 		.insert(users)
 		.values({ email, role, permissions: presets[role] })
@@ -146,8 +150,6 @@ describe("signed out", () => {
 			notSignedIn
 		);
 		expect(await listingActions.trashListing(id)).toEqual(notSignedIn);
-		expect(await listingActions.restoreListing(id)).toEqual(notSignedIn);
-		expect(await listingActions.deleteListingForever(id)).toEqual(notSignedIn);
 		expect(await count(listings)).toBe(0);
 		expect(updateTag).not.toHaveBeenCalled();
 	});
@@ -167,9 +169,6 @@ describe("signed out", () => {
 			notSignedIn
 		);
 		expect(await newsletterActions.trashNewsletter(id)).toEqual(notSignedIn);
-		expect(await newsletterActions.deleteNewsletterForeverAction(id)).toEqual(
-			notSignedIn
-		);
 		expect(await newsletterActions.createDeadlineDigestAction()).toEqual(
 			notSignedIn
 		);
@@ -360,10 +359,11 @@ describe("officers", () => {
 		expect((await listingActions.moveListingAction(id, "down")).ok).toBe(true);
 		expect((await listingActions.publishListing(id, false)).ok).toBe(true);
 		expect((await listingActions.trashListing(id)).ok).toBe(true);
-		expect((await listingActions.restoreListing(id)).ok).toBe(true);
-		expect((await listingActions.trashListing(id)).ok).toBe(true);
-		expect((await listingActions.deleteListingForever(id)).ok).toBe(true);
-		expect(await count(listings)).toBe(0);
+		// Deleting only hides it: the row waits in the (admin-only) trash.
+		const [hidden] = await testDb!.select().from(listings);
+		expect(hidden?.deletedAt).not.toBeNull();
+		expect(hidden?.deletedBy).toBe("officer@gmail.com");
+		expect(await listingActions.trashListing(id)).toMatchObject({ ok: false });
 	});
 
 	it("get field errors for bad input and nothing is saved", async () => {
@@ -470,6 +470,9 @@ describe("officers", () => {
 	});
 
 	it("can import, add, edit, reorder and remove crew", async () => {
+		// Only admins (or a custom mix) can edit the Flight Crew page.
+		await addUserRow("crew-admin@gmail.com", "admin");
+		signInAs("crew-admin@gmail.com");
 		expect((await crewActions.importCrewAction()).ok).toBe(true);
 		expect((await crewActions.importCrewAction()).ok).toBe(false);
 		expect(await crewActions.addCrewMemberAction(crewInput)).toEqual({
@@ -550,6 +553,9 @@ describe("officers", () => {
 	});
 
 	it("gets field errors for a bad crew photo link", async () => {
+		// Only admins (or a custom mix) can edit the Flight Crew page.
+		await addUserRow("crew-admin@gmail.com", "admin");
+		signInAs("crew-admin@gmail.com");
 		const result = await crewActions.addCrewMemberAction({
 			...crewInput,
 			imageUrl: "https://example.org/a.jpg",
@@ -721,15 +727,13 @@ describe("admins", () => {
 		expect(await count(users)).toBe(1);
 	});
 
-	it("can't remove or demote the last admin", async () => {
-		expect(await officerActions.removeOfficer(admin.id)).toEqual({
-			ok: false,
-			error: "There must always be at least one admin.",
-		});
+	it("can't change its own permissions", async () => {
 		expect(
 			await officerActions.changeOfficerPermissions(admin.id, presets.officer)
-		).toMatchObject({ ok: false });
-		expect(await count(users)).toBe(1);
+		).toEqual({ ok: false, error: "You can’t change your own permissions." });
+		expect((await testDb!.select().from(users))[0]?.permissions).toBe(
+			presets.admin
+		);
 	});
 
 	it("reject an Epsilon token that isn't a token", async () => {
