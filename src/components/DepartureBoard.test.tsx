@@ -29,11 +29,33 @@ describe("the departure board", () => {
 		}
 	});
 
-	it("says when Epsilon couldn't be read but other meetings are shown", () => {
+	it("tells people to check Epsilon when it couldn't be read but other meetings are shown", () => {
 		const html = renderToStaticMarkup(
 			<DepartureBoard meetings={meetings} isEpsilonUp={false} />
 		);
-		expect(html).toContain("Epsilon couldn’t be reached");
+		expect(html).toContain("Check Epsilon");
+		expect(html).toContain("for the most up-to-date info.");
+		expect(html).not.toContain("couldn’t be reached");
+	});
+
+	it('shows that note even where the "All meetings" link is hidden', () => {
+		const html = renderToStaticMarkup(
+			<DepartureBoard
+				meetings={meetings}
+				isEpsilonUp={false}
+				showAllLink={false}
+			/>
+		);
+		expect(html).toContain("for the most up-to-date info.");
+		expect(html).not.toContain("All meetings");
+	});
+
+	it("keeps the footer quiet when Epsilon is fine and the link is hidden", () => {
+		const html = renderToStaticMarkup(
+			<DepartureBoard meetings={meetings} showAllLink={false} />
+		);
+		expect(html).not.toContain("up-to-date");
+		expect(html).not.toContain("New York time");
 	});
 
 	it("shows the down notice, not rows, when the board is down", () => {

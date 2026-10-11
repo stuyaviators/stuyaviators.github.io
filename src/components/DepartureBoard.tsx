@@ -117,6 +117,9 @@ export default function DepartureBoard({
 		);
 	}
 
+	// Epsilon couldn't be read, so what is shown may be old or incomplete.
+	const isStale = !isEpsilonUp && meetings.length > 0;
+
 	return (
 		<div className="overflow-hidden rounded-2xl border border-board-line bg-board-bg font-mono text-board-text shadow-card">
 			<div className="flex items-center justify-between border-b border-board-line px-4 py-3 sm:px-6">
@@ -270,18 +273,40 @@ export default function DepartureBoard({
 					</li>
 				)}
 			</ul>
-			{showAllLink ? (
+			{showAllLink || isStale ? (
 				<div className="flex flex-wrap justify-between gap-2 border-t border-board-line px-4 py-3 text-sm sm:px-6">
 					<p className="text-board-dim">
-						{meetings.length > 0
-							? isEpsilonUp
-								? "Times shown in New York time."
-								: "Times shown in New York time. Epsilon couldn’t be reached, so meetings only listed there may be missing."
-							: "Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."}
+						{meetings.length > 0 ? (
+							<>
+								Times shown in New York time.
+								{isStale ? (
+									<>
+										{" "}
+										<a
+											href={epsilonUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline underline-offset-4"
+										>
+											Check Epsilon
+											<span className="sr-only"> (opens in a new tab)</span>
+										</a>{" "}
+										for the most up-to-date info.
+									</>
+								) : null}
+							</>
+						) : (
+							"Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."
+						)}
 					</p>
-					<Link href="/meetings" className="label underline underline-offset-4">
-						All meetings →
-					</Link>
+					{showAllLink ? (
+						<Link
+							href="/meetings"
+							className="label underline underline-offset-4"
+						>
+							All meetings →
+						</Link>
+					) : null}
 				</div>
 			) : null}
 		</div>
