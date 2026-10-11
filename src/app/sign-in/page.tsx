@@ -11,7 +11,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-	title: "Officer sign-in",
+	title: "Sign In",
 	robots: { index: false, follow: false },
 };
 

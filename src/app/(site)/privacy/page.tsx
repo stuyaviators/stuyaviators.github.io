@@ -4,7 +4,7 @@ import { adminContact, site } from "@/content/site";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-	title: "Privacy Policy",
+	title: "Privacy",
 	description:
 		"What information the StuyAviators website collects, why, who sees it, and how to ask us to remove it.",
 	alternates: { canonical: "/privacy" },
