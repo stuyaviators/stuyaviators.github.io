@@ -13,6 +13,8 @@ import matthewLin from "@/assets/crew/matthew-lin.jpg";
 import stevenWu from "@/assets/crew/steven-wu.jpg";
 import williamVongphanith from "@/assets/crew/william-vongphanith.jpg";
 import yunusGubrud from "@/assets/crew/yunus-gubrud.jpg";
+import k218bLogo from "@/assets/partners/k2-18b-rocketry.jpg";
+import stuySkyLogo from "@/assets/partners/stuysky.png";
 
 /*
  * 2026–27 roster, matching officer roles on Epsilon. Structure: the Cockpit
@@ -198,14 +200,14 @@ export const pastAllianceMembers: CrewMember[] = [
 	},
 ];
 
-export type PartnerClub = { name: string };
+export type PartnerClub = { name: string; logo?: StaticImageData };
 
 /**
 Alliance: clubs StuyAviators partners with.
 */
 export const partnerClubs: PartnerClub[] = [
-	{ name: "K2-18B Rocketry" },
-	{ name: "StuySky" },
+	{ name: "K2-18B Rocketry", logo: k218bLogo },
+	{ name: "StuySky", logo: stuySkyLogo },
 ];
 
 export const crewApplyUrl = "https://forms.gle/4dRYhvUt7iZH7u9E6";

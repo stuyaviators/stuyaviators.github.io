@@ -262,10 +262,20 @@ export default function CrewChart({
 							viewport={{ once: true, margin: "0px 0px -10% 0px" }}
 							transition={{ type: "spring", stiffness: 160, damping: 20 }}
 						>
-							<Initials
-								name={club.name}
-								className="size-14 shrink-0 rounded-full text-lg"
-							/>
+							{club.logo ? (
+								<Image
+									src={club.logo}
+									alt={`${club.name} logo`}
+									placeholder="blur"
+									sizes="80px"
+									className="size-20 shrink-0 rounded-full object-cover shadow-card"
+								/>
+							) : (
+								<Initials
+									name={club.name}
+									className="size-20 shrink-0 rounded-full text-xl"
+								/>
+							)}
 							<div className="text-left">
 								<p className="font-display text-xl font-semibold">
 									{club.name}
