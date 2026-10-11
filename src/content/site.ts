@@ -29,12 +29,12 @@ export const nav: NavGroup[] = [
 			{ href: "/story", label: "Our Story", description: "Since 2022" },
 			{
 				href: "/charter",
-				label: "Club Charter",
+				label: "Club Charter & Policies",
 				description: "How the club runs, plus the rules",
 			},
 			{
 				href: "/brand",
-				label: "Brand Guidelines",
+				label: "Branding Guidelines",
 				description: "Logos, colors and type",
 			},
 		],
@@ -44,7 +44,7 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/meetings",
-				label: "Meetings",
+				label: "Our Meetings",
 				description: "Upcoming and meeting types",
 			},
 			{
@@ -59,7 +59,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/careers",
-				label: "Future Careers",
+				label: "Future Career & Pathways",
 				description: "Every path in aviation",
 			},
 		],
@@ -69,12 +69,12 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/flight-crew",
-				label: "The Flight Crew",
+				label: "Meet The Flight Crew",
 				description: "Leadership and positions",
 			},
 			{
 				href: "/gallery",
-				label: "Community Highlights",
+				label: "Community Highlights & Photos",
 				description: "Photos from members",
 			},
 			{
@@ -89,17 +89,17 @@ export const nav: NavGroup[] = [
 		links: [
 			{
 				href: "/connect",
-				label: "Connect",
+				label: "Contact Us",
 				description: "Email, Discord and Instagram",
 			},
 			{
 				href: "#mailing-list",
-				label: "Mailing List",
+				label: "Join The Mailing List",
 				description: "News in your inbox",
 			},
 			{
 				href: "/dashboard",
-				label: "Crew Dashboard",
+				label: "Access Crew Dashboard",
 				description: "For club officers",
 			},
 		],
