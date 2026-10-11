@@ -36,7 +36,6 @@ export default async function OverviewPage({
 	const checklist = envChecklist();
 	const missing = checklist.filter((item) => item.isRequired && !item.isSet);
 	const signup = sheetUrl("SIGNUP_SHEET_URL");
-	const unsubscribe = sheetUrl("UNSUBSCRIBE_SHEET_URL");
 
 	const tiles = stats
 		? [
@@ -108,7 +107,7 @@ export default async function OverviewPage({
 						Mailing lists
 					</h2>
 					<p className="mt-1 text-sm text-muted">
-						Sign-ups and unsubscribes land in Google Sheets. See{" "}
+						Sign-ups land in a Google Sheet. See{" "}
 						<code>docs/sending-newsletters.md</code> before sending.
 					</p>
 					<div className="mt-4 flex flex-wrap gap-2">
@@ -118,14 +117,6 @@ export default async function OverviewPage({
 							</ButtonLink>
 						) : (
 							<Badge>SIGNUP_SHEET_URL not set</Badge>
-						)}
-						{unsubscribe ? (
-							<ButtonLink href={unsubscribe} variant="secondary">
-								Unsubscribe Sheet{" "}
-								<ExternalLink aria-hidden className="size-4" />
-							</ButtonLink>
-						) : (
-							<Badge>UNSUBSCRIBE_SHEET_URL not set</Badge>
 						)}
 					</div>
 				</Card>

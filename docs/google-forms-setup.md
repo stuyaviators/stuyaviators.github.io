@@ -131,7 +131,6 @@ To set one up:
    - `GOOGLE_FORM_UNSUBSCRIBE_ACTION`: the `formResponse` URL
    - `GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY`: e.g. `entry.123456789`
    - `GOOGLE_FORM_UNSUBSCRIBE_FALLBACK_URL`: the form's public link
-   - `UNSUBSCRIBE_SHEET_URL`: the response Sheet, linked from the dashboard
 5. Redeploy. `/newsletter/unsubscribe` now shows a form (it only checks
    `@stuy.edu` and the trailing numbers, not the last name), and newsletter
    unsubscribe links point there.

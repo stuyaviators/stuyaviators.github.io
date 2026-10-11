@@ -19,8 +19,8 @@ you decide exactly who gets each email.
 1. Open the **sign-up Sheet** (linked on the dashboard Overview; `SIGNUP_SHEET_URL`). Every
    mailing-list sign-up from the website and the forms lands there.
 2. Copy the email column.
-3. **Remove everyone who unsubscribed.** Open the **unsubscribe Sheet** (`UNSUBSCRIBE_SHEET_URL`)
-   and delete those addresses from your list. Until the unsubscribe form exists, unsubscribe
+3. **Remove everyone who unsubscribed.** Open the unsubscribe form's
+   response Sheet (from the form in Google Drive) and delete those addresses from your list. Until the unsubscribe form exists, unsubscribe
    requests arrive at the club Gmail inbox (subject "Unsubscribe"); check it too.
 4. Remove duplicates and anything that isn't a valid address.
 

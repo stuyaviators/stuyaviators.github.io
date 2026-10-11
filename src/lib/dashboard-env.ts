@@ -53,11 +53,6 @@ const checks: Array<Omit<EnvCheck, "isSet">> = [
 		isRequired: false,
 	},
 	{
-		name: "UNSUBSCRIBE_SHEET_URL",
-		purpose: "Link to the unsubscribe Sheet",
-		isRequired: false,
-	},
-	{
 		name: "DISCORD_WEBHOOK_URL",
 		purpose: "New-submission alerts in Discord",
 		isRequired: false,
@@ -88,7 +83,7 @@ export function isGoogleConfigured() {
 /**
 A sheet link from the environment, only if it's an https URL.
 */
-export function sheetUrl(name: "SIGNUP_SHEET_URL" | "UNSUBSCRIBE_SHEET_URL") {
+export function sheetUrl(name: "SIGNUP_SHEET_URL") {
 	const value = process.env[name]?.trim();
 	return value && /^https:\/\//iu.test(value) ? value : undefined;
 }
