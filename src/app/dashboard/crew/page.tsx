@@ -9,7 +9,7 @@ import { requirePageUser } from "@/lib/session";
 export const metadata: Metadata = { title: "Flight Crew" };
 
 export default async function CrewDashboardPage() {
-	await requirePageUser();
+	await requirePageUser("crew");
 	const db = getDb();
 	const rows = db ? await listCrewRows(db) : [];
 	const people = rows.map((row) => ({
@@ -19,6 +19,7 @@ export default async function CrewDashboardPage() {
 		classOf: row.classOf ?? "",
 		role: row.role,
 		imageUrl: row.imageUrl ?? "",
+		createdBy: row.createdBy ?? undefined,
 		// What the page shows today: the upload, or the bundled photo.
 		photoSrc:
 			row.imageUrl ??

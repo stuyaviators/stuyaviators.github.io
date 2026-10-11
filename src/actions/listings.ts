@@ -13,6 +13,7 @@ import {
 	setListingStatus,
 	updateListing,
 } from "@/lib/listings-admin";
+import { canDeleteRow, notYours } from "@/lib/ownership";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -38,7 +39,7 @@ export async function saveListing(
 	id: string | undefined,
 	input: unknown
 ): Promise<ActionResult<{ id: string }>> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		const parsed = listingInput.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);
@@ -73,7 +74,7 @@ export async function publishListing(
 	id: string,
 	isPublished: boolean
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -97,7 +98,7 @@ export async function moveListingAction(
 	id: string,
 	direction: "up" | "down"
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("listings", async ({ db }) => {
 		const parsed = z
 			.object({ id: idSchema, direction: z.enum(["up", "down"]) })
 			.safeParse({ id, direction });
@@ -119,9 +120,13 @@ export async function moveListingAction(
 Soft delete: the card moves to the trash and can be restored.
 */
 export async function trashListing(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
+		}
+
+		if (!(await canDeleteRow(db, user, "listing", id))) {
+			return notYours;
 		}
 
 		await setDeleted(db, id, true, user.email);
@@ -131,7 +136,7 @@ export async function trashListing(id: string): Promise<ActionResult> {
 }
 
 export async function restoreListing(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -146,9 +151,13 @@ export async function restoreListing(id: string): Promise<ActionResult> {
 Permanent; only for cards already in the trash.
 */
 export async function deleteListingForever(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
+		}
+
+		if (!(await canDeleteRow(db, user, "listing", id))) {
+			return notYours;
 		}
 
 		await deleteForever(db, id);

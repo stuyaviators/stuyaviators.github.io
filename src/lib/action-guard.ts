@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
-import type { Role, User } from "@/lib/users";
+import type { Access } from "@/lib/permissions";
+import type { User } from "@/lib/users";
 import type { z } from "zod";
 import { getDb } from "@/db";
 import { AuthorizationError, requireUser } from "@/lib/session";
@@ -47,12 +48,12 @@ export function invalid(error: z.ZodError): ActionError {
 }
 
 export async function guarded<R extends { ok: boolean }>(
-	role: Role,
+	access: Access,
 	run: (context: ActionContext) => Promise<R>
 ): Promise<R | ActionError> {
 	let user: User;
 	try {
-		user = await requireUser(role);
+		user = await requireUser(access);
 	} catch (error) {
 		if (error instanceof AuthorizationError) {
 			return actionError(error.message);

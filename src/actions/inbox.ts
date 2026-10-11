@@ -19,7 +19,7 @@ export async function markSubmission(
 	id: string,
 	status: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("inbox", async ({ db }) => {
 		const parsed = inputSchema.safeParse({ id, status });
 		if (!parsed.success) {
 			return actionError("That message is no longer in the inbox.");

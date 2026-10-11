@@ -8,7 +8,7 @@ import { requirePageUser } from "@/lib/session";
 export const metadata: Metadata = { title: "Announcement" };
 
 export default async function AnnouncementPage() {
-	await requirePageUser();
+	await requirePageUser("announcement");
 	const db = getDb();
 	const current = db ? await readAnnouncement(db) : undefined;
 

@@ -22,6 +22,7 @@ import {
 	titleSchema,
 	unpublishNewsletter,
 } from "@/lib/newsletters";
+import { canDeleteRow, notYours } from "@/lib/ownership";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -46,7 +47,7 @@ const draftSchema = z.object({ title: titleSchema, data: newsletterSchema });
 export async function createNewsletterAction(
 	presetId?: string
 ): Promise<ActionResult<{ id: string }>> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		let data = defaultNewsletter();
 		let title = new Intl.DateTimeFormat("en-US", {
 			month: "long",
@@ -81,7 +82,7 @@ Creates a draft listing the cards whose deadline is 14-21 days away.
 export async function createDeadlineDigestAction(): Promise<
 	ActionResult<{ id: string }>
 > {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		const now = new Date();
 		const data = buildDeadlineDigest(await listWithDeadlines(db), now);
 		if (!data) {
@@ -117,7 +118,7 @@ export async function saveNewsletterAction(
 	input: unknown,
 	expectedUpdatedAt: string | undefined
 ): Promise<SaveDraftResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -169,7 +170,7 @@ export async function publishNewsletterAction(
 	id: string,
 	slug: string
 ): Promise<ActionResult<{ slug: string }>> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("newsletters", async ({ db }) => {
 		const parsedSlug = slugSchema.safeParse(slug);
 		if (!parsedSlug.success) {
 			const message =
@@ -204,7 +205,7 @@ export async function suggestSlug(
 	id: string,
 	wanted: string
 ): Promise<ActionResult<{ slug: string }>> {
-	return guarded("officer", async ({ db }) =>
+	return guarded("newsletters", async ({ db }) =>
 		idSchema.safeParse(id).success
 			? { ok: true, slug: await availableSlug(db, wanted.slice(0, 120), id) }
 			: notFound
@@ -214,7 +215,7 @@ export async function suggestSlug(
 export async function unpublishNewsletterAction(
 	id: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("newsletters", async ({ db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -230,9 +231,13 @@ export async function unpublishNewsletterAction(
 Soft delete (also takes the web version down); restorable from the trash.
 */
 export async function trashNewsletter(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
+		}
+
+		if (!(await canDeleteRow(db, user, "newsletter", id))) {
+			return notYours;
 		}
 
 		const newsletter = await getNewsletter(db, id);
@@ -243,7 +248,7 @@ export async function trashNewsletter(id: string): Promise<ActionResult> {
 }
 
 export async function restoreNewsletter(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -256,9 +261,13 @@ export async function restoreNewsletter(id: string): Promise<ActionResult> {
 export async function deleteNewsletterForeverAction(
 	id: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
+		}
+
+		if (!(await canDeleteRow(db, user, "newsletter", id))) {
+			return notYours;
 		}
 
 		await deleteNewsletterForever(db, id);
@@ -270,7 +279,7 @@ export async function savePresetAction(
 	name: string,
 	data: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		const parsed = z
 			.object({
 				name: z.string().trim().min(1, "Name the preset").max(60),
@@ -287,9 +296,13 @@ export async function savePresetAction(
 }
 
 export async function deletePresetAction(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("newsletters", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return actionError("That preset no longer exists.");
+		}
+
+		if (!(await canDeleteRow(db, user, "preset", id))) {
+			return notYours;
 		}
 
 		await deletePreset(db, id);

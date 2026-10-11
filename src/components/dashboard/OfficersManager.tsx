@@ -1,5 +1,6 @@
 "use client";
 
+import type { RoleName } from "@/lib/permissions";
 import type { User } from "@/lib/users";
 import {
 	addOfficer,
@@ -15,6 +16,7 @@ import { useAction } from "@/components/dashboard/use-action";
 import { TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { roleDescriptions, roleLabels, roles } from "@/lib/permissions";
 import { Trash2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -22,16 +24,19 @@ import { useState, useTransition } from "react";
 export default function OfficersManager({
 	users,
 	currentId,
+	manageable,
 }: {
 	readonly users: User[];
 	readonly currentId: string;
+	// The roles this signed-in person may give out and take away.
+	readonly manageable: RoleName[];
 }) {
 	const router = useRouter();
 	const { toast } = useToast();
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [isAdding, startAdding] = useTransition();
 	const [email, setEmail] = useState("");
-	const [role, setRole] = useState("officer");
+	const [role, setRole] = useState<string>(manageable.at(-1) ?? "officer");
 	const [emailError, setEmailError] = useState<string>();
 	const [removing, setRemoving] = useState<User>();
 	const [added, setAdded] = useState<string>();
@@ -71,7 +76,7 @@ export default function OfficersManager({
 				<form
 					onSubmit={add}
 					noValidate
-					className="mt-4 grid gap-3 sm:grid-cols-[1fr_10rem_auto] sm:items-end"
+					className="mt-4 grid gap-3 sm:grid-cols-[1fr_11rem_auto] sm:items-end"
 				>
 					<TextField
 						label="Email"
@@ -91,8 +96,11 @@ export default function OfficersManager({
 							setRole(event.target.value);
 						}}
 					>
-						<option value="officer">Officer</option>
-						<option value="admin">Admin</option>
+						{manageable.map((name) => (
+							<option key={name} value={name}>
+								{roleLabels[name]}
+							</option>
+						))}
 					</SelectField>
 					<Button
 						type="submit"
@@ -122,6 +130,8 @@ export default function OfficersManager({
 			<ul className="dash-stagger space-y-3">
 				{users.map((user) => {
 					const isYou = user.id === currentId;
+					// Roles you can't manage are shown, but locked.
+					const isLocked = isYou || !manageable.includes(user.role);
 					return (
 						<li
 							key={user.id}
@@ -146,25 +156,28 @@ export default function OfficersManager({
 								</p>
 							</div>
 							<div className="flex items-center gap-2">
-								<div className="w-32">
+								<div className="w-36">
 									<SelectField
 										label="Role"
 										value={user.role}
-										disabled={isPending || isYou}
+										disabled={isPending || isLocked}
 										onChange={(event) => {
 											run(
 												async () =>
 													changeOfficerRole(user.id, event.target.value),
 												undefined,
-												`${user.name ?? user.email} is now ${event.target.value === "admin" ? "an admin" : "an officer"}`
+												`${user.name ?? user.email} is now ${roleLabels[event.target.value as RoleName] ?? event.target.value}`
 											);
 										}}
 									>
-										<option value="officer">Officer</option>
-										<option value="admin">Admin</option>
+										{(isLocked ? roles : manageable).map((name) => (
+											<option key={name} value={name}>
+												{roleLabels[name]}
+											</option>
+										))}
 									</SelectField>
 								</div>
-								{isYou ? null : (
+								{isLocked ? null : (
 									<Button
 										variant="ghost"
 										aria-label={`Remove ${user.email}`}
@@ -182,6 +195,26 @@ export default function OfficersManager({
 					);
 				})}
 			</ul>
+
+			<Card className="mt-8" aria-labelledby="roles-heading">
+				<h2 id="roles-heading" className="text-xl">
+					What each role can do
+				</h2>
+				<dl className="mt-4 grid gap-4 sm:grid-cols-2">
+					{roles.map((name) => (
+						<div key={name}>
+							<dt className="font-semibold">{roleLabels[name]}</dt>
+							<dd className="text-sm text-muted">{roleDescriptions[name]}</dd>
+						</div>
+					))}
+				</dl>
+				<p className="mt-4 text-sm text-muted">
+					Everyone can edit the things their role covers. “Deletes only what
+					they added” means they can edit anything in their areas, but can only
+					delete items with their own name on them, so one account can’t wipe
+					out other people’s work. Settings are admin-only.
+				</p>
+			</Card>
 
 			<Confirm
 				isOpen={removing !== undefined}

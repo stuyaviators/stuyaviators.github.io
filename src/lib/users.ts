@@ -14,7 +14,7 @@ import { z } from "zod";
 export type User = typeof users.$inferSelect;
 export type Role = User["role"];
 
-export const roles = ["admin", "officer"] as const satisfies Role[];
+export { roles } from "@/lib/permissions";
 
 export const emailSchema = z
 	.string()
@@ -146,7 +146,7 @@ export async function setRole(
 		return { ok: true };
 	}
 
-	const isStillListed = (await findById(db, id)) !== undefined;
+	const isStillListed = (await findUserById(db, id)) !== undefined;
 	return {
 		ok: false,
 		error: isStillListed ? lastAdmin : "That person is no longer on the list.",
@@ -170,11 +170,11 @@ export async function removeUser(
 		return { ok: true };
 	}
 
-	const isStillListed = (await findById(db, id)) !== undefined;
+	const isStillListed = (await findUserById(db, id)) !== undefined;
 	return isStillListed ? { ok: false, error: lastAdmin } : { ok: true };
 }
 
-async function findById(db: Database, id: string) {
+export async function findUserById(db: Database, id: string) {
 	const userRows = await db
 		.select()
 		.from(users)

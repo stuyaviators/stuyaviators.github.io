@@ -1,7 +1,9 @@
-import type { Role, User } from "@/lib/users";
+import type { Access } from "@/lib/permissions";
+import type { User } from "@/lib/users";
 import { auth } from "@/auth";
 import { getDb } from "@/db";
-import { isOpenSignIn, localAdminEmail } from "@/lib/open-signin";
+import { isOpenSignIn, localAdminEmail, localRole } from "@/lib/open-signin";
+import { canAccess } from "@/lib/permissions";
 import { findUser } from "@/lib/users";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -12,8 +14,6 @@ import { cache } from "react";
  * every request (deduplicated per render), so removals and role changes
  * apply immediately.
  */
-
-const rank: Record<Role, number> = { officer: 1, admin: 2 };
 
 /**
 Local testing only (see src/lib/open-signin.ts): no Google, always an admin.
@@ -28,7 +28,7 @@ function localAdmin(
 		email: email.toLowerCase(),
 		name: name ?? null,
 		image: image ?? null,
-		role: "admin",
+		role: localRole(),
 		addedBy: "DASHBOARD_OPEN_SIGNIN",
 		createdAt: new Date(),
 		lastSignInAt: new Date(),
@@ -54,21 +54,21 @@ export const currentUser = cache(async (): Promise<User | undefined> => {
 		: user;
 });
 
-export function hasRole(user: User, role: Role) {
-	return rank[user.role] >= rank[role];
+export function hasAccess(user: User, access: Access) {
+	return canAccess(user.role, access);
 }
 
 /**
 For pages: redirects anyone who isn't allowed.
 */
-export async function requirePageUser(role: Role = "officer"): Promise<User> {
+export async function requirePageUser(access: Access = "any"): Promise<User> {
 	const user = await currentUser();
 	if (!user) {
 		const session = await auth();
 		redirect(session ? "/sign-in?error=AccessDenied" : "/sign-in");
 	}
 
-	if (!hasRole(user, role)) {
+	if (!hasAccess(user, access)) {
 		redirect("/dashboard?denied=1");
 	}
 
@@ -85,13 +85,13 @@ export class AuthorizationError extends Error {
 /**
 For Server Actions and Route Handlers: throws unless allowed.
 */
-export async function requireUser(role: Role = "officer"): Promise<User> {
+export async function requireUser(access: Access = "any"): Promise<User> {
 	const user = await currentUser();
 	if (!user) {
 		throw new AuthorizationError("Please sign in again.");
 	}
 
-	if (!hasRole(user, role)) {
+	if (!hasAccess(user, access)) {
 		throw new AuthorizationError();
 	}
 

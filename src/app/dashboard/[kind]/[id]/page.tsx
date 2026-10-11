@@ -15,7 +15,7 @@ export default async function EditListingPage({
 }: {
 	readonly params: Promise<{ kind: string; id: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("listings");
 	const { kind, id } = await params;
 	const config = kindFromSlug(kind);
 	const db = getDb();

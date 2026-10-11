@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import OfficersManager from "@/components/dashboard/OfficersManager";
 import { Notice, PageHeader } from "@/components/dashboard/ui";
 import { getDb } from "@/db";
+import { managedRoles } from "@/lib/permissions";
 import { requirePageUser } from "@/lib/session";
 import { listUsers } from "@/lib/users";
 
 export const metadata: Metadata = { title: "Officers" };
 
 export default async function OfficersPage() {
-	const user = await requirePageUser("admin");
+	const user = await requirePageUser("officers");
 	const db = getDb();
 	const users = db ? await listUsers(db) : [];
 
@@ -16,10 +17,14 @@ export default async function OfficersPage() {
 		<>
 			<PageHeader
 				title="Officers"
-				description="Who can sign in to this dashboard. Officers edit content; admins also manage this list and the settings. There is always at least one admin."
+				description="Who can sign in to this dashboard, and what each person can do. There is always at least one admin."
 			/>
 			{db ? (
-				<OfficersManager users={users} currentId={user.id} />
+				<OfficersManager
+					users={users}
+					currentId={user.id}
+					manageable={[...managedRoles(user.role)]}
+				/>
 			) : (
 				<Notice tone="bad">
 					The database isn’t connected (<code>DATABASE_URL</code>).

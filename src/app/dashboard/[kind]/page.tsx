@@ -27,7 +27,7 @@ export default async function ListingsDashboardPage({
 	readonly params: Promise<{ kind: string }>;
 	readonly searchParams: Promise<{ view?: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("listings");
 	const { kind } = await params;
 	const config = kindFromSlug(kind);
 	if (!config) {

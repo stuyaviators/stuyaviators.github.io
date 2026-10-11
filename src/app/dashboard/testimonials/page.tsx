@@ -15,7 +15,7 @@ export default async function TestimonialsDashboardPage({
 }: {
 	readonly searchParams: Promise<{ from?: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("testimonials");
 	const db = getDb();
 	const rows = db ? await listTestimonials(db) : [];
 
@@ -49,6 +49,7 @@ export default async function TestimonialsDashboardPage({
 						id: row.id,
 						quote: row.quote,
 						author: row.author,
+						createdBy: row.createdBy ?? undefined,
 					}))}
 					prefill={prefill}
 				/>

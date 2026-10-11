@@ -2,6 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
+import { canDeleteRow, notYours } from "@/lib/ownership";
 import {
 	addTestimonial,
 	deleteTestimonial,
@@ -30,7 +31,7 @@ function refresh() {
 export async function addTestimonialAction(
 	input: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("testimonials", async ({ user, db }) => {
 		const parsed = testimonialSchema.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);
@@ -46,7 +47,7 @@ export async function updateTestimonialAction(
 	id: string,
 	input: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("testimonials", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
 		}
@@ -70,7 +71,7 @@ export async function moveTestimonialAction(
 	id: string,
 	direction: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("testimonials", async ({ db }) => {
 		if (
 			!idSchema.safeParse(id).success ||
 			(direction !== "up" && direction !== "down")
@@ -91,9 +92,13 @@ export async function moveTestimonialAction(
 export async function deleteTestimonialAction(
 	id: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("testimonials", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
+		}
+
+		if (!(await canDeleteRow(db, user, "testimonial", id))) {
+			return notYours;
 		}
 
 		if ((await deleteTestimonial(db, id)) === 0) {
@@ -111,7 +116,7 @@ One-time copy of the quotes in src/content/home.ts into the database.
 export async function importTestimonialsAction(): Promise<
 	ActionResult<{ count: number }>
 > {
-	return guarded("officer", async ({ db }) => {
+	return guarded("testimonials", async ({ db }) => {
 		const count = await importStaticTestimonials(db);
 		if (count === 0) {
 			return actionError("The quotes are already in the dashboard.");

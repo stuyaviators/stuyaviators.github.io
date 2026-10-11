@@ -11,6 +11,11 @@ import {
 import Confirm from "@/components/dashboard/Confirm";
 import { Badge, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
+import {
+	AddedBy,
+	blockedDeleteHint,
+	useViewer,
+} from "@/components/dashboard/Viewer";
 import { formatDate } from "@/components/listings/ListingCard";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -43,6 +48,7 @@ export default function ListingRows({
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [pending, setPending] = useState<Pending>();
 	const isTrash = view === "trash";
+	const { canDeleteItem } = useViewer();
 
 	return (
 		<>
@@ -80,6 +86,7 @@ export default function ListingRows({
 												Closes in {daysUntil(listing.deadline ?? "")} d
 											</Badge>
 										) : null}
+										<AddedBy email={listing.createdBy ?? undefined} />
 									</div>
 									<h2 className="mt-2 text-lg font-semibold leading-snug">
 										{listing.title}
@@ -111,7 +118,15 @@ export default function ListingRows({
 											<Button
 												variant="ghost"
 												className="text-danger"
-												disabled={isPending}
+												title={
+													canDeleteItem(listing.createdBy ?? undefined)
+														? undefined
+														: blockedDeleteHint
+												}
+												disabled={
+													isPending ||
+													!canDeleteItem(listing.createdBy ?? undefined)
+												}
 												onClick={() => {
 													setPending({
 														id: listing.id,
@@ -200,7 +215,15 @@ export default function ListingRows({
 											<Button
 												variant="ghost"
 												aria-label={`Move ${listing.title} to trash`}
-												disabled={isPending}
+												title={
+													canDeleteItem(listing.createdBy ?? undefined)
+														? undefined
+														: blockedDeleteHint
+												}
+												disabled={
+													isPending ||
+													!canDeleteItem(listing.createdBy ?? undefined)
+												}
 												onClick={() => {
 													setPending({
 														id: listing.id,

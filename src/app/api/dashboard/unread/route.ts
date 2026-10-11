@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
  */
 export async function GET() {
 	try {
-		await requireUser("officer");
+		await requireUser("inbox");
 	} catch (error) {
 		if (error instanceof AuthorizationError) {
 			return NextResponse.json({ error: error.message }, { status: 401 });

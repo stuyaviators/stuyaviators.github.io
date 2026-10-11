@@ -14,7 +14,7 @@ export default async function NewsletterDashboardPage({
 }: {
 	readonly searchParams: Promise<{ view?: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("newsletters");
 	const { view: viewParameter } = await searchParams;
 	const view = viewParameter === "trash" ? "trash" : "active";
 	const db = getDb();

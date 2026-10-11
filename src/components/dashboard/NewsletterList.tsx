@@ -14,6 +14,11 @@ import { SelectField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
+import {
+	AddedBy,
+	blockedDeleteHint,
+	useViewer,
+} from "@/components/dashboard/Viewer";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import {
@@ -49,6 +54,7 @@ export default function NewsletterList({
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [presetId, setPresetId] = useState("");
 	const [pending, setPending] = useState<Pending>();
+	const { canDeleteItem } = useViewer();
 	const isTrash = view === "trash";
 
 	function create(fromPreset?: string) {
@@ -174,6 +180,7 @@ export default function NewsletterList({
 											? "Web version live"
 											: "Draft"}
 									</Badge>
+									<AddedBy email={newsletter.createdBy ?? undefined} />
 								</div>
 								<h2 className="mt-2 text-lg font-semibold leading-snug">
 									{newsletter.title}
@@ -203,7 +210,15 @@ export default function NewsletterList({
 										<Button
 											variant="ghost"
 											className="text-danger"
-											disabled={isPending}
+											title={
+												canDeleteItem(newsletter.createdBy ?? undefined)
+													? undefined
+													: blockedDeleteHint
+											}
+											disabled={
+												isPending ||
+												!canDeleteItem(newsletter.createdBy ?? undefined)
+											}
 											onClick={() => {
 												setPending({
 													kind: "newsletter-forever",
@@ -235,7 +250,15 @@ export default function NewsletterList({
 										<Button
 											variant="ghost"
 											aria-label={`Move ${newsletter.title} to trash`}
-											disabled={isPending}
+											title={
+												canDeleteItem(newsletter.createdBy ?? undefined)
+													? undefined
+													: blockedDeleteHint
+											}
+											disabled={
+												isPending ||
+												!canDeleteItem(newsletter.createdBy ?? undefined)
+											}
 											onClick={() => {
 												setPending({
 													kind: "newsletter-trash",
@@ -279,7 +302,14 @@ export default function NewsletterList({
 										variant="ghost"
 										aria-label={`Delete preset ${preset.name}`}
 										className="min-h-9 px-2.5 py-1.5"
-										disabled={isPending}
+										title={
+											canDeleteItem(preset.createdBy ?? undefined)
+												? undefined
+												: blockedDeleteHint
+										}
+										disabled={
+											isPending || !canDeleteItem(preset.createdBy ?? undefined)
+										}
 										onClick={() => {
 											setPending({
 												kind: "preset",

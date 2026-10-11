@@ -16,7 +16,7 @@ export default async function GalleryDashboardPage({
 }: {
 	readonly searchParams: Promise<{ from?: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("gallery");
 	const db = getDb();
 	const rows = db ? await listGalleryRows(db) : [];
 
@@ -47,6 +47,7 @@ export default async function GalleryDashboardPage({
 			alt: row.alt,
 			src: row.imageUrl ?? bundled,
 			isAi: row.isAiCaption,
+			createdBy: row.createdBy ?? undefined,
 			canWrite: row.imageUrl !== null,
 		};
 	});

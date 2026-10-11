@@ -100,7 +100,13 @@ export const rateLimits = pgTable("rate_limits", {
 	windowStart: timestamp({ withTimezone: true }).notNull(),
 });
 
-export const userRole = pgEnum("user_role", ["admin", "officer"]);
+export const userRole = pgEnum("user_role", [
+	"admin",
+	"officer",
+	"manager",
+	"contributor",
+	"media",
+]);
 
 /**
 The dashboard allowlist. Signing in with Google only works for emails here.
@@ -204,6 +210,7 @@ export const crewMembers = pgTable(
 		sortOrder: integer().notNull().default(0),
 		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		createdBy: text(),
 		updatedBy: text(),
 	},
 	(table) => [
@@ -221,6 +228,7 @@ export const testimonials = pgTable("testimonials", {
 	sortOrder: integer().notNull().default(0),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdBy: text(),
 	updatedBy: text(),
 });
 
@@ -240,5 +248,6 @@ export const galleryPhotos = pgTable("gallery_photos", {
 	sortOrder: integer().notNull().default(0),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdBy: text(),
 	updatedBy: text(),
 });

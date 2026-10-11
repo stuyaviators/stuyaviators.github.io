@@ -12,6 +12,11 @@ import { Spinner } from "@/components/dashboard/Spinner";
 import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
+import {
+	AddedBy,
+	blockedDeleteHint,
+	useViewer,
+} from "@/components/dashboard/Viewer";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -20,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 type Draft = { quote: string; author: string };
-type Row = Draft & { id: string };
+type Row = Draft & { id: string; createdBy: string | undefined };
 
 export default function TestimonialsManager({
 	quotes,
@@ -29,6 +34,7 @@ export default function TestimonialsManager({
 	readonly quotes: readonly Row[];
 	readonly prefill?: Draft;
 }) {
+	const { canDeleteItem } = useViewer();
 	const router = useRouter();
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [editingId, setEditingId] = useState<string>();
@@ -131,6 +137,9 @@ export default function TestimonialsManager({
 										<figcaption className="label mt-2 text-muted">
 											— {item.author}
 										</figcaption>
+										<p className="mt-2">
+											<AddedBy email={item.createdBy} />
+										</p>
 									</figure>
 									<div className="ml-auto flex items-center">
 										<Button
@@ -174,7 +183,12 @@ export default function TestimonialsManager({
 										<Button
 											variant="ghost"
 											aria-label={`Remove the quote by ${item.author}`}
-											disabled={isPending}
+											title={
+												canDeleteItem(item.createdBy)
+													? undefined
+													: blockedDeleteHint
+											}
+											disabled={isPending || !canDeleteItem(item.createdBy)}
 											onClick={() => {
 												setRemoving(item);
 											}}

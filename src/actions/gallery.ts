@@ -15,6 +15,7 @@ import {
 	optionalAltSchema,
 	updateGalleryAlt,
 } from "@/lib/gallery";
+import { canDeleteRow, notYours } from "@/lib/ownership";
 import { hitRateLimit } from "@/lib/rate-limit";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
@@ -62,7 +63,7 @@ async function writeCaption(
 export async function addGalleryPhotoAction(
 	input: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("gallery", async ({ user, db }) => {
 		const parsed = newPhotoSchema.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);
@@ -90,7 +91,7 @@ export async function updateGalleryAltAction(
 	id: string,
 	alt: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("gallery", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
 		}
@@ -137,7 +138,7 @@ export async function moveGalleryPhotoAction(
 	id: string,
 	direction: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("gallery", async ({ db }) => {
 		if (
 			!idSchema.safeParse(id).success ||
 			(direction !== "up" && direction !== "down")
@@ -158,9 +159,13 @@ export async function moveGalleryPhotoAction(
 export async function deleteGalleryPhotoAction(
 	id: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("gallery", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
+		}
+
+		if (!(await canDeleteRow(db, user, "gallery", id))) {
+			return notYours;
 		}
 
 		if ((await deleteGalleryPhoto(db, id)) === 0) {
@@ -178,7 +183,7 @@ One-time copy of the bundled photos into the database.
 export async function importGalleryAction(): Promise<
 	ActionResult<{ count: number }>
 > {
-	return guarded("officer", async ({ db }) => {
+	return guarded("gallery", async ({ db }) => {
 		const count = await importStaticGallery(db);
 		if (count === 0) {
 			return actionError("The photos are already in the dashboard.");

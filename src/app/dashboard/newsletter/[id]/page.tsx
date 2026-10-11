@@ -19,7 +19,7 @@ export default async function EditNewsletterPage({
 }: {
 	readonly params: Promise<{ id: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("newsletters");
 	const { id } = await params;
 	const db = getDb();
 	if (!db || !z.uuid().safeParse(id).success) {

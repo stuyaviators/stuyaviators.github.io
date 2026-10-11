@@ -13,6 +13,11 @@ import { Spinner } from "@/components/dashboard/Spinner";
 import { useToast } from "@/components/dashboard/Toast";
 import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
+import {
+	AddedBy,
+	blockedDeleteHint,
+	useViewer,
+} from "@/components/dashboard/Viewer";
 import { TextAreaField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
 import { uploadImageSized } from "@/lib/client-upload";
@@ -37,6 +42,7 @@ type Item = {
 	alt: string;
 	src: string | undefined;
 	isAi: boolean;
+	createdBy: string | undefined;
 	// Uploaded photos can have AI write a new description.
 	canWrite: boolean;
 };
@@ -53,6 +59,7 @@ export default function GalleryManager({
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [editingId, setEditingId] = useState<string>();
 	const [removing, setRemoving] = useState<Item>();
+	const { canDeleteItem } = useViewer();
 
 	if (items.length === 0) {
 		return (
@@ -154,11 +161,10 @@ export default function GalleryManager({
 								) : (
 									<>
 										<p className="text-sm">{item.alt}</p>
-										{item.isAi ? (
-											<p className="mt-1">
-												<Badge>AI-Generated Caption</Badge>
-											</p>
-										) : null}
+										<p className="mt-1 flex flex-wrap items-center gap-2">
+											{item.isAi ? <Badge>AI-Generated Caption</Badge> : null}
+											<AddedBy email={item.createdBy} />
+										</p>
 									</>
 								)}
 							</div>
@@ -205,7 +211,12 @@ export default function GalleryManager({
 									<Button
 										variant="ghost"
 										aria-label="Remove this photo"
-										disabled={isPending}
+										title={
+											canDeleteItem(item.createdBy)
+												? undefined
+												: blockedDeleteHint
+										}
+										disabled={isPending || !canDeleteItem(item.createdBy)}
 										onClick={() => {
 											setRemoving(item);
 										}}

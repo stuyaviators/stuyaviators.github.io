@@ -13,6 +13,11 @@ import { Spinner } from "@/components/dashboard/Spinner";
 import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
+import {
+	AddedBy,
+	blockedDeleteHint,
+	useViewer,
+} from "@/components/dashboard/Viewer";
 import { TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -30,9 +35,10 @@ export type Person = {
 	role: string;
 	imageUrl: string;
 	photoSrc: string | undefined;
+	createdBy: string | undefined;
 };
 
-type Draft = Omit<Person, "id" | "photoSrc">;
+type Draft = Omit<Person, "id" | "photoSrc" | "createdBy">;
 
 const blank: Draft = {
 	groupId: "helpers",
@@ -47,6 +53,7 @@ export default function CrewManager({
 }: {
 	readonly people: readonly Person[];
 }) {
+	const { canDeleteItem } = useViewer();
 	const router = useRouter();
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [editingId, setEditingId] = useState<string>();
@@ -161,6 +168,9 @@ export default function CrewManager({
 														<p className="truncate text-sm text-muted">
 															{person.role}
 														</p>
+														<p className="mt-1">
+															<AddedBy email={person.createdBy} />
+														</p>
 													</div>
 													<div className="ml-auto flex items-center">
 														<Button
@@ -208,7 +218,14 @@ export default function CrewManager({
 														<Button
 															variant="ghost"
 															aria-label={`Remove ${person.name}`}
-															disabled={isPending}
+															title={
+																canDeleteItem(person.createdBy)
+																	? undefined
+																	: blockedDeleteHint
+															}
+															disabled={
+																isPending || !canDeleteItem(person.createdBy)
+															}
 															onClick={() => {
 																setRemoving(person);
 															}}

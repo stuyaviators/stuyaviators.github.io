@@ -8,7 +8,7 @@ import { requirePageUser } from "@/lib/session";
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
-	await requirePageUser("admin");
+	await requirePageUser("settings");
 	const db = getDb();
 	const status = db
 		? await getEpsilonStatus(db).catch(() => undefined)

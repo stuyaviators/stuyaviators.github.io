@@ -21,7 +21,7 @@ function error(message: string, status: number) {
 
 export async function POST(request: Request) {
 	try {
-		await requireUser("officer");
+		await requireUser("upload");
 	} catch (error_) {
 		if (error_ instanceof AuthorizationError) {
 			return error(error_.message, 401);

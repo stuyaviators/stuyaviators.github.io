@@ -1,3 +1,6 @@
+import type { RoleName } from "@/lib/permissions";
+import { roles } from "@/lib/permissions";
+
 /*
  * Local testing switch: DASHBOARD_OPEN_SIGNIN=true in .env.local skips Google
  * sign-in altogether and opens the dashboard as a local admin. It only works
@@ -6,6 +9,15 @@
  */
 
 export const localAdminEmail = "local-dev@localhost";
+
+/**
+The role local mode acts as: an admin, unless DASHBOARD_DEV_ROLE names another
+role (to try out what that role sees).
+*/
+export function localRole(): RoleName {
+	const wanted = process.env.DASHBOARD_DEV_ROLE;
+	return roles.find((role) => role === wanted) ?? "admin";
+}
 
 export function isOpenSignIn(): boolean {
 	return (

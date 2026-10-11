@@ -81,6 +81,7 @@ export async function addGalleryPhoto(
 		width: input.width,
 		height: input.height,
 		sortOrder: lowest.at(0)?.first ?? 0,
+		createdBy: by,
 		updatedBy: by,
 	});
 }

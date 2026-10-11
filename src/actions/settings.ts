@@ -24,7 +24,7 @@ function refreshMeetings() {
 export async function saveEpsilonTokenAction(
 	input: string
 ): Promise<ActionResult> {
-	return guarded("admin", async ({ user, db }) => {
+	return guarded("settings", async ({ user, db }) => {
 		if (typeof input !== "string" || input.length > 20_000) {
 			return actionError("Paste the refresh token.", {
 				token: "Paste the refresh token.",
@@ -42,7 +42,7 @@ export async function saveEpsilonTokenAction(
 }
 
 export async function removeEpsilonTokenAction(): Promise<ActionResult> {
-	return guarded("admin", async ({ db }) => {
+	return guarded("settings", async ({ db }) => {
 		await removeEpsilonToken(db);
 		refreshMeetings();
 		return { ok: true };
@@ -56,7 +56,7 @@ whether it works. Doesn't change anything.
 export async function testEpsilonAction(): Promise<
 	ActionResult<{ count: number; next: string | undefined }>
 > {
-	return guarded("admin", async ({ db }) => {
+	return guarded("settings", async ({ db }) => {
 		const token = await getEpsilonAccessToken(db);
 		if (!token) {
 			return actionError(

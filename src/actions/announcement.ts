@@ -25,7 +25,7 @@ export type AnnouncementInput = {
 export async function saveAnnouncementAction(
 	input: AnnouncementInput
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("announcement", async ({ user, db }) => {
 		const parsed = announcementSchema.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);

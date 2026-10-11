@@ -50,6 +50,13 @@
       "when": 1791735566733,
       "tag": "0006_gallery_ai_caption",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791737911217,
+      "tag": "0007_roles_and_owners",
+      "breakpoints": true
     }
   ]
 }

@@ -50,7 +50,7 @@ export default async function InboxPage({
 }: {
 	readonly searchParams: Promise<Parameters_>;
 }) {
-	await requirePageUser();
+	await requirePageUser("inbox");
 	const filter = parseFilter(await searchParams);
 	const db = getDb();
 	const items = db ? await listSubmissions(db, filter) : [];

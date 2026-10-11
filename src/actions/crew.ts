@@ -11,6 +11,7 @@ import {
 	moveCrewMember,
 	updateCrewMember,
 } from "@/lib/crew";
+import { canDeleteRow, notYours } from "@/lib/ownership";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -29,7 +30,7 @@ function refresh() {
 export async function addCrewMemberAction(
 	input: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("crew", async ({ user, db }) => {
 		const parsed = crewMemberSchema.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);
@@ -45,7 +46,7 @@ export async function updateCrewMemberAction(
 	id: string,
 	input: unknown
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("crew", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
 		}
@@ -69,7 +70,7 @@ export async function moveCrewMemberAction(
 	id: string,
 	direction: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("crew", async ({ db }) => {
 		if (
 			!idSchema.safeParse(id).success ||
 			(direction !== "up" && direction !== "down")
@@ -90,9 +91,13 @@ export async function moveCrewMemberAction(
 export async function deleteCrewMemberAction(
 	id: string
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("crew", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
+		}
+
+		if (!(await canDeleteRow(db, user, "crew", id))) {
+			return notYours;
 		}
 
 		const removed = await deleteCrewMember(db, id);
@@ -111,7 +116,7 @@ One-time copy of the roster in src/content/crew.ts into the database.
 export async function importCrewAction(): Promise<
 	ActionResult<{ count: number }>
 > {
-	return guarded("officer", async ({ db }) => {
+	return guarded("crew", async ({ db }) => {
 		const count = await importStaticCrew(db);
 		if (count === 0) {
 			return actionError("The crew is already in the dashboard.");

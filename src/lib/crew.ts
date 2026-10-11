@@ -73,6 +73,7 @@ export async function addCrewMember(
 		imageUrl: input.imageUrl || null,
 		photoKey: null,
 		sortOrder: await nextSortOrder(db, input.groupId),
+		createdBy: by,
 		updatedBy: by,
 	});
 }

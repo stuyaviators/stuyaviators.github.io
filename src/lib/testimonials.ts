@@ -44,6 +44,7 @@ export async function addTestimonial(
 	await db.insert(testimonials).values({
 		...input,
 		sortOrder: last.at(0)?.next ?? 0,
+		createdBy: by,
 		updatedBy: by,
 	});
 }

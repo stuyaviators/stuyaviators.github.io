@@ -29,7 +29,7 @@ export async function autofillListing(
 	kind: string,
 	url: string
 ): Promise<ActionResult<{ fields: Suggestion }>> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		const parsed = input.safeParse({ kind, url: url.trim() });
 		if (!parsed.success) {
 			return actionError("Paste a full link first, starting with https://", {
