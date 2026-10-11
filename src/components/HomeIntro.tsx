@@ -12,6 +12,7 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useBlobUrl } from "@/lib/use-blob-url";
 import { useEffect, useRef, useState } from "react";
 import Hero from "./Hero.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
@@ -84,6 +85,8 @@ export default function HomeIntro({
 	const [isDesktop, setIsDesktop] = useState(true);
 	const [isSplit, setIsSplit] = useState(false);
 
+	// Played from an in-memory blob so the file path isn't in the page.
+	const videoSrc = useBlobUrl(heroVideo);
 	const { scrollYProgress } = useScroll({
 		target: sectionRef,
 		offset: ["start start", "end end"],
@@ -174,7 +177,7 @@ export default function HomeIntro({
 			clearTimeout(textTimer);
 			document.removeEventListener("visibilitychange", sync);
 		};
-	}, [isPlaying, isReducedMotion]);
+	}, [isPlaying, isReducedMotion, videoSrc]);
 
 	// Reduced motion: the static split hero (no scroll-linked animation).
 	if (isReducedMotion) {
@@ -201,7 +204,10 @@ export default function HomeIntro({
 					/>
 					<video
 						ref={videoRef}
-						src={heroVideo}
+						src={videoSrc}
+						disablePictureInPicture
+						disableRemotePlayback
+						controlsList="nodownload noremoteplayback"
 						muted
 						loop
 						playsInline

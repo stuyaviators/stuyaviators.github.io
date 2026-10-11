@@ -1,19 +1,12 @@
 "use client";
 
-import type { MotionValue } from "motion/react";
 import type { PhotoSpec } from "@/content/photo-specs";
 import type { StaticImageData } from "next/image";
-import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import {
-	AnimatePresence,
-	motion,
-	useReducedMotion,
-	useScroll,
-	useTransform,
-} from "motion/react";
-import Image from "next/image";
+import { cn } from "@/lib/cn";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import BlobImage from "./BlobImage.tsx";
 
 export type LightboxImage = {
 	src: StaticImageData;
@@ -45,94 +38,100 @@ function formatSpec(spec: PhotoSpec | undefined) {
 		.join(" · ");
 }
 
-// Deterministic jitter so the scatter is the same on every render. Rounded
-// to three decimals: the browser shortens long decimals in the server HTML's
-// style attributes, which would otherwise not match on hydration.
-function jitter(seed: number) {
-	const x = Math.sin(seed * 12.9898) * 43_758.5453;
-	return Math.round((x - Math.floor(x)) * 1000) / 1000;
-}
+const spring = { type: "spring", stiffness: 320, damping: 30, mass: 0.6 } as const;
 
-function round(value: number) {
-	return Math.round(value * 100) / 100;
-}
-
-function FloatingPhoto({
+function GridTile({
 	image,
 	index,
 	columns,
 	rows,
-	drift,
+	hovered,
+	onHover,
 	onOpen,
 }: {
 	readonly image: LightboxImage;
 	readonly index: number;
 	readonly columns: number;
 	readonly rows: number;
-	readonly drift: MotionValue<number>;
+	readonly hovered: number | undefined;
+	readonly onHover: (index: number | undefined) => void;
 	readonly onOpen: (index: number, trigger: HTMLButtonElement) => void;
 }) {
 	const isReducedMotion = useReducedMotion();
 	const column = index % columns;
 	const row = Math.floor(index / columns);
-	// Stagger alternate rows so the scatter doesn't read as a grid.
-	const left = round(
-		((column + (row % 2) * 0.5 + jitter(index + 1) * 0.45) / (columns + 0.5)) *
-			100
-	);
-	const top = round(((row + jitter(index + 50) * 0.6) / rows) * 100);
-	const width = round(8 + jitter(index + 100) * 5); // Rem
-	const tilt = round((jitter(index + 150) - 0.5) * 14);
-	const drift160 = Math.round((jitter(index + 200) - 0.5) * 320);
-	const y = useTransform(drift, [0, 1], [drift160, -drift160]);
-	// Each photo wanders its own slow loop.
-	const wanderStyle: Record<string, string> = {
-		"--wander-d": `${round(14 + jitter(index + 250) * 12)}s`,
-		"--wander-delay": `${round(-jitter(index + 300) * 20)}s`,
-		"--wx": `${Math.round(16 + jitter(index + 350) * 28)}px`,
-		"--wy": `${Math.round(12 + jitter(index + 400) * 22)}px`,
-		"--wr": `${tilt > 0 ? 3 : -3}deg`,
+	const isHovered = hovered === index;
+	let animate: { scale: number; x: number; y: number; opacity: number } = {
+		scale: 1,
+		x: 0,
+		y: 0,
+		opacity: 1,
 	};
 
+	if (hovered !== undefined && !isHovered) {
+		const dc = column - (hovered % columns);
+		const dr = row - Math.floor(hovered / columns);
+		const distance = Math.max(Math.abs(dc), Math.abs(dr));
+		// Neighbors make room; everything else steps back.
+		animate =
+			distance === 1
+				? {
+						scale: 0.9,
+						x: Math.sign(dc) * 6,
+						y: Math.sign(dr) * 6,
+						opacity: 0.7,
+					}
+				: { scale: 1, x: 0, y: 0, opacity: 0.45 };
+	} else if (isHovered) {
+		animate = { scale: 2.6, x: 0, y: 0, opacity: 1 };
+	}
+
+	// Grow away from the grid's edges so the enlarged photo stays inside.
+	const originX = column === 0 ? "0%" : column === columns - 1 ? "100%" : "50%";
+	const originY = row === 0 ? "0%" : row === rows - 1 ? "100%" : "50%";
+
 	return (
-		<li
-			className="absolute z-0 hover:z-30 focus-within:z-30"
+		<motion.li
+			className="relative aspect-square"
 			style={{
-				left: `${left}%`,
-				top: `${top}%`,
-				width: `clamp(5.5rem, ${round(width * 1.6)}vw, ${width}rem)`,
+				zIndex: isHovered ? 20 : 1,
+				transformOrigin: `${originX} ${originY}`,
 			}}
+			animate={isReducedMotion ? undefined : animate}
+			transition={spring}
 		>
-			<motion.div style={isReducedMotion ? undefined : { y }}>
-				<div className="wander" style={wanderStyle}>
-					<button
-						type="button"
-						aria-label={`Open photo: ${image.alt}`}
-						className="gallery-photo block w-full overflow-hidden rounded-xl shadow-card transition-[transform,filter,opacity,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[2.1] hover:rotate-0 hover:shadow-2xl focus-visible:scale-[2.1] focus-visible:rotate-0 motion-reduce:transition-none"
-						style={{ rotate: `${tilt}deg` }}
-						onClick={(event) => {
-							onOpen(index, event.currentTarget);
-						}}
-					>
-						<Image
-							src={image.src}
-							alt={image.alt}
-							placeholder="blur"
-							sizes="(min-width: 1024px) 400px, 50vw"
-							className="h-auto w-full"
-						/>
-					</button>
-				</div>
-			</motion.div>
-		</li>
+			<button
+				type="button"
+				aria-label={`Open photo: ${image.alt}`}
+				className={cn(
+					"relative block size-full overflow-hidden rounded-md bg-surface-2 transition-[box-shadow,border-radius] duration-300 sm:rounded-lg",
+					isHovered && "rounded-xl shadow-2xl ring-1 ring-white/20"
+				)}
+				onPointerEnter={() => {
+					onHover(index);
+				}}
+				onFocus={() => {
+					onHover(index);
+				}}
+				onBlur={() => {
+					onHover(undefined);
+				}}
+				onClick={(event) => {
+					onOpen(index, event.currentTarget);
+				}}
+			>
+				<BlobImage fill src={image.src} alt={image.alt} width={240} />
+			</button>
+		</motion.li>
 	);
 }
 
 /**
-Photos clumped across the page at different depths, each wandering a slow loop;
-hovering one brings it forward and enlarges it while the rest blur back.
+Minesweeper-style grid of small square photos. Hovering one springs it up
+to 2.6× while its neighbors make room and the rest dim back; clicking opens
+the viewer. Hover is ignored while the page scrolls.
 */
-function FloatingStage({
+function PhotoGrid({
 	images,
 	onOpen,
 }: {
@@ -140,18 +139,31 @@ function FloatingStage({
 	readonly onOpen: (index: number, trigger: HTMLButtonElement) => void;
 }) {
 	const ref = useRef<HTMLUListElement>(null);
-	const [columns, setColumns] = useState(5);
-	const { scrollYProgress } = useScroll({
-		target: ref,
-		offset: ["start end", "end start"],
-	});
+	const [columns, setColumns] = useState(8);
+	const [hovered, setHovered] = useState<number | undefined>(undefined);
 
-	// Ignore the cursor while the page is scrolling, so photos sliding under
-	// it don't enlarge; hover comes back shortly after scrolling stops.
+	useEffect(() => {
+		const large = globalThis.matchMedia("(min-width: 1024px)");
+		const small = globalThis.matchMedia("(min-width: 640px)");
+		const update = () => {
+			setColumns(large.matches ? 10 : small.matches ? 8 : 5);
+		};
+
+		update();
+		large.addEventListener("change", update);
+		small.addEventListener("change", update);
+		return () => {
+			large.removeEventListener("change", update);
+			small.removeEventListener("change", update);
+		};
+	}, []);
+
+	// Ignore the cursor while scrolling, so tiles sliding under it don't pop.
 	useEffect(() => {
 		let timer: ReturnType<typeof setTimeout> | undefined;
 		const onScroll = () => {
 			ref.current?.classList.add("is-scrolling");
+			setHovered(undefined);
 			clearTimeout(timer);
 			timer = setTimeout(() => {
 				ref.current?.classList.remove("is-scrolling");
@@ -165,38 +177,25 @@ function FloatingStage({
 		};
 	}, []);
 
-	useEffect(() => {
-		const large = globalThis.matchMedia("(min-width: 1024px)");
-		const small = globalThis.matchMedia("(min-width: 640px)");
-		const update = () => {
-			setColumns(large.matches ? 5 : small.matches ? 4 : 3);
-		};
-
-		update();
-		large.addEventListener("change", update);
-		small.addEventListener("change", update);
-		return () => {
-			large.removeEventListener("change", update);
-			small.removeEventListener("change", update);
-		};
-	}, []);
-
 	const rows = Math.ceil(images.length / columns);
 	return (
 		<ul
 			ref={ref}
-			className="floating-stage relative my-16"
-			// Rows overlap, so photos clump together.
-			style={{ height: `calc(${rows} * clamp(6.5rem, 19vw, 11.5rem) + 8rem)` }}
+			className="photo-grid my-10 grid gap-1.5 sm:gap-2"
+			style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+			onPointerLeave={() => {
+				setHovered(undefined);
+			}}
 		>
 			{images.map((image, index) => (
-				<FloatingPhoto
+				<GridTile
 					key={image.alt + index}
 					image={image}
 					index={index}
 					columns={columns}
 					rows={rows}
-					drift={scrollYProgress}
+					hovered={hovered}
+					onHover={setHovered}
 					onOpen={onOpen}
 				/>
 			))}
@@ -205,7 +204,7 @@ function FloatingStage({
 }
 
 /**
-Floating photo scatter with an accessible <dialog> lightbox (arrow keys,
+Photo grid with an accessible <dialog> lightbox (arrow keys,
 Escape). The viewer shows camera specs from the photo's metadata, when
 there are any, instead of a caption.
 */
@@ -270,7 +269,7 @@ export default function Lightbox({
 
 	return (
 		<>
-			<FloatingStage
+			<PhotoGrid
 				images={images}
 				onOpen={(i, trigger) => {
 					open(i, trigger);
@@ -317,11 +316,14 @@ export default function Lightbox({
 								}}
 								transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
 							>
-								<Image
+								<BlobImage
 									src={current.src}
 									alt={current.alt}
-									sizes="92vw"
-									className="h-auto max-h-[76dvh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
+									width={960}
+									className="rounded-2xl shadow-2xl"
+									style={{
+										width: `min(92vw - 8rem, calc(76dvh * ${current.src.width / current.src.height}))`,
+									}}
 									onLoad={() => {
 										setLoadedIndex(index);
 									}}

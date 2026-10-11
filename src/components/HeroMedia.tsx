@@ -4,6 +4,7 @@ import type { StaticImageData } from "next/image";
 import { cn } from "@/lib/cn";
 import { Pause, Play } from "lucide-react";
 import Image from "next/image";
+import { useBlobUrl } from "@/lib/use-blob-url";
 import { useEffect, useRef, useState } from "react";
 
 /*
@@ -24,6 +25,7 @@ export default function HeroMedia({
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
+	const videoSrc = useBlobUrl(heroVideo);
 
 	useEffect(() => {
 		setIsPlaying(
@@ -42,7 +44,7 @@ export default function HeroMedia({
 		} else {
 			video.pause();
 		}
-	}, [isPlaying]);
+	}, [isPlaying, videoSrc]);
 
 	return (
 		<div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-hairline bg-ink shadow-card">
@@ -57,7 +59,10 @@ export default function HeroMedia({
 			/>
 			<video
 				ref={videoRef}
-				src={heroVideo}
+				src={videoSrc}
+				disablePictureInPicture
+				disableRemotePlayback
+				controlsList="nodownload noremoteplayback"
 				muted
 				loop
 				playsInline

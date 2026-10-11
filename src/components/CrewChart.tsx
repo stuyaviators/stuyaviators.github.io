@@ -13,6 +13,7 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import { useRef } from "react";
+import BlobImage from "./BlobImage.tsx";
 import { Initials } from "./ui/Initials.tsx";
 
 /*
@@ -32,11 +33,12 @@ const avatarSize: Record<Size, string> = {
 	past: "size-16 sm:size-20",
 };
 
-const imageSizes: Record<Size, string> = {
-	lg: "144px",
-	md: "112px",
-	sm: "96px",
-	past: "80px",
+// Display widths in px (BlobImage fetches the 2× retina size).
+const imageWidths: Record<Size, number> = {
+	lg: 192,
+	md: 128,
+	sm: 128,
+	past: 128,
 };
 
 function displayName(member: CrewMember) {
@@ -68,13 +70,11 @@ function Avatar({
 				)}
 			>
 				{member.photo ? (
-					<Image
+					<BlobImage
+						fill
 						src={member.photo}
 						alt={`Portrait of ${member.name}`}
-						fill
-						placeholder="blur"
-						sizes={imageSizes[size]}
-						className="object-cover"
+						width={imageWidths[size]}
 					/>
 				) : (
 					<Initials

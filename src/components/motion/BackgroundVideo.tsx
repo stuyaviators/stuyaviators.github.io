@@ -4,6 +4,7 @@ import type { StaticImageData } from "next/image";
 import { cn } from "@/lib/cn";
 import { Pause, Play } from "lucide-react";
 import Image from "next/image";
+import { useBlobUrl } from "@/lib/use-blob-url";
 import { useEffect, useRef, useState } from "react";
 
 /*
@@ -55,6 +56,15 @@ export default function BackgroundVideo({
 	}, []);
 
 	const shouldPlay = isEnabled && isInView && !isUserPaused;
+	// Fetched into an in-memory blob once the section is in view, so the
+	// file path isn't in the page.
+	const [hasBeenInView, setHasBeenInView] = useState(false);
+	useEffect(() => {
+		if (isInView) {
+			setHasBeenInView(true);
+		}
+	}, [isInView]);
+	const videoSrc = useBlobUrl(src, isEnabled && hasBeenInView);
 
 	// Play/pause on viewport, tab visibility and the user's choice.
 	useEffect(() => {
@@ -79,7 +89,7 @@ export default function BackgroundVideo({
 		return () => {
 			document.removeEventListener("visibilitychange", onVisibility);
 		};
-	}, [shouldPlay]);
+	}, [shouldPlay, videoSrc]);
 
 	// Fade the YouTube player in once it reports "playing" (fallback 3 s).
 	useEffect(() => {
@@ -137,7 +147,10 @@ export default function BackgroundVideo({
 			{isEnabled && src ? (
 				<video
 					ref={videoRef}
-					src={src}
+					src={videoSrc}
+					disablePictureInPicture
+					disableRemotePlayback
+					controlsList="nodownload noremoteplayback"
 					muted
 					loop
 					playsInline
