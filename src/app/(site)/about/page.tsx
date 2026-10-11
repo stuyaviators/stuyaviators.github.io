@@ -136,7 +136,7 @@ export default function AboutPage() {
 				</div>
 			</Section>
 
-			<Section className="min-h-0 sm:py-16">
+			<Section className="py-6 sm:py-8">
 				<div className="flex flex-wrap justify-center gap-3">
 					<ButtonLink href="/story" variant="secondary">
 						Read our story

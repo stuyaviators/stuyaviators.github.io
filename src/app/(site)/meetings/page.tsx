@@ -116,7 +116,7 @@ export default async function MeetingsPage() {
 				</StackingCards>
 			</Section>
 
-			<Section pin id="schedule" label="Schedule" title="When we meet">
+			<Section id="schedule" label="Schedule" title="When we meet">
 				<div className="grid gap-8 lg:grid-cols-3">
 					{schedule.map((section) => (
 						<Stagger key={section.id}>
@@ -131,8 +131,8 @@ export default async function MeetingsPage() {
 			</Section>
 
 			<Section
-				pin
 				id="ideas"
+				className="pb-24 sm:pb-32"
 				label="Suggestions"
 				title={meetings.ideaHeading}
 				intro={meetings.ideaIntro}

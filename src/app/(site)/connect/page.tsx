@@ -44,7 +44,6 @@ export default async function ConnectPage() {
 			</PageHero>
 
 			<Section
-				pin
 				id="socials"
 				label="Stay in the loop"
 				title="Find us online"
@@ -80,7 +79,6 @@ export default async function ConnectPage() {
 			</Section>
 
 			<Section
-				pin
 				id="contact"
 				label="Contact information"
 				title="Contact us"
@@ -145,8 +143,8 @@ export default async function ConnectPage() {
 			</Section>
 
 			<Section
-				pin
 				id="message"
+				className="pb-24 sm:pb-32"
 				label="Send a message"
 				title="Write to us"
 			>

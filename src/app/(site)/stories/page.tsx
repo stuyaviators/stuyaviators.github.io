@@ -80,8 +80,8 @@ export default function StoriesPage() {
 				</div>
 			</Section>
 			<Section
-				pin
 				id="share"
+				className="pb-24 sm:pb-32"
 				label="Share"
 				title={storiesCopy.shareHeading}
 			>

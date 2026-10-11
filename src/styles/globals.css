@@ -579,13 +579,13 @@ dialog[open]::backdrop {
 }
 
 /* ───────────── One section at a time ─────────────
-   Each page section fills the screen (.scene-section) and its content
+   Each page section (.scene-section) is as tall as its content, so short
+   sections don't leave big gaps, and its content
    (.scene) rises in as it enters and recedes as it leaves, driven by scroll
    position. Page heroes only animate out (.scene-exit). Browsers without
    scroll-driven animations, and reduced-motion visitors, scroll normally. */
 .scene-section {
 	display: flex;
-	min-height: 100svh;
 	flex-direction: column;
 	justify-content: center;
 }

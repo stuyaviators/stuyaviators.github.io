@@ -125,7 +125,7 @@ export function Section({
 		<section
 			id={id}
 			aria-labelledby={hasTitle ? headingId : undefined}
-			className={cn("scene-section py-16 sm:py-24", className)}
+			className={cn("scene-section py-12 sm:py-16", className)}
 		>
 			<Container className="scene">
 				{header}

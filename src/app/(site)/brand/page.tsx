@@ -156,7 +156,6 @@ export default function BrandPage() {
 			</Section>
 
 			<Section
-				pin
 				id="colors"
 				label="Color palette"
 				title="Colors"
@@ -295,12 +294,12 @@ export default function BrandPage() {
 					))}
 				</div>
 
-				<h3 className="mt-16 text-2xl">Try it</h3>
+				<h3 className="mt-10 text-2xl">Try it</h3>
 				<div className="mt-5">
 					<TypeTester typefaces={typefaces} />
 				</div>
 
-				<h3 className="mt-16 text-2xl">Type scale</h3>
+				<h3 className="mt-10 text-2xl">Type scale</h3>
 				<ol className="mt-5 divide-y divide-hairline rounded-3xl bg-surface px-6 sm:px-8">
 					{typeScale.map((item) => (
 						<li
@@ -315,7 +314,7 @@ export default function BrandPage() {
 					))}
 				</ol>
 
-				<h3 className="mt-16 text-2xl">Typesetting</h3>
+				<h3 className="mt-10 text-2xl">Typesetting</h3>
 				<ul className="mt-5 grid gap-3 sm:grid-cols-2">
 					{typeRules.map((rule) => (
 						<li key={rule} className="flex gap-3 rounded-2xl bg-surface p-5">
@@ -326,7 +325,7 @@ export default function BrandPage() {
 				</ul>
 			</Section>
 
-			<Section pin id="usage" label="Usage" title="Do’s and don’ts">
+			<Section id="usage" label="Usage" title="Do’s and don’ts">
 				<div className="grid gap-6 md:grid-cols-2">
 					<ul className="space-y-3 rounded-3xl bg-surface p-6">
 						{brandRules.do.map((rule) => (
