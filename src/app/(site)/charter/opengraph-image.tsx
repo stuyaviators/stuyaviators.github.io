@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Club Charter & Rules",
 		eyebrow: "About",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-sim-classroom.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-sim-classroom.jpg", import.meta.url)
 		),
 	});
 }

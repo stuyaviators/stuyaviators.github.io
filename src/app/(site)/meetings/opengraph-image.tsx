@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Meetings",
 		eyebrow: "Explore",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-sim-setup.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-sim-setup.jpg", import.meta.url)
 		),
 		detail: "Flight sims, crash labs, ATC and more",
 	});

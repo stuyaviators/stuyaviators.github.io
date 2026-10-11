@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Future Careers",
 		eyebrow: "Explore",
 		photo: await readFile(
-			new URL("../../assets/photos/event-airline-booth.jpg", import.meta.url)
+			new URL("../../../assets/photos/event-airline-booth.jpg", import.meta.url)
 		),
 		detail: "87 careers in aviation and aerospace",
 	});

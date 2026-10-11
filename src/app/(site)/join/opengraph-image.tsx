@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Join StuyAviators",
 		eyebrow: "No experience needed",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-joystick.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-joystick.jpg", import.meta.url)
 		),
 	});
 }

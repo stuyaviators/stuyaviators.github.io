@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Member Stories",
 		eyebrow: "Community",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-cessna-backseat.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-cessna-backseat.jpg", import.meta.url)
 		),
 	});
 }

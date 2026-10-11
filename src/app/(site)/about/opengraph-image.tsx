@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Our Mission & Project Skylab",
 		eyebrow: "About",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-sim-display.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-sim-display.jpg", import.meta.url)
 		),
 	});
 }

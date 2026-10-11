@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Connect",
 		eyebrow: "Socials & contact",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-sim-ryanair.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-sim-ryanair.jpg", import.meta.url)
 		),
 	});
 }

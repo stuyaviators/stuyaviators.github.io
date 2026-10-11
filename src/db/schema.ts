@@ -8,8 +8,10 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
+import type { NewsletterData } from "../lib/newsletter/types.ts";
 
 export const listingKind = pgEnum("listing_kind", [
 	"opportunity",
@@ -90,4 +92,75 @@ export const rateLimits = pgTable("rate_limits", {
 	key: text().primaryKey(),
 	count: integer().notNull(),
 	windowStart: timestamp({ withTimezone: true }).notNull(),
+});
+
+export const userRole = pgEnum("user_role", ["admin", "officer"]);
+
+/**
+The dashboard allowlist. Signing in with Google only works for emails here.
+*/
+export const users = pgTable(
+	"users",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		email: text().notNull(), // Always stored lowercased
+		name: text(),
+		image: text(),
+		role: userRole().notNull().default("officer"),
+		addedBy: text(),
+		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		lastSignInAt: timestamp({ withTimezone: true }),
+	},
+	(table) => [uniqueIndex("users_email_idx").on(table.email)]
+);
+
+/**
+Key–value settings. Secret values (the Epsilon token) are encrypted with
+AUTH_SECRET before they're stored; see src/lib/crypto.ts.
+*/
+export const settings = pgTable("settings", {
+	key: text().primaryKey(),
+	value: text().notNull(),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedBy: text(),
+});
+
+export const newsletterStatus = pgEnum("newsletter_status", [
+	"draft",
+	"published",
+]);
+
+/**
+Newsletter drafts, shared by every officer. Publishing copies the draft into
+`published` so later edits don't change the public web version until it's
+published again.
+*/
+export const newsletters = pgTable(
+	"newsletters",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		title: text().notNull(),
+		slug: text(),
+		data: jsonb().$type<NewsletterData>().notNull(),
+		published: jsonb().$type<NewsletterData>(),
+		status: newsletterStatus().notNull().default("draft"),
+		publishedAt: timestamp({ withTimezone: true }),
+		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		createdBy: text(),
+		updatedBy: text(),
+		deletedAt: timestamp({ withTimezone: true }),
+	},
+	(table) => [uniqueIndex("newsletters_slug_idx").on(table.slug)]
+);
+
+/**
+Reusable starting points for newsletters ("Monthly update", "Deadline digest").
+*/
+export const newsletterPresets = pgTable("newsletter_presets", {
+	id: uuid().primaryKey().defaultRandom(),
+	name: text().notNull(),
+	data: jsonb().$type<NewsletterData>().notNull(),
+	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdBy: text(),
 });

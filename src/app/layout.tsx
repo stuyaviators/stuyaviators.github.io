@@ -1,15 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import LinkInterceptor from "@/components/LinkInterceptor";
 import MediaGuard from "@/components/MediaGuard";
-import ScrollToTop from "@/components/ScrollToTop";
-import SkyBackground from "@/components/SkyBackground";
 import { themeScript } from "@/components/ThemeToggle";
-import TransitionProvider from "@/components/TransitionProvider";
 import { site } from "@/content/site";
-import MailingListModal from "@/components/forms/MailingListModal";
-import { signupFormConfig } from "@/lib/google-forms";
 import { Inter, Inter_Tight } from "next/font/google";
 
 import "@/styles/globals.css";
@@ -65,21 +58,11 @@ export default function RootLayout({
 				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
 			</head>
 			<body className="flex min-h-dvh flex-col antialiased">
-				<Header />
-				<TransitionProvider>
-					<main
-						id="main"
-						className="relative z-10 flex-1 bg-bg lg:rounded-b-[2.5rem] lg:shadow-[0_40px_80px_-40px_rgb(0_0_0/0.35)]"
-					>
-						<SkyBackground />
-						{children}
-					</main>
-				</TransitionProvider>
-				<Footer />
-				<ScrollToTop />
+				{/* Public pages add the header and footer in (site)/layout.tsx;
+				    the dashboard has its own chrome. */}
+				{children}
 				<LinkInterceptor />
 				<MediaGuard />
-				<MailingListModal fallbackUrl={signupFormConfig().fallbackUrl} />
 			</body>
 		</html>
 	);

@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "Scholarships",
 		eyebrow: "Explore",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-cessna-sunset.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-cessna-sunset.jpg", import.meta.url)
 		),
 		detail: "Funding for school and flight training",
 	});

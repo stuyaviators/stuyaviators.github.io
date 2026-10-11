@@ -8,7 +8,7 @@ export default async function Image() {
 		title: "The Flight Crew",
 		eyebrow: "Community",
 		photo: await readFile(
-			new URL("../../assets/photos/hero-classroom-meeting.jpg", import.meta.url)
+			new URL("../../../assets/photos/hero-classroom-meeting.jpg", import.meta.url)
 		),
 	});
 }

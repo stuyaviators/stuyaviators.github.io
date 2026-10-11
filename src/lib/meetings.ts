@@ -1,3 +1,5 @@
+import { getDb } from "@/db";
+import { epsilonConfig, getEpsilonAccessToken } from "@/lib/epsilon-token";
 import { z } from "zod";
 
 /*
@@ -5,11 +7,14 @@ import { z } from "zod";
  * (the Student Union's club platform, a Supabase/PostgREST API).
  *
  * Epsilon only shows meetings to signed-in users, so the request needs an
- * officer's Epsilon session token in EPSILON_ACCESS_TOKEN (server-only, never
- * committed). Those tokens expire after about an hour; when it's missing or
- * expired the board falls back to `manualMeetings` below (later: meetings
- * entered in the dashboard). Only meeting fields are requested, never members.
+ * officer's Epsilon session. An admin stores a long-lived refresh token in the
+ * dashboard (Settings → Epsilon; see epsilon-token.ts), which is exchanged for
+ * hourly access tokens. EPSILON_ACCESS_TOKEN (server-only) still works as a
+ * short-lived override. With neither, the board falls back to
+ * `manualMeetings` below. Only meeting fields are requested, never members.
  */
+
+export const meetingsTag = "meetings";
 
 export type MeetingStatus = "scheduled" | "cancelled" | "moved";
 
@@ -90,18 +95,31 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 	return meetings;
 }
 
-async function fetchEpsilonMeetings(): Promise<Meeting[]> {
-	const token = process.env.EPSILON_ACCESS_TOKEN;
-	if (!token) {
-		throw new Error("EPSILON_ACCESS_TOKEN not set");
+async function accessToken(): Promise<string | undefined> {
+	const db = getDb();
+	if (db) {
+		try {
+			const token = await getEpsilonAccessToken(db);
+			if (token) {
+				return token;
+			}
+		} catch (error) {
+			console.error("Could not load the Epsilon token", error);
+		}
 	}
 
-	const base = process.env.EPSILON_API_URL ?? "https://base.stuysu.org";
-	// Epsilon's public "anon" key, shipped in its own web app.
-	const apiKey =
-		process.env.EPSILON_API_KEY ??
-		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg3OTY4Mzk2LCJleHAiOjE5NDU2NDgzOTZ9.Ajo4QUjgnsVUYKjTW7rdDYOUpLI3X-A7SWQFVtFrhmg";
-	const slug = process.env.EPSILON_ORG_URL ?? "stuyaviators";
+	return process.env.EPSILON_ACCESS_TOKEN || undefined;
+}
+
+export async function fetchEpsilonMeetings(
+	token?: string
+): Promise<Meeting[]> {
+	const bearer = token ?? (await accessToken());
+	if (!bearer) {
+		throw new Error("No Epsilon token");
+	}
+
+	const { base, apiKey, slug } = epsilonConfig();
 	const url = new URL("/rest/v1/organizations", base);
 	url.searchParams.set(
 		"select",
@@ -109,8 +127,8 @@ async function fetchEpsilonMeetings(): Promise<Meeting[]> {
 	);
 	url.searchParams.set("url", `ilike.${slug}`);
 	const response = await fetch(url, {
-		headers: { apikey: apiKey, Authorization: `Bearer ${token}` },
-		next: { revalidate: 900, tags: ["meetings"] },
+		headers: { apikey: apiKey, Authorization: `Bearer ${bearer}` },
+		next: { revalidate: 900, tags: [meetingsTag] },
 		signal: AbortSignal.timeout(5000),
 	});
 	if (!response.ok) {

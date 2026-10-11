@@ -1,9 +1,11 @@
+import SiteChrome from "@/components/SiteChrome";
 import { buttonClasses } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Section";
 import Link from "next/link";
 
 export default function NotFound() {
 	return (
+		<SiteChrome>
 		<Container className="py-20 sm:py-28">
 			<p className="label text-accent-text">Error 404 · Off course</p>
 			<h1 className="mt-3 text-4xl sm:text-5xl">We can’t find that page</h1>
@@ -23,5 +25,6 @@ export default function NotFound() {
 				</Link>
 			</div>
 		</Container>
+		</SiteChrome>
 	);
 }

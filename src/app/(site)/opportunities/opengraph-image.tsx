@@ -9,7 +9,7 @@ export default async function Image() {
 		eyebrow: "Explore",
 		photo: await readFile(
 			new URL(
-				"../../assets/photos/event-aviation-hs-panel.jpg",
+				"../../../assets/photos/event-aviation-hs-panel.jpg",
 				import.meta.url
 			)
 		),
