@@ -5,6 +5,8 @@ import DashboardNav from "@/components/dashboard/DashboardNav";
 import SignOutForm from "@/components/dashboard/SignOutForm";
 import { Notice } from "@/components/dashboard/ui";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getDb } from "@/db";
+import { countNewSubmissions } from "@/lib/inbox";
 import { isOpenSignIn } from "@/lib/open-signin";
 import { hasRole, requirePageUser } from "@/lib/session";
 import { ExternalLink } from "lucide-react";
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 
 const baseItems: NavItem[] = [
 	{ href: "/dashboard", label: "Overview", icon: "overview" },
+	{ href: "/dashboard/inbox", label: "Inbox", icon: "inbox" },
 	{
 		href: "/dashboard/opportunities",
 		label: "Opportunities",
@@ -41,9 +44,12 @@ export default async function DashboardLayout({
 }) {
 	// First gate for the whole dashboard; every page and action checks again.
 	const user = await requirePageUser();
-	const items = hasRole(user, "admin")
-		? [...baseItems, ...adminItems]
-		: baseItems;
+	const db = getDb();
+	const newMessages = db ? await countNewSubmissions(db) : 0;
+	const shared = baseItems.map((item) =>
+		item.icon === "inbox" ? { ...item, badge: newMessages } : item
+	);
+	const items = hasRole(user, "admin") ? [...shared, ...adminItems] : shared;
 
 	return (
 		<div className="dash-shell min-h-dvh md:grid md:grid-cols-[15rem_1fr]">

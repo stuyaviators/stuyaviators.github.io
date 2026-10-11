@@ -1,5 +1,5 @@
 import type { Database } from "@/db";
-import { listings, newsletters, users } from "@/db/schema";
+import { listings, newsletters, submissions, users } from "@/db/schema";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,6 +32,7 @@ const { auth } = await import("@/auth");
 const { updateTag } = await import("next/cache");
 const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
+const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
 const uploadRoute = await import("@/app/api/upload/route");
@@ -133,6 +134,13 @@ describe("signed out", () => {
 			await newsletterActions.savePresetAction("x", defaultNewsletter())
 		).toEqual(notSignedIn);
 		expect(await count(newsletters)).toBe(0);
+	});
+
+	it("can't triage the inbox", async () => {
+		const id = crypto.randomUUID();
+		expect(await inboxActions.markSubmission(id, "archived")).toEqual(
+			notSignedIn
+		);
 	});
 
 	it("can't manage officers or settings", async () => {
@@ -340,6 +348,27 @@ describe("officers", () => {
 			row.updatedAt.toISOString()
 		);
 		expect(stale).toMatchObject({ ok: false, conflict: true });
+	});
+
+	it("can triage the inbox", async () => {
+		const rows = await testDb!
+			.insert(submissions)
+			.values({ type: "contact", name: "Peter", message: "Hi" })
+			.returning();
+		const id = rows.at(0)!.id;
+		expect(await inboxActions.markSubmission(id, "read")).toEqual({ ok: true });
+		expect(await inboxActions.markSubmission(id, "archived")).toEqual({
+			ok: true,
+		});
+		const stored = await testDb!.select().from(submissions);
+		expect(stored.at(0)?.status).toBe("archived");
+		const missing = await inboxActions.markSubmission(
+			crypto.randomUUID(),
+			"read"
+		);
+		expect(missing.ok).toBe(false);
+		const bad = await inboxActions.markSubmission(id, "deleted");
+		expect(bad.ok).toBe(false);
 	});
 
 	it("can't manage officers or settings (admin only)", async () => {

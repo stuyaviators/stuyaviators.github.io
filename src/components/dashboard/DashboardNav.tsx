@@ -5,6 +5,7 @@ import {
 	FileText,
 	Gauge,
 	GraduationCap,
+	Inbox,
 	Newspaper,
 	Plane,
 	Settings,
@@ -15,6 +16,7 @@ import { usePathname } from "next/navigation";
 
 const icons = {
 	overview: Gauge,
+	inbox: Inbox,
 	opportunities: Plane,
 	scholarships: GraduationCap,
 	newsletter: Newspaper,
@@ -26,6 +28,8 @@ export type NavItem = {
 	href: string;
 	label: string;
 	icon: keyof typeof icons;
+	// Shown as a count next to the label when above zero.
+	badge?: number;
 };
 
 /**
@@ -60,6 +64,21 @@ export default function DashboardNav({
 							>
 								<Icon aria-hidden className="size-4" />
 								{item.label}
+								{item.badge !== undefined && item.badge > 0 ? (
+									<span
+										className={cn(
+											"ml-auto rounded-full px-2 text-xs font-bold",
+											isCurrent
+												? "bg-brand-ink text-brand"
+												: "bg-brand text-brand-ink"
+										)}
+									>
+										<span className="sr-only">{item.badge} new </span>
+										<span aria-hidden>
+											{item.badge > 99 ? "99+" : item.badge}
+										</span>
+									</span>
+								) : null}
 							</Link>
 						</li>
 					);
