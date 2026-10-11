@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import LinkInterceptor from "@/components/LinkInterceptor";
 import MediaGuard from "@/components/MediaGuard";
 import { themeScript } from "@/components/ThemeToggle";
@@ -63,6 +64,7 @@ export default function RootLayout({
 				{children}
 				<LinkInterceptor />
 				<MediaGuard />
+				<Analytics />
 			</body>
 		</html>
 	);
