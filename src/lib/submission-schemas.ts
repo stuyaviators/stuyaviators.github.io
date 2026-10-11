@@ -25,7 +25,7 @@ const httpUrl = z
 	.trim()
 	.max(2000)
 	.refine(
-		(value) => /^https?:\/\/\S+$/iv.test(value),
+		(value) => /^https?:\/\/\S+$/iu.test(value),
 		"Use a link that starts with http:// or https://."
 	);
 const longText = (label: string, max = 4000) =>

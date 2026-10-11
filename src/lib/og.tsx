@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 
 /*
  * Shared Open Graph card (1200×630): club photo behind a navy scrim, logo,
- * B612 label and Lexend title. Drawn with next/og at build time for static
+ * B612 label and Inter Tight title. Drawn with next/og at build time for static
  * pages (and on demand for dynamic ones), so no external service is used.
  */
 export const ogSize = { width: 1200, height: 630 };
@@ -23,9 +23,12 @@ export async function renderOg({
 	photo?: Uint8Array;
 	detail?: string;
 }) {
-	const [lexend, b612, logo] = await Promise.all([
+	const [interTight, b612, logo] = await Promise.all([
 		readFile(
-			new URL("../assets/fonts/lexend-latin-600-normal.woff", import.meta.url)
+			new URL(
+				"../assets/fonts/inter-tight-latin-600-normal.woff",
+				import.meta.url
+			)
 		),
 		readFile(
 			new URL("../assets/fonts/b612-latin-700-normal.woff", import.meta.url)
@@ -44,7 +47,7 @@ export async function renderOg({
 				display: "flex",
 				position: "relative",
 				backgroundColor: "#0F1B32",
-				fontFamily: "Lexend",
+				fontFamily: "Inter Tight",
 			}}
 		>
 			{background ? (
@@ -153,7 +156,7 @@ export async function renderOg({
 		{
 			...ogSize,
 			fonts: [
-				{ name: "Lexend", data: lexend, weight: 600, style: "normal" },
+				{ name: "Inter Tight", data: interTight, weight: 600, style: "normal" },
 				{ name: "B612", data: b612, weight: 700, style: "normal" },
 			],
 		}

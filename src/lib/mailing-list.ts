@@ -20,15 +20,15 @@ export const messages = {
 		"Your Stuy email should include your last name, e.g. pstuyvesant60@stuy.edu.",
 } as const;
 
-const allowedNameCharacters = /^[\s\p{Letter}\p{Mark}'\-.’]+$/v;
-const stuyLocalPart = /^[a-z]+\d+$/v;
-const emailShape = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/v;
+const allowedNameCharacters = /^[\s\p{Letter}\p{Mark}'\-.’]+$/u;
+const stuyLocalPart = /^[a-z]+\d+$/u;
+const emailShape = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/u;
 
 /**
 Trim and collapse runs of whitespace.
 */
 export function cleanName(raw: string): string {
-	return raw.trim().replaceAll(/\s+/gv, " ");
+	return raw.trim().replaceAll(/\s+/gu, " ");
 }
 
 export function cleanEmail(raw: string): string {
@@ -41,9 +41,9 @@ Lowercase, strip accents, and drop everything but a–z.
 export function normalizeNamePart(part: string): string {
 	return part
 		.normalize("NFD")
-		.replaceAll(/\p{Mark}/gv, "")
+		.replaceAll(/\p{Mark}/gu, "")
 		.toLowerCase()
-		.replaceAll(/[^a-z]/gv, "");
+		.replaceAll(/[^a-z]/gu, "");
 }
 
 /**
@@ -63,7 +63,7 @@ Letters before the digits, minus the (unchecked) first initial.
 */
 export function emailLastName(email: string): string {
 	const local = cleanEmail(email).split("@", 1)[0] ?? "";
-	const letters = /^[a-z]+/v.exec(local)?.[0] ?? "";
+	const letters = /^[a-z]+/u.exec(local)?.[0] ?? "";
 	return letters.slice(1);
 }
 
@@ -92,9 +92,9 @@ export function isLastNameMatch(fullName: string, email: string): boolean {
  */
 export function formatName(raw: string): string {
 	return cleanName(raw)
-		.split(/(?<separator>[\s'\-’]+)/v)
+		.split(/(?<separator>[\s'\-’]+)/u)
 		.map((token) => {
-			if (!token || /^[\s'\-’]+$/v.test(token)) {
+			if (!token || /^[\s'\-’]+$/u.test(token)) {
 				return token;
 			}
 

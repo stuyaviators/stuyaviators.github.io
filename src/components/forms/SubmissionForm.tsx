@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { initialFormState } from "@/lib/form-state";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState } from "react";
+import LinkifyEmails from "../LinkifyEmails.tsx";
 import { Honeypot, TextAreaField, TextField } from "./Field.tsx";
 
 export type FieldSpec = {
@@ -96,7 +97,9 @@ export default function SubmissionForm({
 					{pending ? "Sending…" : submitLabel}
 				</Button>
 				<p aria-live="polite" className="text-sm text-danger">
-					{state.status === "error" ? state.message : null}
+					{state.status === "error" && state.message ? (
+						<LinkifyEmails text={state.message} />
+					) : null}
 				</p>
 			</div>
 			<p className="text-sm text-muted">

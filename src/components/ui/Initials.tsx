@@ -11,8 +11,8 @@ export function Initials({
 	readonly className?: string;
 }) {
 	const initials = name
-		.split(/\s+/v)
-		.filter((part) => /\p{Letter}/v.test(part.charAt(0)))
+		.split(/\s+/u)
+		.filter((part) => /\p{Letter}/u.test(part.charAt(0)))
 		.map((part) => part[0])
 		.slice(0, 2)
 		.join("")

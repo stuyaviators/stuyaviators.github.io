@@ -25,9 +25,7 @@ import { buttonClasses } from "./ui/Button.tsx";
  *    the static hero.
  * Reduced-motion visitors get <Hero /> instead (see app/page.tsx).
  */
-const videoId = "eHTaCeVl_wo";
-const embed = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&disablekb=1&fs=0&iv_load_policy=3&playsinline=1&rel=0&enablejsapi=1`;
-const youtubeOrigin = /^https:\/\/www\.youtube(?:-nocookie)?\.com$/v;
+const heroVideo = "/videos/club-hero.mp4";
 
 // Final card position as inset percentages [top, right, bottom, left] + radius.
 const cardInset = {
@@ -68,7 +66,7 @@ export default function HomeIntro({
 	readonly posterAlt: string;
 }) {
 	const sectionRef = useRef<HTMLElement>(null);
-	const frameRef = useRef<HTMLIFrameElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 	// Read after mount (not during render) so server and client HTML match.
 	const [isReducedMotion, setIsReducedMotion] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(true);
@@ -128,47 +126,32 @@ export default function HomeIntro({
 		};
 	}, []);
 
-	// Reveal the video once YouTube reports "playing" (fallback after 3 s),
-	// and fade the intro text in shortly after (never later than 1.6 s).
+	// Fade the title in once the video is playing (never later than 1.6 s),
+	// and keep the video paused while the tab is hidden or the user paused it.
 	useEffect(() => {
 		const textTimer = setTimeout(() => {
 			setIsIntroReady(true);
 		}, 1600);
-		if (!isPlaying) {
-			setIsVideoVisible(false);
-			return () => {
-				clearTimeout(textTimer);
-			};
-		}
-
-		const onMessage = (event: MessageEvent) => {
-			if (!youtubeOrigin.test(event.origin)) {
+		const video = videoRef.current;
+		const sync = () => {
+			if (!video) {
 				return;
 			}
 
-			try {
-				const data = (
-					typeof event.data === "string" ? JSON.parse(event.data) : event.data
-				) as { info?: { playerState?: number } };
-				if (data.info?.playerState === 1) {
-					setIsVideoVisible(true);
-					setTimeout(() => {
-						setIsIntroReady(true);
-					}, 500);
-				}
-			} catch {}
+			if (isPlaying && document.visibilityState === "visible") {
+				video.play().catch(() => undefined);
+			} else {
+				video.pause();
+			}
 		};
 
-		globalThis.addEventListener("message", onMessage);
-		const videoTimer = setTimeout(() => {
-			setIsVideoVisible(true);
-		}, 3000);
+		sync();
+		document.addEventListener("visibilitychange", sync);
 		return () => {
-			globalThis.removeEventListener("message", onMessage);
-			clearTimeout(videoTimer);
 			clearTimeout(textTimer);
+			document.removeEventListener("visibilitychange", sync);
 		};
-	}, [isPlaying]);
+	}, [isPlaying, isReducedMotion]);
 
 	// Reduced motion: the static split hero (no scroll-linked animation).
 	if (isReducedMotion) {
@@ -193,37 +176,27 @@ export default function HomeIntro({
 						sizes="100vw"
 						className="object-cover"
 					/>
-					{isPlaying ? (
-						<iframe
-							ref={frameRef}
-							src={embed}
-							title="StuyAviators club video (muted)"
-							allow="autoplay; encrypted-media; picture-in-picture"
-							referrerPolicy="strict-origin-when-cross-origin"
-							tabIndex={-1}
-							onLoad={() => {
-								frameRef.current?.contentWindow?.postMessage(
-									JSON.stringify({
-										event: "listening",
-										id: 1,
-										channel: "widget",
-									}),
-									"*"
-								);
-							}}
-							className={cn(
-								"pointer-events-none absolute border-0 transition-opacity duration-1000",
-								isVideoVisible ? "opacity-100" : "opacity-0"
-							)}
-							style={{
-								top: "50%",
-								left: "50%",
-								width: "max(100vw, 177.78svh)",
-								aspectRatio: "16 / 9",
-								transform: "translate(-50%, -50%) scale(1.15)",
-							}}
-						/>
-					) : null}
+					<video
+						ref={videoRef}
+						src={heroVideo}
+						muted
+						loop
+						playsInline
+						autoPlay
+						preload="auto"
+						aria-hidden
+						tabIndex={-1}
+						className={cn(
+							"absolute inset-0 size-full object-cover transition-opacity duration-1000",
+							isVideoVisible ? "opacity-100" : "opacity-0"
+						)}
+						onPlaying={() => {
+							setIsVideoVisible(true);
+							setTimeout(() => {
+								setIsIntroReady(true);
+							}, 500);
+						}}
+					/>
 					<motion.div
 						aria-hidden
 						className="absolute inset-0 bg-navy/55"
@@ -302,7 +275,8 @@ export default function HomeIntro({
 									tabIndex={isSplit ? undefined : -1}
 									className={buttonClasses("secondary")}
 								>
-									See meetings <ArrowRight aria-hidden className="size-4" />
+									See meetings{" "}
+									<ArrowRight aria-hidden className="btn-arrow size-4" />
 								</Link>
 							</div>
 						</div>

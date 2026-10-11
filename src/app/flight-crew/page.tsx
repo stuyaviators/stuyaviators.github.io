@@ -65,7 +65,7 @@ export default function FlightCrewPage() {
 				imageAlt={photos.heroClassroomMeeting.alt}
 			>
 				<ButtonLink href={crewApplyUrl} variant="accent">
-					Apply now <ArrowUpRight aria-hidden className="size-4" />
+					Apply now <ArrowUpRight aria-hidden className="btn-arrow size-4" />
 				</ButtonLink>
 				<ButtonLink href="#positions" variant="secondary">
 					See positions
@@ -163,7 +163,8 @@ export default function FlightCrewPage() {
 							rel="noopener noreferrer"
 							className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-ice px-5 py-2.5 text-sm font-semibold text-navy"
 						>
-							Apply now <ArrowUpRight aria-hidden className="size-4" />
+							Apply now{" "}
+							<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 						</a>
 						<p className="mt-3 text-sm text-[#a9bedd]">
 							The application form asks you to sign in with your Stuy Google

@@ -1,0 +1,104 @@
+"use client";
+
+import type { ReactNode } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+
+/**
+Pinned horizontal carousel: on desktop the section sticks while vertical
+scrolling slides the cards sideways. Phones, tablets and reduced-motion
+visitors get a native swipeable row with scroll-snap.
+*/
+export default function HorizontalShowcase({
+	header,
+	children,
+}: {
+	readonly header: ReactNode;
+	readonly children: ReactNode;
+}) {
+	const sectionRef = useRef<HTMLElement>(null);
+	const trackRef = useRef<HTMLDivElement>(null);
+	const [distance, setDistance] = useState(0);
+	const [isPinned, setIsPinned] = useState(false);
+
+	useEffect(() => {
+		const desktop = globalThis.matchMedia("(min-width: 1024px)");
+		const reduced = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
+		const measure = () => {
+			setIsPinned(desktop.matches && !reduced.matches);
+			const track = trackRef.current;
+			if (track) {
+				setDistance(Math.max(0, track.scrollWidth - window.innerWidth));
+			}
+		};
+
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(document.documentElement);
+		desktop.addEventListener("change", measure);
+		reduced.addEventListener("change", measure);
+		return () => {
+			observer.disconnect();
+			desktop.removeEventListener("change", measure);
+			reduced.removeEventListener("change", measure);
+		};
+	}, []);
+
+	// Re-measure once the pinned track (with its padding) is rendered.
+	useEffect(() => {
+		const track = trackRef.current;
+		if (track) {
+			setDistance(Math.max(0, track.scrollWidth - window.innerWidth));
+		}
+	}, [isPinned]);
+
+	const { scrollYProgress } = useScroll({
+		target: sectionRef,
+		offset: ["start start", "end end"],
+	});
+	const x = useTransform(scrollYProgress, [0.05, 0.95], [0, -distance]);
+	const progressWidth = useTransform(
+		scrollYProgress,
+		[0.05, 0.95],
+		["0%", "100%"]
+	);
+
+	if (!isPinned) {
+		return (
+			<section className="py-14 sm:py-20">
+				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">{header}</div>
+				<div
+					ref={trackRef}
+					className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-4 sm:scroll-px-6 sm:px-6"
+				>
+					{children}
+				</div>
+			</section>
+		);
+	}
+
+	return (
+		<section
+			ref={sectionRef}
+			className="relative"
+			style={{ height: `calc(100svh + ${distance}px)` }}
+		>
+			<div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
+				<div className="mx-auto w-full max-w-6xl px-8">{header}</div>
+				<motion.div
+					ref={trackRef}
+					style={{ x }}
+					className="mt-10 flex gap-6 pr-16 pl-[max(2rem,calc((100vw-72rem)/2+2rem))]"
+				>
+					{children}
+				</motion.div>
+				<div className="mx-auto mt-10 h-0.5 w-full max-w-6xl overflow-hidden rounded-full bg-hairline px-8">
+					<motion.div
+						className="h-full bg-brand"
+						style={{ width: progressWidth }}
+					/>
+				</div>
+			</div>
+		</section>
+	);
+}

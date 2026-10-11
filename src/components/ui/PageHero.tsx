@@ -1,5 +1,7 @@
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import Parallax from "@/components/motion/Parallax";
+import RevealText from "@/components/motion/RevealText";
 import { Stagger } from "@/components/TransitionProvider";
 import Image from "next/image";
 import { Container } from "./Section.tsx";
@@ -29,9 +31,12 @@ export function PageHero({
 			<Stagger>
 				<p className="label text-accent-text">{eyebrow}</p>
 			</Stagger>
-			<Stagger>
-				<h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
-			</Stagger>
+			<RevealText
+				as="h1"
+				text={title}
+				delay={120}
+				className="mt-3 block text-5xl sm:text-6xl lg:text-7xl"
+			/>
 			{intro === undefined ? null : (
 				<Stagger>
 					<div className="mt-5 max-w-2xl text-lg text-muted">{intro}</div>
@@ -55,15 +60,19 @@ export function PageHero({
 
 	return (
 		<header className="on-dark relative isolate -mt-[5.5rem] overflow-hidden bg-navy pt-[5.5rem]">
-			<Image
-				src={image}
-				alt={imageAlt ?? ""}
-				fill
-				priority
-				placeholder="blur"
-				sizes="100vw"
-				className="-z-20 object-cover"
-			/>
+			<div className="absolute inset-0 -z-20">
+				<Parallax distance={120}>
+					<Image
+						src={image}
+						alt={imageAlt ?? ""}
+						fill
+						priority
+						placeholder="blur"
+						sizes="100vw"
+						className="object-cover"
+					/>
+				</Parallax>
+			</div>
 			<div
 				aria-hidden
 				className="absolute inset-0 -z-10 bg-navy/80 lg:bg-transparent lg:bg-linear-to-r lg:from-navy/95 lg:via-navy/80 lg:to-navy/35"

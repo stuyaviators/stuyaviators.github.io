@@ -29,6 +29,9 @@ const legacyRedirects: Array<[string, string]> = [
 ];
 
 const nextConfig: NextConfig = {
+	// Lets verification builds use a separate folder (NEXT_DIST_DIR=.next-build)
+	// so they never overwrite a running dev server's output.
+	distDir: process.env.NEXT_DIST_DIR ?? ".next",
 	images: {
 		// Fewer breakpoints → fewer transformations on the Hobby plan.
 		deviceSizes: [640, 828, 1200, 1920],

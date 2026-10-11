@@ -62,7 +62,8 @@ export default function Hero() {
 								Join StuyAviators
 							</ButtonLink>
 							<ButtonLink href="/meetings" variant="secondary">
-								See meetings <ArrowRight aria-hidden className="size-4" />
+								See meetings{" "}
+								<ArrowRight aria-hidden className="btn-arrow size-4" />
 							</ButtonLink>
 						</div>
 					</Stagger>

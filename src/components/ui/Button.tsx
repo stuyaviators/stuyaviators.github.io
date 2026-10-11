@@ -17,7 +17,7 @@ export function buttonClasses(
 	className?: string
 ) {
 	return cn(
-		"inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[filter,color,border-color,background-color] duration-150 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none",
+		"group inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[filter,color,border-color,background-color,transform] duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100",
 		variants[variant],
 		className
 	);
@@ -54,7 +54,7 @@ export function ButtonLink({
 	readonly children: ReactNode;
 	readonly external?: boolean;
 }) {
-	const isExternal = external ?? /^(?:https?:|mailto:)/v.test(href);
+	const isExternal = external ?? /^(?:https?:|mailto:)/u.test(href);
 	if (isExternal) {
 		return (
 			<a

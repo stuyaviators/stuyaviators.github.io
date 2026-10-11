@@ -94,7 +94,11 @@
 	--color-board-dim: var(--board-dim);
 	--color-danger: var(--danger);
 	--color-success: var(--success);
-	--font-sans: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	--font-display:
+		var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui,
+		sans-serif;
+	--font-wordmark: var(--font-goudy), Georgia, serif;
 	--font-label: var(--font-b612), ui-sans-serif, system-ui, sans-serif;
 	--font-mono: var(--font-b612-mono), ui-monospace, monospace;
 	--shadow-card: var(--shadow);
@@ -121,8 +125,9 @@
 	h2,
 	h3,
 	h4 {
-		line-height: 1.15;
-		letter-spacing: -0.015em;
+		font-family: var(--font-display);
+		line-height: 1.08;
+		letter-spacing: -0.025em;
 		font-weight: 600;
 		text-wrap: balance;
 	}
@@ -380,5 +385,154 @@
 	.scroll-cue,
 	.stagger {
 		animation: none;
+	}
+}
+
+/* ───────────────────────── Motion system ─────────────────────────
+   Apple-style interactions. Everything here is progressive: content is
+   visible without JS (the `.js` class is set pre-paint in layout.tsx), and
+   prefers-reduced-motion turns the motion off. */
+
+:root {
+	interpolate-size: allow-keywords;
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Word-by-word reveal with blur-to-sharp (RevealText). */
+.reveal-word {
+	display: inline-block;
+	overflow: clip;
+	overflow-clip-margin: 0.2em;
+	vertical-align: top;
+	padding-bottom: 0.08em;
+	margin-bottom: -0.08em;
+}
+
+.reveal-word > span {
+	display: inline-block;
+}
+
+.js [data-reveal] .reveal-word > span {
+	transform: translateY(105%);
+	opacity: 0;
+	filter: blur(8px);
+}
+
+.js [data-reveal="in"] .reveal-word > span {
+	transform: none;
+	opacity: 1;
+	filter: none;
+	transition:
+		transform 0.9s var(--ease-out-expo),
+		opacity 0.9s var(--ease-out-expo),
+		filter 0.9s var(--ease-out-expo);
+	transition-delay: calc(var(--i, 0) * 45ms + var(--reveal-delay, 0ms));
+}
+
+/* Image clip reveal as it scrolls into view. */
+@keyframes clip-reveal {
+	from {
+		clip-path: inset(10% 8% 10% 8% round 28px);
+		scale: 1.06;
+	}
+	to {
+		clip-path: inset(0 0 0 0 round 0);
+		scale: 1;
+	}
+}
+
+@supports (animation-timeline: view()) {
+	.clip-reveal {
+		animation: clip-reveal linear both;
+		animation-timeline: view();
+		animation-range: entry 0% cover 40%;
+	}
+}
+
+/* Page enter on every navigation (template.tsx). */
+@keyframes page-enter {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+}
+
+.page-enter {
+	animation: page-enter 0.6s var(--ease-out-expo) backwards;
+}
+
+/* Buttons and arrows. */
+.btn-arrow {
+	transition: transform 0.3s var(--ease-out-expo);
+}
+
+.group:hover .btn-arrow,
+.group:focus-visible .btn-arrow {
+	transform: translateX(4px);
+}
+
+/* Animated <details> (accordions). */
+details::details-content {
+	block-size: 0;
+	overflow-y: clip;
+	transition:
+		block-size 0.45s var(--ease-out-expo),
+		content-visibility 0.45s allow-discrete;
+}
+
+details[open]::details-content {
+	block-size: auto;
+}
+
+details > summary .chevron {
+	transition: transform 0.35s var(--ease-out-expo);
+}
+
+details[open] > summary .chevron {
+	transform: rotate(180deg);
+}
+
+/* Modal scale-in (lightbox, quiz). */
+dialog[open] {
+	animation: modal-in 0.4s var(--ease-out-expo);
+}
+
+dialog[open]::backdrop {
+	animation: backdrop-in 0.4s ease-out;
+}
+
+@keyframes modal-in {
+	from {
+		opacity: 0;
+		transform: scale(0.94);
+	}
+}
+
+@keyframes backdrop-in {
+	from {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.js [data-reveal] .reveal-word > span {
+		transform: none;
+		opacity: 1;
+		filter: none;
+		transition: none;
+	}
+
+	.clip-reveal,
+	.page-enter,
+	dialog[open],
+	dialog[open]::backdrop {
+		animation: none;
+	}
+
+	details::details-content,
+	details > summary .chevron,
+	.btn-arrow {
+		transition: none;
 	}
 }

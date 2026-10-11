@@ -95,12 +95,27 @@ export type Contact = {
 
 export const contacts: Contact[] = [
 	{
-		label: "Email",
-		value: "aviators-exec@stuy.edu",
-		href: "mailto:aviators-exec@stuy.edu",
-		note: "Questions, ideas, partnerships and permissions",
+		label: "Outreach",
+		value: "aviators-outreach@stuy.edu",
+		href: "mailto:aviators-outreach@stuy.edu",
+		note: "Questions, partnerships, guest speakers and story submissions",
+	},
+	{
+		label: "Media",
+		value: "aviators-media@stuy.edu",
+		href: "mailto:aviators-media@stuy.edu",
+		note: "Photo and video submissions for the gallery",
 	},
 ];
+
+/**
+Administrative contact, shown in the footer.
+*/
+export const adminContact: Contact = {
+	label: "Administrative",
+	value: "aviators-exec@stuy.edu",
+	href: "mailto:aviators-exec@stuy.edu",
+};
 
 export type SocialKey =
 	"instagram" | "discord" | "youtube" | "facebook" | "epsilon";

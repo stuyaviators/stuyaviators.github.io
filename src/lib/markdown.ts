@@ -18,7 +18,7 @@ function createMarkdown() {
 	instance.renderer.rules.link_open = (tokens, index, options, env, self) => {
 		const token = tokens[index];
 		const href = String(token.attrGet("href") ?? "");
-		if (/^https?:\/\//iv.test(href)) {
+		if (/^https?:\/\//iu.test(href)) {
 			token.attrSet("target", "_blank");
 			token.attrSet("rel", "noopener noreferrer");
 		}

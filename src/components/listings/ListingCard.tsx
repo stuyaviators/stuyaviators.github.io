@@ -118,7 +118,7 @@ export default function ListingCard({
 				className="mt-5 inline-flex items-center gap-1.5 font-semibold text-brand underline-offset-4 hover:underline"
 			>
 				Learn more and apply
-				<ArrowUpRight aria-hidden className="size-4" />
+				<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 				<span className="sr-only">
 					(opens {listing.organization} in a new tab)
 				</span>

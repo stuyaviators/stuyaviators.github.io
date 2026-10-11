@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import RevealText from "@/components/motion/RevealText";
 import { Stagger } from "@/components/TransitionProvider";
 import { cn } from "@/lib/cn";
 import { FlightStrip } from "./FlightStrip.tsx";
@@ -53,9 +54,18 @@ export function Section({
 						{label ? <FlightStrip index={index} label={label} /> : null}
 						<div className="mt-5 flex flex-wrap items-end justify-between gap-4">
 							{hasTitle ? (
-								<h2 id={headingId} className="max-w-3xl text-3xl sm:text-4xl">
-									{title}
-								</h2>
+								typeof title === "string" ? (
+									<RevealText
+										as="h2"
+										id={headingId}
+										text={title}
+										className="max-w-3xl text-4xl sm:text-5xl"
+									/>
+								) : (
+									<h2 id={headingId} className="max-w-3xl text-4xl sm:text-5xl">
+										{title}
+									</h2>
+								)
 							) : null}
 							{action}
 						</div>

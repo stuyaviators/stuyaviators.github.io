@@ -38,8 +38,8 @@ export const crewGroups: CrewGroup[] = [
 		id: "current",
 		title: "Current Leadership",
 		introKey: "current",
-		// Roles from the club's Epsilon page (Oct 2026). Class years and photos
-		// for newer officers still to be supplied.
+		// Roles from the club's Epsilon page (Oct 2026). Photos for newer
+		// officers still to be supplied.
 		members: [
 			{
 				name: "Andrew Zhang",
@@ -53,9 +53,21 @@ export const crewGroups: CrewGroup[] = [
 				role: "Captain (Co-President)",
 				photo: alexanderSmelyansky,
 			},
-			{ name: "Caleb Paugh", role: "First Officer (Vice President)" },
-			{ name: "Sheng Yue Huang", role: "Flight Engineer (Secretary)" },
-			{ name: "Nathan Lai", role: "Flight Technician (IT)" },
+			{
+				name: "Caleb Paugh",
+				classOf: "'29",
+				role: "First Officer (Vice President)",
+			},
+			{
+				name: "Sheng Yue “Nancy” Huang",
+				classOf: "'27",
+				role: "Flight Engineer (Secretary)",
+			},
+			{
+				name: "Nathan Lai",
+				classOf: "'29",
+				role: "Flight Technician (IT)",
+			},
 		],
 	},
 	{
@@ -68,6 +80,7 @@ export const crewGroups: CrewGroup[] = [
 				role: "(2024 - Present)",
 				photo: jamesDillon,
 			},
+			{ name: "Ms. Mariya Deykute", role: "Faculty Advisor" },
 		],
 	},
 	{

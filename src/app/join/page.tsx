@@ -48,7 +48,7 @@ export default function JoinPage() {
 							>
 								Join on{" "}
 								<EpsilonWordmark className="h-4 w-auto" aria-label="Epsilon" />{" "}
-								<ArrowUpRight aria-hidden className="size-4" />
+								<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 							</a>
 						</div>
 					</Stagger>

@@ -77,12 +77,12 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 			id: `epsilon-${meeting.id}`,
 			title,
 			code: codes.find((code) =>
-				new RegExp(String.raw`\b${code}\b`, "v").test(title)
+				new RegExp(String.raw`\b${code}\b`, "u").test(title)
 			),
 			start: meeting.start_time,
 			end: meeting.end_time ?? undefined,
 			room: meeting.rooms?.name,
-			status: /cancel/iv.test(title) ? "cancelled" : "scheduled",
+			status: /cancel/iu.test(title) ? "cancelled" : "scheduled",
 			description: meeting.description ?? undefined,
 		});
 	}

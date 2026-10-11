@@ -12,6 +12,7 @@ import {
 } from "@/lib/mailing-list";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState, useState } from "react";
+import LinkifyEmails from "../LinkifyEmails.tsx";
 import { Honeypot, TextField } from "./Field.tsx";
 
 /*
@@ -140,7 +141,7 @@ export default function MailingListForm({
 				<div aria-live="polite" className="text-sm">
 					{state.status === "error" && state.message ? (
 						<p className="text-danger">
-							{state.message}{" "}
+							<LinkifyEmails text={state.message} />{" "}
 							{state.fallbackUrl ? (
 								<a
 									href={state.fallbackUrl}

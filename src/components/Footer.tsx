@@ -1,7 +1,7 @@
 import bannerWhite from "@/assets/brand/banner-white.png";
 import MailingListForm from "@/components/forms/MailingListForm";
 import { SocialIcon } from "@/components/icons";
-import { contacts, isNavGroup, nav, site, socials } from "@/content/site";
+import { adminContact, isNavGroup, nav, site, socials } from "@/content/site";
 import { signupFormConfig } from "@/lib/google-forms";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { Container } from "./ui/Section.tsx";
 export default function Footer() {
 	const year = new Date().getFullYear();
 	return (
-		<footer className="mt-auto bg-navy text-[#eef4ff] [--brand:#8dbdf2] [--field:#5f7ca8] [--hairline:#243b63] [--muted:#a9bedd] [--surface:#172a4d] [--text:#eef4ff] [--accent:#ddebff] [--accent-ink:#0f1b32] [--danger:#ff8a80] [--success:#6fd39b]">
+		<footer className="z-0 -mt-10 bg-navy pt-10 lg:sticky lg:bottom-0 text-[#eef4ff] [--brand:#8dbdf2] [--field:#5f7ca8] [--hairline:#243b63] [--muted:#a9bedd] [--surface:#172a4d] [--text:#eef4ff] [--accent:#ddebff] [--accent-ink:#0f1b32] [--danger:#ff8a80] [--success:#6fd39b]">
 			<Container className="py-14">
 				<div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
 					<div>
@@ -69,16 +69,17 @@ export default function Footer() {
 					<div>
 						<h2 className="label text-[#a9bedd]">Contact</h2>
 						<ul className="mt-3 space-y-2 text-sm">
-							{contacts.map((contact) => (
-								<li key={contact.value}>
-									<a
-										href={contact.href}
-										className="break-all hover:text-[#8dbdf2]"
-									>
-										{contact.value}
-									</a>
-								</li>
-							))}
+							<li>
+								<span className="block text-[#a9bedd]">
+									{adminContact.label}
+								</span>
+								<a
+									href={adminContact.href}
+									className="break-all underline-offset-2 hover:text-[#8dbdf2] hover:underline"
+								>
+									{adminContact.value}
+								</a>
+							</li>
 							<li className="pt-1 text-[#a9bedd]">
 								{site.address.school}
 								<br />

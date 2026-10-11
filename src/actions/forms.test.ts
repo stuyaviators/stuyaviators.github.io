@@ -123,7 +123,7 @@ describe("signUpForMailingList", () => {
 
 		expect(states.slice(0, 5).every((s) => s.status === "success")).toBe(true);
 		expect(states[5]?.status).toBe("error");
-		expect(states[5]?.message).toMatch(/too many/iv);
+		expect(states[5]?.message).toMatch(/too many/iu);
 		expect(googleCalls()).toHaveLength(5);
 	});
 

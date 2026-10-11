@@ -6,6 +6,7 @@ import { initialFormState } from "@/lib/form-state";
 import { validateStuyEmail } from "@/lib/mailing-list";
 import { CheckCircle2 } from "lucide-react";
 import { useActionState, useState } from "react";
+import LinkifyEmails from "../LinkifyEmails.tsx";
 import { Honeypot, TextField } from "./Field.tsx";
 
 export default function UnsubscribeForm() {
@@ -65,7 +66,7 @@ export default function UnsubscribeForm() {
 				<p aria-live="polite" className="text-sm text-danger">
 					{state.status === "error" && state.message ? (
 						<>
-							{state.message}{" "}
+							<LinkifyEmails text={state.message} />{" "}
 							{state.fallbackUrl ? (
 								<a href={state.fallbackUrl} className="underline">
 									Email us instead

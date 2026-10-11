@@ -53,6 +53,9 @@ const xoConfig = [
 			],
 			// - Node's Buffer global is fine in server code and build scripts.
 			"n/prefer-global/buffer": "off",
+			// Next's SWC compiler drops "unnecessary" escapes such as `\-` inside
+			// character classes, which is invalid under the `v` flag. Require `u`.
+			"require-unicode-regexp": ["error", { requireFlag: "u" }],
 			// Prettier removes "redundant" parentheses, so this rule fights it.
 			"@stylistic/no-mixed-operators": "off",
 		},

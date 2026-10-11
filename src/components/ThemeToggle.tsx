@@ -36,7 +36,7 @@ function applyTheme(theme: Theme) {
 /**
 Inline, pre-paint script so the chosen theme never flashes.
 */
-export const themeScript = `(function(){try{var t=localStorage.getItem("${storageKey}");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()`;
+export const themeScript = `(function(){document.documentElement.classList.add("js");try{var t=localStorage.getItem("${storageKey}");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})()`;
 
 export default function ThemeToggle() {
 	const [theme, setTheme] = useState<Theme>("system");
