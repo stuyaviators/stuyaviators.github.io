@@ -39,6 +39,9 @@ export const metadata: Metadata = {
 		template: "%s · StuyAviators",
 	},
 	description: site.tagline,
+	// Google Search Console ownership check (needed for Google sign-in
+	// branding verification). A public token, not a secret.
+	verification: { google: "YvwwfPnMjiptOfKjx1R_dzlCK_JmlHwcR7xIqUMzb-I" },
 	openGraph: {
 		siteName: "StuyAviators",
 		type: "website",
