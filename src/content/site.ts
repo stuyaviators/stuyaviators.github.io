@@ -59,7 +59,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/careers",
-				label: "Future Career Pathways",
+				label: "Career Pathways",
 				description: "Every path in aviation",
 			},
 		],

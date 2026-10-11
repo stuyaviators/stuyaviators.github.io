@@ -138,7 +138,7 @@ export default function GalleryManager({
 										<p className="text-sm">{item.alt}</p>
 										{item.isAi ? (
 											<p className="mt-1">
-												<Badge>AI-generated</Badge>
+												<Badge>AI-Generated Caption</Badge>
 											</p>
 										) : null}
 									</>
@@ -317,7 +317,7 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 				value={alt}
 				maxLength={300}
 				error={errors.alt}
-				hint="What's in the photo, for people who can't see it. Leave it blank and AI writes one when you add the photo; visitors then see it labeled AI-generated. If you write or change it yourself, the label goes away."
+				hint="What's in the photo, for people who can't see it. Leave it blank and AI writes one when you add the photo; visitors then see it labeled AI-Generated Caption. If you write or change it yourself, the label goes away."
 				onChange={(event) => {
 					setAlt(event.target.value);
 				}}
@@ -380,8 +380,8 @@ function AltForm({
 				error={error}
 				hint={
 					canWrite
-						? "Clear it and save to have AI write a new one. Any change you make removes the AI-generated label."
-						: "Any change you make removes the AI-generated label."
+						? "Clear it and save to have AI write a new one. Any change you make removes the AI-Generated Caption label."
+						: "Any change you make removes the AI-Generated Caption label."
 				}
 				onChange={(event) => {
 					setAlt(event.target.value);

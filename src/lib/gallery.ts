@@ -213,6 +213,7 @@ export const getPublicGallery = unstable_cache(
 
 		return bundledImages();
 	},
-	["gallery"],
+	// The version in the key drops copies cached before photos had an AI flag.
+	["gallery", "v2"],
 	{ tags: [galleryTag], revalidate: 3600 }
 );

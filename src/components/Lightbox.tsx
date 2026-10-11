@@ -224,8 +224,10 @@ function Caption({
 	const [isPinned, setIsPinned] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const isShowingSpecs = isHovered || isPinned;
-	const fade =
-		"col-start-1 row-start-1 transition-opacity duration-300 motion-reduce:transition-none";
+	// Both texts get exactly the same font, line height and centering, and sit
+	// in the same spot, so swapping them changes nothing but the words.
+	const line =
+		"col-start-1 row-start-1 self-center text-center text-sm leading-normal font-normal transition-opacity duration-300 motion-reduce:transition-none";
 	return (
 		<motion.figcaption
 			initial={{ opacity: 0, y: 8 }}
@@ -252,13 +254,13 @@ function Caption({
 			>
 				<span
 					aria-hidden={isShowingSpecs}
-					className={cn(fade, isShowingSpecs ? "opacity-0" : "opacity-100")}
+					className={cn(line, isShowingSpecs ? "opacity-0" : "opacity-100")}
 				>
 					{alt}
 				</span>
 				<span
 					aria-hidden={!isShowingSpecs}
-					className={cn(fade, isShowingSpecs ? "opacity-100" : "opacity-0")}
+					className={cn(line, isShowingSpecs ? "opacity-100" : "opacity-0")}
 				>
 					{specs ?? <em>No data found</em>}
 				</span>
@@ -267,15 +269,15 @@ function Caption({
 				<span
 					tabIndex={0}
 					role="img"
-					aria-label="AI-Generated caption, may be inaccurate"
-					className="group/tip relative mt-1.5 inline-flex shrink-0 cursor-help rounded text-white/60 transition-colors duration-200 hover:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+					aria-label="AI-Generated Caption, may be inaccurate"
+					className="group/tip relative mt-1 inline-flex h-5 shrink-0 cursor-help items-center rounded text-white/60 transition-colors duration-200 hover:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
 				>
 					<Bot aria-hidden className="size-4" />
 					<span
 						aria-hidden
 						className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-56 -translate-x-1/2 rounded-md bg-black px-2.5 py-1.5 text-center text-xs text-white opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity duration-200 group-hover/tip:opacity-100 group-focus/tip:opacity-100 motion-reduce:transition-none"
 					>
-						AI-Generated caption. May be inaccurate.
+						AI-Generated Caption. May be inaccurate.
 					</span>
 				</span>
 			) : null}

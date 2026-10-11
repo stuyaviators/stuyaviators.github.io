@@ -133,7 +133,7 @@ export default async function Home() {
 
 			<section
 				aria-labelledby="join-heading"
-				className="scene-section py-16 sm:py-24"
+				className="scene-section min-h-svh py-24 sm:py-32"
 			>
 				<Container className="scene">
 					<div className="clip-reveal on-dark relative isolate overflow-hidden rounded-3xl bg-ink px-6 py-16 sm:px-12 sm:py-24">

@@ -1,45 +1,54 @@
 "use client";
 
 import type { MotionValue } from "motion/react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefCallback } from "react";
 import {
 	motion,
+	motionValue,
+	useMotionValueEvent,
 	useReducedMotion,
 	useScroll,
 	useTransform,
 } from "motion/react";
-import { Children, useRef } from "react";
+import { Children, useEffect, useMemo, useRef } from "react";
 
 /*
  * Cards that stack as you scroll: every card sticks at the same height, and
  * as later cards slide up over it, the ones underneath shrink slightly and
  * lift, so the stack grows upward instead of drifting down the screen.
+ *
+ * How far a card is buried is measured from where the cards above it really
+ * are on screen (not from the scroll progress of the whole list), so each
+ * card arrives at exactly the same height, the last one included, however
+ * much space there is between cards.
  */
+// Matches the top-24 class on each card, in pixels.
+const stickyTop = 96;
+
 function StackCard({
 	children,
-	index,
-	total,
-	progress,
+	cover,
+	cardRef,
 }: {
 	readonly children: ReactNode;
-	readonly index: number;
-	readonly total: number;
-	readonly progress: MotionValue<number>;
+	// How many cards have landed on this one (0 → untouched).
+	readonly cover: MotionValue<number>;
+	readonly cardRef: RefCallback<HTMLLIElement>;
 }) {
 	const isReducedMotion = useReducedMotion();
-	const below = total - 1 - index; // Cards that will land on top of this one
-	const start = index / total;
-	const scale = useTransform(progress, [start, 1], [1, 1 - below * 0.04]);
-	const y = useTransform(progress, [start, 1], [0, -below * 14]);
+	const scale = useTransform(cover, (value) => 1 - value * 0.04);
+	const y = useTransform(cover, (value) => -value * 14);
 	const filter = useTransform(
-		progress,
-		[start, 1],
-		["brightness(1)", `brightness(${1 - below * 0.06})`]
+		cover,
+		(value) => `brightness(${1 - value * 0.06})`
 	);
 	return (
 		// The gap below each card holds it in the middle of the screen for a
 		// moment before the next one slides over it.
-		<li className="sticky top-24 mb-[18svh] h-[calc(100svh-7rem)] max-h-[34rem] pt-4 last:mb-0">
+		<li
+			ref={cardRef}
+			className="sticky top-24 mb-[18svh] h-[calc(100svh-7rem)] max-h-[34rem] pt-4 last:mb-0"
+		>
 			<motion.div
 				className="h-full origin-top"
 				style={isReducedMotion ? undefined : { scale, y, filter }}
@@ -55,20 +64,55 @@ export default function StackingCards({
 }: {
 	readonly children: ReactNode;
 }) {
-	const ref = useRef<HTMLOListElement>(null);
-	const { scrollYProgress } = useScroll({
-		target: ref,
-		offset: ["start start", "end end"],
-	});
 	const items = Children.toArray(children);
+	const cards = useRef<Array<HTMLLIElement | undefined>>([]);
+	const covers = useMemo(
+		() => items.map(() => motionValue(0)),
+		// One value per card.
+		[items.length]
+	);
+	const { scrollY } = useScroll();
+
+	const update = () => {
+		const height = window.innerHeight;
+		// Zero when a card's top is at the bottom of the screen, 1 once it has
+		// landed in the stack.
+		const landed = cards.current.map((card) => {
+			if (!card) {
+				return 0;
+			}
+
+			const { top } = card.getBoundingClientRect();
+			return Math.min(1, Math.max(0, (height - top) / (height - stickyTop)));
+		});
+		for (const [index, cover] of covers.entries()) {
+			let total = 0;
+			for (let later = index + 1; later < landed.length; later++) {
+				total += landed[later] ?? 0;
+			}
+
+			cover.set(total);
+		}
+	};
+
+	useMotionValueEvent(scrollY, "change", update);
+	useEffect(() => {
+		update();
+		globalThis.addEventListener("resize", update);
+		return () => {
+			globalThis.removeEventListener("resize", update);
+		};
+	}, [covers]);
+
 	return (
-		<ol ref={ref} className="relative">
+		<ol className="relative">
 			{items.map((child, index) => (
 				<StackCard
 					key={index}
-					index={index}
-					total={items.length}
-					progress={scrollYProgress}
+					cover={covers[index] ?? motionValue(0)}
+					cardRef={(element) => {
+						cards.current[index] = element ?? undefined;
+					}}
 				>
 					{child}
 				</StackCard>
