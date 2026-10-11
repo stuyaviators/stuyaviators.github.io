@@ -256,3 +256,19 @@ export async function moveListing(
 		);
 	return listing.kind;
 }
+
+/**
+Published cards that have a deadline; the digest picks the ones due soon.
+*/
+export async function listWithDeadlines(db: Database): Promise<Listing[]> {
+	return db
+		.select()
+		.from(listings)
+		.where(
+			and(
+				eq(listings.status, "published"),
+				isNull(listings.deletedAt),
+				isNotNull(listings.deadline)
+			)
+		);
+}

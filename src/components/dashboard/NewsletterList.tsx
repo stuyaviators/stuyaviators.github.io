@@ -2,6 +2,7 @@
 
 import type { Newsletter, NewsletterPreset } from "@/lib/newsletters";
 import {
+	createDeadlineDigestAction,
 	createNewsletterAction,
 	deleteNewsletterForeverAction,
 	deletePresetAction,
@@ -15,7 +16,14 @@ import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { ExternalLink, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import {
+	CalendarClock,
+	ExternalLink,
+	Pencil,
+	Plus,
+	RotateCcw,
+	Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -46,6 +54,15 @@ export default function NewsletterList({
 	function create(fromPreset?: string) {
 		run(
 			async () => createNewsletterAction(fromPreset),
+			(result) => {
+				router.push(`/dashboard/newsletter/${result.id}`);
+			}
+		);
+	}
+
+	function createDigest() {
+		run(
+			async () => createDeadlineDigestAction(),
 			(result) => {
 				router.push(`/dashboard/newsletter/${result.id}`);
 			}
@@ -85,6 +102,13 @@ export default function NewsletterList({
 						{isPending ? <Spinner /> : <Plus aria-hidden className="size-4" />}{" "}
 						New newsletter
 					</Button>
+					<Button
+						variant="secondary"
+						disabled={isPending}
+						onClick={createDigest}
+					>
+						<CalendarClock aria-hidden className="size-4" /> Deadline digest
+					</Button>
 					{presets.length > 0 ? (
 						<div className="flex flex-1 flex-wrap items-end gap-2">
 							<div className="min-w-48 flex-1">
@@ -114,6 +138,10 @@ export default function NewsletterList({
 							</Button>
 						</div>
 					) : null}
+					<p className="basis-full text-sm text-muted">
+						Deadline digest starts a draft with the published scholarships and
+						opportunities whose deadline is 14-21 days away.
+					</p>
 				</Card>
 			)}
 

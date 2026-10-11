@@ -2,7 +2,9 @@
 
 import type { ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
+import { listWithDeadlines } from "@/lib/listings-admin";
 import { defaultNewsletter } from "@/lib/newsletter/defaults";
+import { buildDeadlineDigest, digestWindow } from "@/lib/newsletter/digest";
 import { newsletterSchema } from "@/lib/newsletter/types";
 import {
 	availableSlug,
@@ -67,6 +69,35 @@ export async function createNewsletterAction(
 		const created = await createNewsletter(
 			db,
 			{ title: `${title} newsletter`.slice(0, 120), data },
+			user.email
+		);
+		return { ok: true, id: created.id };
+	});
+}
+
+/**
+Creates a draft listing the cards whose deadline is 14-21 days away.
+*/
+export async function createDeadlineDigestAction(): Promise<
+	ActionResult<{ id: string }>
+> {
+	return guarded("officer", async ({ user, db }) => {
+		const now = new Date();
+		const data = buildDeadlineDigest(await listWithDeadlines(db), now);
+		if (!data) {
+			return actionError(
+				`No published card has a deadline ${digestWindow.fromDays}-${digestWindow.toDays} days from now.`
+			);
+		}
+
+		const day = new Intl.DateTimeFormat("en-US", {
+			month: "long",
+			day: "numeric",
+			timeZone: "America/New_York",
+		}).format(now);
+		const created = await createNewsletter(
+			db,
+			{ title: `Deadline digest · ${day}`, data },
 			user.email
 		);
 		return { ok: true, id: created.id };

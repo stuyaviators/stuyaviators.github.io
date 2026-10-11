@@ -139,6 +139,9 @@ describe("signed out", () => {
 		expect(await newsletterActions.deleteNewsletterForeverAction(id)).toEqual(
 			notSignedIn
 		);
+		expect(await newsletterActions.createDeadlineDigestAction()).toEqual(
+			notSignedIn
+		);
 		expect(
 			await newsletterActions.savePresetAction("x", defaultNewsletter())
 		).toEqual(notSignedIn);
@@ -396,6 +399,24 @@ describe("officers", () => {
 		expect(missing.ok).toBe(false);
 		const bad = await inboxActions.markSubmission(id, "deleted");
 		expect(bad.ok).toBe(false);
+	});
+
+	it("can start a deadline digest only when a card is due", async () => {
+		const empty = await newsletterActions.createDeadlineDigestAction();
+		expect(empty.ok).toBe(false);
+		expect(await count(newsletters)).toBe(0);
+
+		const due = new Date(Date.now() + 17 * 86_400_000)
+			.toISOString()
+			.slice(0, 10);
+		await listingActions.saveListing(undefined, {
+			...card,
+			deadline: due,
+			status: "published",
+		});
+		const made = await newsletterActions.createDeadlineDigestAction();
+		expect(made.ok).toBe(true);
+		expect(await count(newsletters)).toBe(1);
 	});
 
 	it("can't manage officers or settings (admin only)", async () => {
