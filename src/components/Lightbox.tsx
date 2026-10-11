@@ -45,10 +45,16 @@ function formatSpec(spec: PhotoSpec | undefined) {
 		.join(" · ");
 }
 
-// Deterministic jitter so the scatter is the same on every render.
+// Deterministic jitter so the scatter is the same on every render. Rounded
+// to three decimals: the browser shortens long decimals in the server HTML's
+// style attributes, which would otherwise not match on hydration.
 function jitter(seed: number) {
 	const x = Math.sin(seed * 12.9898) * 43_758.5453;
-	return x - Math.floor(x);
+	return Math.round((x - Math.floor(x)) * 1000) / 1000;
+}
+
+function round(value: number) {
+	return Math.round(value * 100) / 100;
 }
 
 function FloatingPhoto({
@@ -70,20 +76,21 @@ function FloatingPhoto({
 	const column = index % columns;
 	const row = Math.floor(index / columns);
 	// Stagger alternate rows so the scatter doesn't read as a grid.
-	const left =
+	const left = round(
 		((column + (row % 2) * 0.5 + jitter(index + 1) * 0.45) / (columns + 0.5)) *
-		100;
-	const top = ((row + jitter(index + 50) * 0.6) / rows) * 100;
-	const width = 8 + jitter(index + 100) * 5; // Rem
-	const tilt = (jitter(index + 150) - 0.5) * 14;
-	const depth = (jitter(index + 200) - 0.5) * 2;
-	const y = useTransform(drift, [0, 1], [depth * 160, depth * -160]);
+			100
+	);
+	const top = round(((row + jitter(index + 50) * 0.6) / rows) * 100);
+	const width = round(8 + jitter(index + 100) * 5); // Rem
+	const tilt = round((jitter(index + 150) - 0.5) * 14);
+	const drift160 = Math.round((jitter(index + 200) - 0.5) * 320);
+	const y = useTransform(drift, [0, 1], [drift160, -drift160]);
 	// Each photo wanders its own slow loop.
 	const wanderStyle: Record<string, string> = {
-		"--wander-d": `${14 + jitter(index + 250) * 12}s`,
-		"--wander-delay": `${-jitter(index + 300) * 20}s`,
-		"--wx": `${16 + jitter(index + 350) * 28}px`,
-		"--wy": `${12 + jitter(index + 400) * 22}px`,
+		"--wander-d": `${round(14 + jitter(index + 250) * 12)}s`,
+		"--wander-delay": `${round(-jitter(index + 300) * 20)}s`,
+		"--wx": `${Math.round(16 + jitter(index + 350) * 28)}px`,
+		"--wy": `${Math.round(12 + jitter(index + 400) * 22)}px`,
 		"--wr": `${tilt > 0 ? 3 : -3}deg`,
 	};
 
@@ -93,7 +100,7 @@ function FloatingPhoto({
 			style={{
 				left: `${left}%`,
 				top: `${top}%`,
-				width: `clamp(5.5rem, ${width * 1.6}vw, ${width}rem)`,
+				width: `clamp(5.5rem, ${round(width * 1.6)}vw, ${width}rem)`,
 			}}
 		>
 			<motion.div style={isReducedMotion ? undefined : { y }}>
