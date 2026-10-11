@@ -5,6 +5,7 @@ import { saveAnnouncementAction } from "@/actions/announcement";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import { CheckboxField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +19,7 @@ export default function AnnouncementForm({
 }) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
+	const { toast } = useToast();
 	const [value, setValue] = useState({
 		...initial,
 		endsOn: initial.endsOn ?? "",
@@ -44,6 +46,7 @@ export default function AnnouncementForm({
 							? "Saved. The banner is live within a minute or so."
 							: "Saved. The banner is off.",
 					});
+					toast(value.isOn ? "Banner saved and live" : "Banner saved (off)");
 					router.refresh();
 				} else {
 					setErrors(result.fieldErrors ?? {});

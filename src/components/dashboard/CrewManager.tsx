@@ -10,6 +10,7 @@ import {
 import Confirm from "@/components/dashboard/Confirm";
 import { ImageField, SelectField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextField } from "@/components/forms/Field";
@@ -69,7 +70,11 @@ export default function CrewManager({
 					className="mt-4"
 					disabled={isPending}
 					onClick={() => {
-						run(async () => importCrewAction());
+						run(
+							async () => importCrewAction(),
+							undefined,
+							"Crew copied here. Edit them from this screen now."
+						);
 					}}
 				>
 					{isPending ? <Spinner /> : <Users aria-hidden className="size-4" />}{" "}
@@ -163,8 +168,11 @@ export default function CrewManager({
 															aria-label={`Move ${person.name} up`}
 															disabled={isPending || index === 0}
 															onClick={() => {
-																run(async () =>
-																	moveCrewMemberAction(person.id, "up")
+																run(
+																	async () =>
+																		moveCrewMemberAction(person.id, "up"),
+																	undefined,
+																	`Moved ${person.name} up`
 																);
 															}}
 														>
@@ -177,8 +185,11 @@ export default function CrewManager({
 																isPending || index === members.length - 1
 															}
 															onClick={() => {
-																run(async () =>
-																	moveCrewMemberAction(person.id, "down")
+																run(
+																	async () =>
+																		moveCrewMemberAction(person.id, "down"),
+																	undefined,
+																	`Moved ${person.name} down`
 																);
 															}}
 														>
@@ -232,7 +243,11 @@ export default function CrewManager({
 					}
 
 					markLeaving(target.id);
-					run(async () => deleteCrewMemberAction(target.id));
+					run(
+						async () => deleteCrewMemberAction(target.id),
+						undefined,
+						`Removed ${target.name}`
+					);
 				}}
 			/>
 		</>
@@ -271,9 +286,7 @@ function PersonForm({
 }: {
 	readonly initial: Draft;
 	readonly submitLabel: string;
-	readonly onSubmit: (
-		draft: Draft
-	) => Promise<{
+	readonly onSubmit: (draft: Draft) => Promise<{
 		ok: boolean;
 		error?: string;
 		fieldErrors?: Record<string, string>;
@@ -283,6 +296,7 @@ function PersonForm({
 	readonly resetOnSuccess?: boolean;
 }) {
 	const [isPending, startTransition] = useTransition();
+	const { toast } = useToast();
 	const [draft, setDraft] = useState<Draft>({
 		groupId: initial.groupId,
 		name: initial.name,
@@ -306,6 +320,7 @@ function PersonForm({
 			try {
 				const result = await onSubmit(draft);
 				if (result.ok) {
+					toast(resetOnSuccess ? "Added to the list" : "Saved");
 					if (resetOnSuccess) {
 						setDraft({ ...blank, groupId: draft.groupId });
 					}

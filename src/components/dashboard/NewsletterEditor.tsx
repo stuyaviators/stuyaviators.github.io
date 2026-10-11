@@ -11,6 +11,7 @@ import {
 import BlockList from "@/components/dashboard/BlockList";
 import { ImageField, SelectField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -115,6 +116,7 @@ export default function NewsletterEditor({
 	readonly initialIsPublished: boolean;
 	readonly siteUrl: string;
 }) {
+	const { toast } = useToast();
 	const [title, setTitle] = useState(initialTitle);
 	const [data, setData] = useState(initialData);
 	const [save, setSave] = useState<SaveState>({ kind: "saved" });
@@ -378,6 +380,7 @@ export default function NewsletterEditor({
 				tone: "good",
 				text: `Live at /newsletter/${result.slug}.`,
 			});
+			toast(`Published at /newsletter/${result.slug}`);
 		} finally {
 			setIsPublishing(false);
 		}
@@ -395,6 +398,7 @@ export default function NewsletterEditor({
 
 			setIsPublished(false);
 			setPublishNote({ tone: "good", text: "The web version is offline." });
+			toast("Unpublished. The web version is offline.");
 		} finally {
 			setIsPublishing(false);
 		}
@@ -406,6 +410,7 @@ export default function NewsletterEditor({
 		if (result.ok) {
 			setPresetName("");
 			setPresetNote({ tone: "good", text: "Preset saved." });
+			toast("Preset saved");
 		} else {
 			setPresetNote({
 				tone: "bad",

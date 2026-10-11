@@ -9,6 +9,7 @@ import {
 import Confirm from "@/components/dashboard/Confirm";
 import { SelectField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextField } from "@/components/forms/Field";
@@ -26,6 +27,7 @@ export default function OfficersManager({
 	readonly currentId: string;
 }) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [isAdding, startAdding] = useTransition();
 	const [email, setEmail] = useState("");
@@ -45,6 +47,7 @@ export default function OfficersManager({
 				if (result.ok) {
 					setEmail("");
 					setAdded(value.trim().toLowerCase());
+					toast(`Added ${value.trim().toLowerCase()}`);
 					router.refresh();
 				} else {
 					setEmailError(result.fieldErrors?.email ?? result.error);
@@ -149,8 +152,11 @@ export default function OfficersManager({
 										value={user.role}
 										disabled={isPending || isYou}
 										onChange={(event) => {
-											run(async () =>
-												changeOfficerRole(user.id, event.target.value)
+											run(
+												async () =>
+													changeOfficerRole(user.id, event.target.value),
+												undefined,
+												`${user.name ?? user.email} is now ${event.target.value === "admin" ? "an admin" : "an officer"}`
 											);
 										}}
 									>
@@ -193,7 +199,11 @@ export default function OfficersManager({
 					}
 
 					markLeaving(target.id);
-					run(async () => removeOfficer(target.id));
+					run(
+						async () => removeOfficer(target.id),
+						undefined,
+						`Removed ${target.name ?? target.email}`
+					);
 				}}
 			/>
 		</>

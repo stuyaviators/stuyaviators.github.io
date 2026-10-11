@@ -56,7 +56,8 @@ export default function NewsletterList({
 			async () => createNewsletterAction(fromPreset),
 			(result) => {
 				router.push(`/dashboard/newsletter/${result.id}`);
-			}
+			},
+			"New newsletter started"
 		);
 	}
 
@@ -65,7 +66,8 @@ export default function NewsletterList({
 			async () => createDeadlineDigestAction(),
 			(result) => {
 				router.push(`/dashboard/newsletter/${result.id}`);
-			}
+			},
+			"Deadline digest drafted"
 		);
 	}
 
@@ -189,7 +191,11 @@ export default function NewsletterList({
 											disabled={isPending}
 											onClick={() => {
 												markLeaving(newsletter.id);
-												run(async () => restoreNewsletter(newsletter.id));
+												run(
+													async () => restoreNewsletter(newsletter.id),
+													undefined,
+													`Restored “${newsletter.title}”`
+												);
 											}}
 										>
 											<RotateCcw aria-hidden className="size-4" /> Restore
@@ -319,21 +325,27 @@ export default function NewsletterList({
 					const current = pending;
 					setPending(undefined);
 					markLeaving(current.id);
-					run(async () => {
-						switch (current.kind) {
-							case "preset": {
-								return deletePresetAction(current.id);
-							}
+					run(
+						async () => {
+							switch (current.kind) {
+								case "preset": {
+									return deletePresetAction(current.id);
+								}
 
-							case "newsletter-forever": {
-								return deleteNewsletterForeverAction(current.id);
-							}
+								case "newsletter-forever": {
+									return deleteNewsletterForeverAction(current.id);
+								}
 
-							case "newsletter-trash": {
-								return trashNewsletter(current.id);
+								case "newsletter-trash": {
+									return trashNewsletter(current.id);
+								}
 							}
-						}
-					});
+						},
+						undefined,
+						current.kind === "newsletter-trash"
+							? `Moved “${current.title}” to the trash`
+							: `Deleted “${current.title}”`
+					);
 				}}
 			/>
 		</>

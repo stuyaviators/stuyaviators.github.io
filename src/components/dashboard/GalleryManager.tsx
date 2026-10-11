@@ -10,6 +10,7 @@ import {
 import Confirm from "@/components/dashboard/Confirm";
 import { ImageField } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Badge, Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextAreaField } from "@/components/forms/Field";
@@ -60,7 +61,11 @@ export default function GalleryManager({
 					className="mt-4"
 					disabled={isPending}
 					onClick={() => {
-						run(async () => importGalleryAction());
+						run(
+							async () => importGalleryAction(),
+							undefined,
+							"Photos copied here. Edit them from this screen now."
+						);
 					}}
 				>
 					{isPending ? <Spinner /> : <Images aria-hidden className="size-4" />}{" "}
@@ -146,7 +151,11 @@ export default function GalleryManager({
 										aria-label="Move up"
 										disabled={isPending || index === 0}
 										onClick={() => {
-											run(async () => moveGalleryPhotoAction(item.id, "up"));
+											run(
+												async () => moveGalleryPhotoAction(item.id, "up"),
+												undefined,
+												"Moved up"
+											);
 										}}
 									>
 										<ArrowUp aria-hidden className="size-4" />
@@ -156,7 +165,11 @@ export default function GalleryManager({
 										aria-label="Move down"
 										disabled={isPending || index === items.length - 1}
 										onClick={() => {
-											run(async () => moveGalleryPhotoAction(item.id, "down"));
+											run(
+												async () => moveGalleryPhotoAction(item.id, "down"),
+												undefined,
+												"Moved down"
+											);
 										}}
 									>
 										<ArrowDown aria-hidden className="size-4" />
@@ -204,7 +217,11 @@ export default function GalleryManager({
 					}
 
 					markLeaving(target.id);
-					run(async () => deleteGalleryPhotoAction(target.id));
+					run(
+						async () => deleteGalleryPhotoAction(target.id),
+						undefined,
+						"Photo removed"
+					);
 				}}
 			/>
 		</>
@@ -244,6 +261,7 @@ function ReferenceNote({ reference }: { readonly reference: Reference }) {
 
 function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 	const [isPending, startTransition] = useTransition();
+	const { toast } = useToast();
 	const [imageUrl, setImageUrl] = useState("");
 	const [size, setSize] = useState({ width: 0, height: 0 });
 	const [alt, setAlt] = useState("");
@@ -261,6 +279,7 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 					...size,
 				});
 				if (result.ok) {
+					toast("Photo added to the gallery");
 					setImageUrl("");
 					setSize({ width: 0, height: 0 });
 					setAlt("");
@@ -328,6 +347,7 @@ function AltForm({
 	readonly onCancel: () => void;
 }) {
 	const [isPending, startTransition] = useTransition();
+	const { toast } = useToast();
 	const [alt, setAlt] = useState(initial);
 	const [error, setError] = useState<string>();
 
@@ -338,6 +358,7 @@ function AltForm({
 			try {
 				const result = await updateGalleryAltAction(id, alt);
 				if (result.ok) {
+					toast("Description saved");
 					onDone();
 				} else {
 					setError(result.fieldErrors?.alt ?? result.error);

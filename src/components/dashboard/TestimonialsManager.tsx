@@ -9,6 +9,7 @@ import {
 } from "@/actions/testimonials";
 import Confirm from "@/components/dashboard/Confirm";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { useAction } from "@/components/dashboard/use-action";
 import { TextAreaField, TextField } from "@/components/forms/Field";
@@ -50,7 +51,11 @@ export default function TestimonialsManager({
 					className="mt-4"
 					disabled={isPending}
 					onClick={() => {
-						run(async () => importTestimonialsAction());
+						run(
+							async () => importTestimonialsAction(),
+							undefined,
+							"Testimonials copied here. Edit them from this screen now."
+						);
 					}}
 				>
 					{isPending ? <Spinner /> : <Quote aria-hidden className="size-4" />}{" "}
@@ -133,7 +138,11 @@ export default function TestimonialsManager({
 											aria-label="Move up"
 											disabled={isPending || index === 0}
 											onClick={() => {
-												run(async () => moveTestimonialAction(item.id, "up"));
+												run(
+													async () => moveTestimonialAction(item.id, "up"),
+													undefined,
+													"Moved up"
+												);
 											}}
 										>
 											<ArrowUp aria-hidden className="size-4" />
@@ -143,7 +152,11 @@ export default function TestimonialsManager({
 											aria-label="Move down"
 											disabled={isPending || index === quotes.length - 1}
 											onClick={() => {
-												run(async () => moveTestimonialAction(item.id, "down"));
+												run(
+													async () => moveTestimonialAction(item.id, "down"),
+													undefined,
+													"Moved down"
+												);
 											}}
 										>
 											<ArrowDown aria-hidden className="size-4" />
@@ -192,7 +205,11 @@ export default function TestimonialsManager({
 					}
 
 					markLeaving(target.id);
-					run(async () => deleteTestimonialAction(target.id));
+					run(
+						async () => deleteTestimonialAction(target.id),
+						undefined,
+						"Testimonial removed"
+					);
 				}}
 			/>
 		</>
@@ -219,6 +236,7 @@ function QuoteForm({
 	readonly resetOnSuccess?: boolean;
 }) {
 	const [isPending, startTransition] = useTransition();
+	const { toast } = useToast();
 	const [draft, setDraft] = useState<Draft>({
 		quote: initial.quote,
 		author: initial.author,
@@ -234,6 +252,7 @@ function QuoteForm({
 			try {
 				const result = await onSubmit(draft);
 				if (result.ok) {
+					toast(resetOnSuccess ? "Added to the list" : "Saved");
 					if (resetOnSuccess) {
 						setDraft({ quote: "", author: "" });
 					}

@@ -148,11 +148,14 @@ export default function InboxList({
 													markLeaving(item.id);
 												}
 
-												run(async () =>
-													markSubmission(
-														item.id,
-														isArchived ? "read" : "archived"
-													)
+												run(
+													async () =>
+														markSubmission(
+															item.id,
+															isArchived ? "read" : "archived"
+														),
+													undefined,
+													isArchived ? "Moved back to the inbox" : "Archived"
 												);
 											}}
 										>
@@ -168,7 +171,11 @@ export default function InboxList({
 												variant="ghost"
 												disabled={isPending}
 												onClick={() => {
-													run(async () => markSubmission(item.id, "new"));
+													run(
+														async () => markSubmission(item.id, "new"),
+														undefined,
+														"Marked unread"
+													);
 												}}
 											>
 												Mark unread

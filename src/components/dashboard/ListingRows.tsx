@@ -99,7 +99,11 @@ export default function ListingRows({
 												disabled={isPending}
 												onClick={() => {
 													markLeaving(listing.id);
-													run(async () => restoreListing(listing.id));
+													run(
+														async () => restoreListing(listing.id),
+														undefined,
+														`Restored “${listing.title}”`
+													);
 												}}
 											>
 												<RotateCcw aria-hidden className="size-4" /> Restore
@@ -137,7 +141,11 @@ export default function ListingRows({
 												aria-label={`Move ${listing.title} up`}
 												disabled={isPending || index === 0}
 												onClick={() => {
-													run(async () => moveListingAction(listing.id, "up"));
+													run(
+														async () => moveListingAction(listing.id, "up"),
+														undefined,
+														"Moved up"
+													);
 												}}
 											>
 												<ArrowUp aria-hidden className="size-4" />
@@ -147,8 +155,10 @@ export default function ListingRows({
 												aria-label={`Move ${listing.title} down`}
 												disabled={isPending || index === listings.length - 1}
 												onClick={() => {
-													run(async () =>
-														moveListingAction(listing.id, "down")
+													run(
+														async () => moveListingAction(listing.id, "down"),
+														undefined,
+														"Moved down"
 													);
 												}}
 											>
@@ -158,11 +168,16 @@ export default function ListingRows({
 												variant="secondary"
 												disabled={isPending}
 												onClick={() => {
-													run(async () =>
-														publishListing(
-															listing.id,
-															listing.status !== "published"
-														)
+													run(
+														async () =>
+															publishListing(
+																listing.id,
+																listing.status !== "published"
+															),
+														undefined,
+														listing.status === "published"
+															? `Unpublished “${listing.title}”`
+															: `Published “${listing.title}”`
 													);
 												}}
 											>
@@ -226,11 +241,16 @@ export default function ListingRows({
 						return;
 					}
 
-					const { id, mode } = pending;
+					const { id, mode, title } = pending;
 					setPending(undefined);
 					markLeaving(id);
-					run(async () =>
-						mode === "forever" ? deleteListingForever(id) : trashListing(id)
+					run(
+						async () =>
+							mode === "forever" ? deleteListingForever(id) : trashListing(id),
+						undefined,
+						mode === "forever"
+							? `Deleted “${title}” forever`
+							: `Moved “${title}” to the trash`
 					);
 				}}
 			/>

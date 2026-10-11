@@ -18,6 +18,7 @@ export function PageHeader({
 	return (
 		<header className="mb-6 flex flex-wrap items-end justify-between gap-4">
 			<div className="min-w-0">
+				<p className="label mb-2 text-accent-text">Crew Dashboard</p>
 				<h1 className="text-3xl sm:text-4xl">{title}</h1>
 				{description === undefined ? null : (
 					<p className="mt-2 max-w-2xl text-muted">{description}</p>
@@ -44,7 +45,7 @@ export function Card({
 	return (
 		<Tag
 			className={cn(
-				"rounded-2xl border border-hairline bg-surface p-5 sm:p-6",
+				"rounded-2xl border border-hairline bg-surface/85 p-5 shadow-card backdrop-blur-sm sm:p-6",
 				className
 			)}
 			{...props}

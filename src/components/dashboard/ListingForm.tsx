@@ -10,6 +10,7 @@ import {
 	SelectField,
 } from "@/components/dashboard/fields";
 import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import ListingCard from "@/components/listings/ListingCard";
@@ -125,6 +126,7 @@ export default function ListingForm({
 	readonly listing?: Listing;
 }) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const [isPending, startTransition] = useTransition();
 	const [values, setValues] = useState(() => initialValues(listing));
 	const [error, setError] = useState<string>();
@@ -198,6 +200,11 @@ export default function ListingForm({
 					return;
 				}
 
+				toast(
+					listing
+						? `Saved “${values.title.trim()}”`
+						: `Added “${values.title.trim()}”`
+				);
 				router.push(`/dashboard/${slug}`);
 				router.refresh();
 			} catch {
