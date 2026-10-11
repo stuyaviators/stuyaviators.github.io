@@ -1,8 +1,9 @@
 import type { Database } from "@/db";
 import type { Listing, ListingKind } from "@/lib/listings";
 import { listings } from "@/db/schema";
+import { listingSlug } from "@/lib/listing-slug";
 import { optionalUrl } from "@/lib/newsletter/types";
-import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, isNull, like, sql } from "drizzle-orm";
 import { z } from "zod";
 
 /*
@@ -102,24 +103,13 @@ function columns(values: ListingValues) {
 
 export async function listForDashboard(
 	db: Database,
-	kind: ListingKind,
-	view: "active" | "trash" = "active"
+	kind: ListingKind
 ): Promise<Listing[]> {
 	return db
 		.select()
 		.from(listings)
-		.where(
-			and(
-				eq(listings.kind, kind),
-				view === "trash"
-					? isNotNull(listings.deletedAt)
-					: isNull(listings.deletedAt)
-			)
-		)
-		.orderBy(
-			view === "trash" ? desc(listings.deletedAt) : asc(listings.sortOrder),
-			asc(listings.createdAt)
-		);
+		.where(and(eq(listings.kind, kind), isNull(listings.deletedAt)))
+		.orderBy(asc(listings.sortOrder), asc(listings.createdAt));
 }
 
 export async function getListing(
@@ -133,6 +123,28 @@ export async function getListing(
 		.limit(1);
 	const listing = listingRows.at(0);
 	return listing;
+}
+
+/**
+A slug no other card of this kind uses: "nasa-camp", then "nasa-camp-2", …
+*/
+export async function availableListingSlug(
+	db: Database,
+	kind: ListingKind,
+	title: string
+): Promise<string> {
+	const base = listingSlug(title);
+	const taken = await db
+		.select({ slug: listings.slug })
+		.from(listings)
+		.where(and(eq(listings.kind, kind), like(listings.slug, `${base}%`)));
+	const used = new Set(taken.map((row) => row.slug));
+	let slug = base;
+	for (let attempt = 2; used.has(slug); attempt++) {
+		slug = `${base}-${attempt}`;
+	}
+
+	return slug;
 }
 
 export async function createListing(
@@ -152,6 +164,7 @@ export async function createListing(
 		.insert(listings)
 		.values({
 			...columns(values),
+			slug: await availableListingSlug(db, values.kind, values.title),
 			sortOrder: next,
 			createdBy: by,
 			updatedBy: by,
@@ -180,24 +193,6 @@ export async function updateListing(
 	return updated;
 }
 
-export async function setDeleted(
-	db: Database,
-	id: string,
-	isDeleted: boolean,
-	by: string
-) {
-	await db
-		.update(listings)
-		.set({
-			deletedAt: isDeleted ? new Date() : null,
-			// Restored cards come back as drafts so nothing reappears by surprise.
-			...(!isDeleted && { status: "draft" as const }),
-			updatedBy: by,
-			updatedAt: new Date(),
-		})
-		.where(eq(listings.id, id));
-}
-
 export async function setListingStatus(
 	db: Database,
 	id: string,
@@ -211,12 +206,6 @@ export async function setListingStatus(
 		.returning();
 	const updated = updatedRows.at(0);
 	return updated;
-}
-
-export async function deleteForever(db: Database, id: string) {
-	await db
-		.delete(listings)
-		.where(and(eq(listings.id, id), isNotNull(listings.deletedAt)));
 }
 
 /**
@@ -255,4 +244,20 @@ export async function moveListing(
 			)})`
 		);
 	return listing.kind;
+}
+
+/**
+Published cards that have a deadline; the digest picks the ones due soon.
+*/
+export async function listWithDeadlines(db: Database): Promise<Listing[]> {
+	return db
+		.select()
+		.from(listings)
+		.where(
+			and(
+				eq(listings.status, "published"),
+				isNull(listings.deletedAt),
+				isNotNull(listings.deadline)
+			)
+		);
 }

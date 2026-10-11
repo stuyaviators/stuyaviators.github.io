@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../src/db/schema.ts";
+import { allPermissions } from "../src/lib/permissions.ts";
 
 /*
  * Seeds the database: makes everyone in ADMIN_EMAILS an admin. Safe to run
@@ -9,9 +10,9 @@ import * as schema from "../src/db/schema.ts";
  *   pnpm db:seed
  *
  * Reads DATABASE_URL (or the Vercel integration's stuyaviators_DATABASE_URL)
- * and ADMIN_EMAILS from .env.local. The crew, testimonials and highlights are
- * still static content in src/content; moving them into the database is a
- * Phase 4 item.
+ * and ADMIN_EMAILS from .env.local. The crew, testimonials and gallery start
+ * as static content in src/content; each dashboard screen has a "Copy the
+ * current ... here" button that imports them into the database once.
  */
 
 const url = process.env.DATABASE_URL ?? process.env.stuyaviators_DATABASE_URL;
@@ -41,6 +42,7 @@ const inserted = await db
 		emails.map((email) => ({
 			email,
 			role: "admin" as const,
+			permissions: allPermissions,
 			addedBy: "db:seed",
 		}))
 	)

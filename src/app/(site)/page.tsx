@@ -14,7 +14,9 @@ import { home } from "@/content/home";
 import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { photos } from "@/content/photos";
-import { getUpcomingMeetings } from "@/lib/meetings";
+import { getInstagramFeed } from "@/lib/behold";
+import { getMeetingBoard } from "@/lib/meetings";
+import { getPublicTestimonials } from "@/lib/testimonials";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,13 +28,17 @@ export const revalidate = 900;
  * for a moment while you scroll (Apple-style), then handing off to the next.
  */
 export default async function Home() {
-	const upcoming = await getUpcomingMeetings();
+	const board = await getMeetingBoard();
+	const testimonials = await getPublicTestimonials();
+	const feed = await getInstagramFeed();
 
 	return (
 		<>
 			<HomeIntro
 				poster={photos.heroCessnaBackseat.src}
 				posterAlt={photos.heroCessnaBackseat.alt}
+				posts={feed?.posts.slice(0, 4) ?? []}
+				username={feed?.username ?? "stuyaviators"}
 			/>
 
 			<PinnedScene id="departures" length={0.5} labelledBy="departures-heading">
@@ -48,7 +54,10 @@ export default async function Home() {
 						Drop in whenever your schedule allows. No experience needed.
 					</p>
 					<InView className="mt-8 sm:mt-10">
-						<DepartureBoard meetings={upcoming.slice(0, 3)} />
+						<DepartureBoard
+							status={board.isUp ? "up" : "down"}
+							meetings={board.meetings?.slice(0, 3) ?? []}
+						/>
 					</InView>
 				</Container>
 			</PinnedScene>
@@ -95,7 +104,7 @@ export default async function Home() {
 						<Link
 							key={type.name}
 							href={`/meetings#${type.code?.toLowerCase() ?? `type-${index + 1}`}`}
-							className="group on-dark relative isolate flex aspect-[4/5] w-[74vw] max-w-[24rem] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-ink p-6 sm:w-[22rem]"
+							className="group on-dark relative isolate flex aspect-[4/5] w-[74vw] max-w-[24rem] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-3xl bg-ink p-6 sm:w-[22rem]"
 						>
 							<Image
 								src={photo.src}
@@ -125,13 +134,13 @@ export default async function Home() {
 			<MembersScene
 				heading={home.testimonialsHeading}
 				intro={home.testimonialsIntro}
-				testimonials={home.testimonials}
+				testimonials={testimonials}
 				poster={photos.homeGrassRunway.src}
 			/>
 
 			<section
 				aria-labelledby="join-heading"
-				className="scene-section py-24 sm:py-32"
+				className="scene-section min-h-svh py-24 sm:py-32"
 			>
 				<Container className="scene">
 					<div className="clip-reveal on-dark relative isolate overflow-hidden rounded-3xl bg-ink px-6 py-16 sm:px-12 sm:py-24">
@@ -163,7 +172,10 @@ export default async function Home() {
 								How to join{" "}
 								<ArrowRight aria-hidden className="btn-arrow size-4" />
 							</ButtonLink>
-							<a href="#mailing-list" className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+							<a
+								href="#mailing-list"
+								className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+							>
 								Join the mailing list
 							</a>
 						</div>

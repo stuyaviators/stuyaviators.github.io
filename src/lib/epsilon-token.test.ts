@@ -163,6 +163,32 @@ describe("getEpsilonAccessToken", () => {
 		expect(refreshTokenSent(second, 0)).toBe("refresh-3");
 	});
 
+	it("keeps the saved token when Epsilon is only unreachable or slow, and retries", async () => {
+		await saveEpsilonToken(
+			db,
+			"refresh-original-123",
+			"a",
+			fetcher(session("a1", "refresh-2", now() - 10))
+		);
+		for (const down of [
+			fetcher(new Response("{}", { status: 503 })),
+			vi.fn(async () => {
+				throw new Error("network down");
+			}) as unknown as typeof fetch,
+		]) {
+			// eslint-disable-next-line no-await-in-loop -- one failure after another.
+			expect(await getEpsilonAccessToken(db, down)).toBeUndefined();
+			// Still connected: nothing is marked as refused.
+			// eslint-disable-next-line no-await-in-loop -- one failure after another.
+			expect(await getEpsilonStatus(db)).toMatchObject({ state: "connected" });
+		}
+
+		// Epsilon is back: the same saved token works, and the new one is kept.
+		const back = fetcher(session("a2", "refresh-3"));
+		expect(await getEpsilonAccessToken(db, back)).toBe("a2");
+		expect(refreshTokenSent(back, 0)).toBe("refresh-2");
+	});
+
 	it("records a failure and stops retrying until a new token is pasted", async () => {
 		await saveEpsilonToken(
 			db,

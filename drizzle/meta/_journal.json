@@ -15,6 +15,62 @@
       "when": 1791687853929,
       "tag": "0001_phase3_dashboard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791724557633,
+      "tag": "0002_announcement",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791725199462,
+      "tag": "0003_crew",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791725504659,
+      "tag": "0004_testimonials_gallery",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791732469098,
+      "tag": "0005_listing_slugs",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791735566733,
+      "tag": "0006_gallery_ai_caption",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791737911217,
+      "tag": "0007_roles_and_owners",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791738945968,
+      "tag": "0008_permission_numbers",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791740074076,
+      "tag": "0009_trash",
+      "breakpoints": true
     }
   ]
 }

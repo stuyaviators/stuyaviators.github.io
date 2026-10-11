@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import { renderInline, renderMarkdown } from "@/lib/markdown";
 
 /**
@@ -16,7 +17,7 @@ export function Md({
 	if (block) {
 		return (
 			<div
-				className={className}
+				className={cn("body-links", className)}
 				dangerouslySetInnerHTML={{ __html: renderMarkdown(children) }}
 			/>
 		);
@@ -24,7 +25,7 @@ export function Md({
 
 	return (
 		<span
-			className={className}
+			className={cn("body-links", className)}
 			dangerouslySetInnerHTML={{ __html: renderInline(children) }}
 		/>
 	);

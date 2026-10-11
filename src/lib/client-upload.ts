@@ -30,10 +30,12 @@ async function shrink(file: File): Promise<Blob> {
 	return canvas.convertToBlob({ type: "image/jpeg", quality: 0.88 });
 }
 
-export async function uploadImage(
+export type UploadedImage = { url: string; width: number; height: number };
+
+export async function uploadImageSized(
 	file: File,
 	purpose: UploadPurpose
-): Promise<string> {
+): Promise<UploadedImage> {
 	if (!file.type.startsWith("image/") && file.type !== "") {
 		throw new Error("Choose an image file.");
 	}
@@ -44,11 +46,13 @@ export async function uploadImage(
 	const response = await fetch("/api/upload", { method: "POST", body });
 	const data = (await response.json().catch(() => ({}))) as {
 		url?: string;
+		width?: number;
+		height?: number;
 		error?: string;
 	};
 	if (!response.ok || !data.url) {
 		throw new Error(data.error ?? "Upload failed. Try again.");
 	}
 
-	return data.url;
+	return { url: data.url, width: data.width ?? 0, height: data.height ?? 0 };
 }

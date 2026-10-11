@@ -5,27 +5,41 @@ import {
 	FileText,
 	Gauge,
 	GraduationCap,
+	Images,
+	Inbox,
+	Megaphone,
 	Newspaper,
 	Plane,
+	Quote,
 	Settings,
+	Trash2,
 	Users,
+	UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const icons = {
 	overview: Gauge,
+	inbox: Inbox,
+	announcement: Megaphone,
+	crew: UsersRound,
+	gallery: Images,
+	testimonials: Quote,
 	opportunities: Plane,
 	scholarships: GraduationCap,
 	newsletter: Newspaper,
 	officers: Users,
 	settings: Settings,
+	trash: Trash2,
 } as const;
 
 export type NavItem = {
 	href: string;
 	label: string;
 	icon: keyof typeof icons;
+	// Shown as a count next to the label when above zero.
+	badge?: number;
 };
 
 /**
@@ -39,7 +53,7 @@ export default function DashboardNav({
 	const pathname = usePathname();
 	return (
 		<nav aria-label="Dashboard">
-			<ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
+			<ul className="dash-stagger -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
 				{items.map((item) => {
 					const Icon = icons[item.icon] ?? FileText;
 					const isCurrent =
@@ -60,6 +74,21 @@ export default function DashboardNav({
 							>
 								<Icon aria-hidden className="size-4" />
 								{item.label}
+								{item.badge !== undefined && item.badge > 0 ? (
+									<span
+										className={cn(
+											"ml-auto rounded-full px-2 text-xs font-bold",
+											isCurrent
+												? "bg-brand-ink text-brand"
+												: "bg-brand text-brand-ink"
+										)}
+									>
+										<span className="sr-only">{item.badge} new </span>
+										<span aria-hidden>
+											{item.badge > 99 ? "99+" : item.badge}
+										</span>
+									</span>
+								) : null}
 							</Link>
 						</li>
 					);

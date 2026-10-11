@@ -273,7 +273,7 @@ export default function BlockList({
 									endDrag();
 								}}
 								className={cn(
-									"rounded-2xl border bg-bg p-4",
+									"dash-rise rounded-2xl border bg-bg p-4",
 									dragIndex === index && "opacity-50",
 									overIndex === index &&
 										dragIndex !== undefined &&

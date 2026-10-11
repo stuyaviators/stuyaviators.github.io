@@ -1,12 +1,16 @@
 "use client";
 
+import type { Suggestion } from "@/lib/autofill";
 import type { Listing, ListingKind } from "@/lib/listings";
+import { autofillListing } from "@/actions/autofill";
 import { saveListing } from "@/actions/listings";
 import {
 	CheckboxField,
 	ImageField,
 	SelectField,
 } from "@/components/dashboard/fields";
+import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Card, Notice } from "@/components/dashboard/ui";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import ListingCard from "@/components/listings/ListingCard";
@@ -53,6 +57,20 @@ function initialValues(listing?: Listing): Values {
 	};
 }
 
+const autofillLabels: Array<[keyof Values & keyof Suggestion, string]> = [
+	["title", "title"],
+	["organization", "organization"],
+	["summary", "short description"],
+	["description", "long description"],
+	["deadline", "deadline"],
+	["amount", "amount"],
+	["startDate", "start date"],
+	["endDate", "end date"],
+	["location", "location"],
+	["eligibility", "eligibility"],
+	["imageUrl", "picture"],
+];
+
 const isoDate = /^\d{4}-\d{2}-\d{2}$/u;
 const dateOrUndefined = (value: string) => (isoDate.test(value) ? value : null);
 const textOrNull = (value: string) => value.trim() || null;
@@ -65,6 +83,7 @@ function previewListing(kind: ListingKind, values: Values): Listing {
 	return {
 		id: "preview",
 		kind,
+		slug: null,
 		title: values.title.trim() || "Card title",
 		organization: values.organization.trim() || "Organization",
 		summary: values.summary.trim() || "A short description appears here.",
@@ -92,6 +111,7 @@ function previewListing(kind: ListingKind, values: Values): Listing {
 		createdBy: null,
 		updatedBy: null,
 		deletedAt: null,
+		deletedBy: null,
 	};
 }
 
@@ -107,11 +127,62 @@ export default function ListingForm({
 	readonly listing?: Listing;
 }) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const [isPending, startTransition] = useTransition();
 	const [values, setValues] = useState(() => initialValues(listing));
 	const [error, setError] = useState<string>();
 	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [isFilling, startFilling] = useTransition();
+	const [autofillMessage, setAutofillMessage] = useState<{
+		tone: "good" | "bad";
+		text: string;
+	}>();
 	const isScholarship = kind === "scholarship";
+
+	function autofill() {
+		setAutofillMessage(undefined);
+		setFieldErrors((previous) => ({ ...previous, url: "" }));
+		startFilling(async () => {
+			try {
+				const result = await autofillListing(kind, values.url);
+				if (!result.ok) {
+					setAutofillMessage({ tone: "bad", text: result.error });
+					return;
+				}
+
+				// Never overwrite something an officer already typed.
+				const filled: string[] = [];
+				const next: Partial<Values> = {};
+				for (const [key, label] of autofillLabels) {
+					const found = result.fields[key];
+					if (!found || values[key].trim() !== "") {
+						continue;
+					}
+
+					next[key] = found;
+					filled.push(label);
+				}
+
+				setValues((previous) => ({ ...previous, ...next }));
+				setAutofillMessage(
+					filled.length > 0
+						? {
+								tone: "good",
+								text: `Filled in: ${filled.join(", ")}. These are guesses, so check them and fix anything that’s off. Anything you had already typed was left alone.`,
+							}
+						: {
+								tone: "bad",
+								text: "Couldn’t find anything new on that page (some sites load their content with scripts). Fill the form by hand.",
+							}
+				);
+			} catch {
+				setAutofillMessage({
+					tone: "bad",
+					text: "Couldn’t reach the server. Check your connection.",
+				});
+			}
+		});
+	}
 
 	function set<K extends keyof Values>(key: K, value: Values[K]) {
 		setValues((previous) => ({ ...previous, [key]: value }));
@@ -130,6 +201,11 @@ export default function ListingForm({
 					return;
 				}
 
+				toast(
+					listing
+						? `Saved “${values.title.trim()}”`
+						: `Added “${values.title.trim()}”`
+				);
 				router.push(`/dashboard/${slug}`);
 				router.refresh();
 			} catch {
@@ -146,6 +222,47 @@ export default function ListingForm({
 		>
 			<div className="space-y-5">
 				<Card className="space-y-5">
+					<div className="space-y-3">
+						<TextField
+							label="Link"
+							type="url"
+							inputMode="url"
+							value={values.url}
+							required
+							placeholder="https://…"
+							hint="Where “Learn more and apply” goes. Must start with https:// or http://."
+							error={fieldErrors.url}
+							onChange={(event) => {
+								set("url", event.target.value);
+							}}
+						/>
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+							<Button
+								type="button"
+								variant="secondary"
+								disabled={isFilling || values.url.trim() === ""}
+								onClick={autofill}
+							>
+								{isFilling ? (
+									<>
+										<Spinner /> Reading the page…
+									</>
+								) : (
+									"Autofill from link"
+								)}
+							</Button>
+							<p className="text-sm text-muted">
+								Reads the page and fills in the empty fields below, including
+								its picture. Always check what it found, and only keep a picture
+								you are allowed to use.
+							</p>
+						</div>
+						{autofillMessage ? (
+							<Notice tone={autofillMessage.tone}>
+								{autofillMessage.text}
+							</Notice>
+						) : null}
+					</div>
 					<TextField
 						label="Title"
 						value={values.title}
@@ -188,19 +305,6 @@ export default function ListingForm({
 						error={fieldErrors.description}
 						onChange={(event) => {
 							set("description", event.target.value);
-						}}
-					/>
-					<TextField
-						label="Link"
-						type="url"
-						inputMode="url"
-						value={values.url}
-						required
-						placeholder="https://…"
-						hint="Where “Learn more and apply” goes. Must start with https:// or http://."
-						error={fieldErrors.url}
-						onChange={(event) => {
-							set("url", event.target.value);
 						}}
 					/>
 					<ImageField
@@ -328,7 +432,13 @@ export default function ListingForm({
 				{error ? <Notice tone="bad">{error}</Notice> : null}
 				<div className="flex flex-wrap gap-3">
 					<Button type="submit" disabled={isPending}>
-						{isPending ? "Saving…" : `Save ${noun}`}
+						{isPending ? (
+							<>
+								<Spinner /> Saving…
+							</>
+						) : (
+							`Save ${noun}`
+						)}
 					</Button>
 					<Link
 						href={`/dashboard/${slug}`}

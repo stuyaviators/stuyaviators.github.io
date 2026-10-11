@@ -1,3 +1,4 @@
+import type { NewsletterData } from "../lib/newsletter/types.ts";
 import {
 	boolean,
 	date,
@@ -11,7 +12,6 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import type { NewsletterData } from "../lib/newsletter/types.ts";
 
 export const listingKind = pgEnum("listing_kind", [
 	"opportunity",
@@ -27,6 +27,9 @@ export const listings = pgTable(
 	{
 		id: uuid().primaryKey().defaultRandom(),
 		kind: listingKind().notNull(),
+		// The card's own page: /opportunities/<slug>. Set when it is created
+		// and kept when the title changes, so shared links keep working.
+		slug: text(),
 		title: text().notNull(),
 		organization: text().notNull(),
 		summary: text().notNull(),
@@ -48,8 +51,12 @@ export const listings = pgTable(
 		createdBy: text(),
 		updatedBy: text(),
 		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
 	},
-	(table) => [index("listings_kind_status_idx").on(table.kind, table.status)]
+	(table) => [
+		index("listings_kind_status_idx").on(table.kind, table.status),
+		uniqueIndex("listings_kind_slug_idx").on(table.kind, table.slug),
+	]
 );
 
 export const submissionType = pgEnum("submission_type", [
@@ -94,7 +101,14 @@ export const rateLimits = pgTable("rate_limits", {
 	windowStart: timestamp({ withTimezone: true }).notNull(),
 });
 
-export const userRole = pgEnum("user_role", ["admin", "officer"]);
+export const userRole = pgEnum("user_role", [
+	"admin",
+	"officer",
+	"manager",
+	"contributor",
+	"media",
+	"custom",
+]);
 
 /**
 The dashboard allowlist. Signing in with Google only works for emails here.
@@ -106,7 +120,10 @@ export const users = pgTable(
 		email: text().notNull(), // Always stored lowercased
 		name: text(),
 		image: text(),
+		// The preset these boxes add up to ("custom" for any other mix).
 		role: userRole().notNull().default("officer"),
+		// The permission number: the ticked boxes added together (permissions.ts).
+		permissions: integer().notNull().default(0),
 		addedBy: text(),
 		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 		lastSignInAt: timestamp({ withTimezone: true }),
@@ -150,6 +167,7 @@ export const newsletters = pgTable(
 		createdBy: text(),
 		updatedBy: text(),
 		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
 	},
 	(table) => [uniqueIndex("newsletters_slug_idx").on(table.slug)]
 );
@@ -163,4 +181,87 @@ export const newsletterPresets = pgTable("newsletter_presets", {
 	data: jsonb().$type<NewsletterData>().notNull(),
 	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	createdBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
+});
+
+/**
+The site-wide announcement banner. A single row (id is always 1).
+*/
+export const announcement = pgTable("announcement", {
+	id: integer().primaryKey().default(1),
+	text: text().notNull().default(""),
+	linkUrl: text().notNull().default(""),
+	linkLabel: text().notNull().default(""),
+	isOn: boolean().notNull().default(false),
+	// Last day it shows, in New York time. Empty means no end.
+	endsOn: date({ mode: "string" }),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedBy: text(),
+});
+
+/**
+The flight crew page. `groupId` matches a group in src/content/crew.ts (the
+group titles and intros stay there). Photos are an uploaded `imageUrl`, or
+`photoKey` for the bundled photos of people imported from that file.
+*/
+export const crewMembers = pgTable(
+	"crew_members",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		groupId: text().notNull(),
+		name: text().notNull(),
+		classOf: text(),
+		role: text().notNull(),
+		imageUrl: text(),
+		photoKey: text(),
+		sortOrder: integer().notNull().default(0),
+		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		createdBy: text(),
+		updatedBy: text(),
+		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
+	},
+	(table) => [
+		index("crew_members_group_idx").on(table.groupId, table.sortOrder),
+	]
+);
+
+/**
+"What our members say" on the home page.
+*/
+export const testimonials = pgTable("testimonials", {
+	id: uuid().primaryKey().defaultRandom(),
+	quote: text().notNull(),
+	author: text().notNull(),
+	sortOrder: integer().notNull().default(0),
+	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdBy: text(),
+	updatedBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
+});
+
+/**
+The gallery page. Photos are an uploaded `imageUrl` (with its size), or
+`photoKey` for the bundled photos in src/content/photos.ts.
+*/
+export const galleryPhotos = pgTable("gallery_photos", {
+	id: uuid().primaryKey().defaultRandom(),
+	alt: text().notNull(),
+	imageUrl: text(),
+	width: integer(),
+	height: integer(),
+	photoKey: text(),
+	// The description was written by AI. Cleared as soon as an officer edits it.
+	isAiCaption: boolean().notNull().default(false),
+	sortOrder: integer().notNull().default(0),
+	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdBy: text(),
+	updatedBy: text(),
+	deletedAt: timestamp({ withTimezone: true }),
+	deletedBy: text(),
 });

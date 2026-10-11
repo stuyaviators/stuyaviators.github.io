@@ -12,7 +12,7 @@ export default async function NewListingPage({
 }: {
 	readonly params: Promise<{ kind: string }>;
 }) {
-	await requirePageUser();
+	await requirePageUser("listings");
 	const { kind } = await params;
 	const config = kindFromSlug(kind);
 	if (!config) {

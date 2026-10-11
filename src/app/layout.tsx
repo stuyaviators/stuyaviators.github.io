@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import LinkInterceptor from "@/components/LinkInterceptor";
 import MediaGuard from "@/components/MediaGuard";
+import TakeoffArrival from "@/components/TakeoffArrival";
 import { themeScript } from "@/components/ThemeToggle";
 import { site } from "@/content/site";
 import { Inter, Inter_Tight } from "next/font/google";
@@ -67,6 +68,7 @@ export default function RootLayout({
 				    the dashboard has its own chrome. */}
 				{children}
 				<LinkInterceptor />
+				<TakeoffArrival />
 				<MediaGuard />
         <Analytics />
 				<SpeedInsights />

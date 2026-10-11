@@ -4,7 +4,8 @@ import { Notice, PageHeader } from "@/components/dashboard/ui";
 import { getDb } from "@/db";
 import { kindFromSlug } from "@/lib/dashboard-kinds";
 import { getListing } from "@/lib/listings-admin";
-import { requirePageUser } from "@/lib/session";
+import { hasAccess, requirePageUser } from "@/lib/session";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -15,7 +16,7 @@ export default async function EditListingPage({
 }: {
 	readonly params: Promise<{ kind: string; id: string }>;
 }) {
-	await requirePageUser();
+	const user = await requirePageUser("listings");
 	const { kind, id } = await params;
 	const config = kindFromSlug(kind);
 	const db = getDb();
@@ -28,13 +29,21 @@ export default async function EditListingPage({
 		notFound();
 	}
 
+	// Deleted cards are only known to people who can see the trash.
+	if (listing.deletedAt && !hasAccess(user, "trash")) {
+		notFound();
+	}
+
 	return (
 		<>
 			<PageHeader title={`Edit ${config.singular}`} />
 			{listing.deletedAt ? (
 				<Notice tone="warn" className="mb-5">
-					This card is in the trash. Restore it from the Trash tab to show it
-					again.
+					This card is in the trash. Restore it from{" "}
+					<Link href="/dashboard/trash" className="text-link">
+						Trash
+					</Link>{" "}
+					to show it again.
 				</Notice>
 			) : null}
 			<ListingForm

@@ -1,5 +1,14 @@
 import type { Database } from "@/db";
-import { listings, newsletters, users } from "@/db/schema";
+import {
+	crewMembers,
+	galleryPhotos,
+	listings,
+	newsletters,
+	submissions,
+	testimonials,
+	users,
+} from "@/db/schema";
+import { presets } from "@/lib/permissions";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,8 +41,14 @@ const { auth } = await import("@/auth");
 const { updateTag } = await import("next/cache");
 const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
+const announcementActions = await import("./announcement.ts");
+const crewActions = await import("./crew.ts");
+const testimonialActions = await import("./testimonials.ts");
+const galleryActions = await import("./gallery.ts");
+const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
+const trashActions = await import("./trash.ts");
 const uploadRoute = await import("@/app/api/upload/route");
 const renderRoute = await import("@/app/api/newsletter/render/route");
 const { defaultNewsletter } = await import("@/lib/newsletter/defaults");
@@ -66,6 +81,30 @@ const card = {
 	status: "published",
 };
 
+const announcementInput = {
+	text: "Applications close Friday",
+	linkUrl: "/opportunities",
+	linkLabel: "Apply",
+	isOn: true,
+	endsOn: "",
+};
+
+const crewInput = {
+	groupId: "helpers",
+	name: "Peter Stuyvesant",
+	classOf: "'60",
+	role: "Flight Attendant (Helper)",
+	imageUrl: "",
+};
+
+const galleryInput = {
+	alt: "A Cessna on final approach",
+	imageUrl:
+		"https://abc.public.blob.vercel-storage.com/uploads/highlight/a.jpg",
+	width: 1600,
+	height: 900,
+};
+
 const notSignedIn = { ok: false, error: "Please sign in again." };
 const notAllowed = {
 	ok: false,
@@ -78,8 +117,14 @@ async function count(
 	return (await testDb!.select().from(table)).length;
 }
 
-async function addUserRow(email: string, role: "admin" | "officer") {
-	const [row] = await testDb!.insert(users).values({ email, role }).returning();
+async function addUserRow(
+	email: string,
+	role: "admin" | "officer" | "manager"
+) {
+	const [row] = await testDb!
+		.insert(users)
+		.values({ email, role, permissions: presets[role] })
+		.returning();
 	return row!;
 }
 
@@ -105,8 +150,6 @@ describe("signed out", () => {
 			notSignedIn
 		);
 		expect(await listingActions.trashListing(id)).toEqual(notSignedIn);
-		expect(await listingActions.restoreListing(id)).toEqual(notSignedIn);
-		expect(await listingActions.deleteListingForever(id)).toEqual(notSignedIn);
 		expect(await count(listings)).toBe(0);
 		expect(updateTag).not.toHaveBeenCalled();
 	});
@@ -126,7 +169,7 @@ describe("signed out", () => {
 			notSignedIn
 		);
 		expect(await newsletterActions.trashNewsletter(id)).toEqual(notSignedIn);
-		expect(await newsletterActions.deleteNewsletterForeverAction(id)).toEqual(
+		expect(await newsletterActions.createDeadlineDigestAction()).toEqual(
 			notSignedIn
 		);
 		expect(
@@ -135,12 +178,83 @@ describe("signed out", () => {
 		expect(await count(newsletters)).toBe(0);
 	});
 
-	it("can't manage officers or settings", async () => {
-		expect(await officerActions.addOfficer("me@gmail.com", "admin")).toEqual(
+	it("can't change the announcement", async () => {
+		expect(
+			await announcementActions.saveAnnouncementAction(announcementInput)
+		).toEqual(notSignedIn);
+	});
+
+	it("can't edit the flight crew", async () => {
+		const id = crypto.randomUUID();
+		expect(await crewActions.addCrewMemberAction(crewInput)).toEqual(
 			notSignedIn
 		);
+		expect(await crewActions.updateCrewMemberAction(id, crewInput)).toEqual(
+			notSignedIn
+		);
+		expect(await crewActions.moveCrewMemberAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await crewActions.deleteCrewMemberAction(id)).toEqual(notSignedIn);
+		expect(await crewActions.importCrewAction()).toEqual(notSignedIn);
+		expect(await testDb!.select().from(crewMembers)).toHaveLength(0);
+	});
+
+	it("can't edit the gallery", async () => {
+		const id = crypto.randomUUID();
+		expect(await galleryActions.addGalleryPhotoAction(galleryInput)).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.updateGalleryAltAction(id, "x")).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.moveGalleryPhotoAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.deleteGalleryPhotoAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(await galleryActions.importGalleryAction()).toEqual(notSignedIn);
+		expect(await testDb!.select().from(galleryPhotos)).toHaveLength(0);
+	});
+
+	it("can't edit testimonials", async () => {
+		const id = crypto.randomUUID();
+		const input = { quote: "Great club", author: "Peter" };
+		expect(await testimonialActions.addTestimonialAction(input)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.updateTestimonialAction(id, input)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.moveTestimonialAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.deleteTestimonialAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.importTestimonialsAction()).toEqual(
+			notSignedIn
+		);
+		expect(await testDb!.select().from(testimonials)).toHaveLength(0);
+	});
+
+	it("can't triage the inbox", async () => {
+		const id = crypto.randomUUID();
+		expect(await inboxActions.markSubmission(id, "archived")).toEqual(
+			notSignedIn
+		);
+	});
+
+	it("can't manage officers or settings", async () => {
 		expect(
-			await officerActions.changeOfficerRole(crypto.randomUUID(), "admin")
+			await officerActions.addOfficer("me@gmail.com", presets.admin)
+		).toEqual(notSignedIn);
+		expect(
+			await officerActions.changeOfficerPermissions(
+				crypto.randomUUID(),
+				presets.admin
+			)
 		).toEqual(notSignedIn);
 		expect(await officerActions.removeOfficer(crypto.randomUUID())).toEqual(
 			notSignedIn
@@ -185,7 +299,7 @@ describe("signed in with Google, but not on the officer list", () => {
 			notSignedIn
 		);
 		expect(
-			await officerActions.addOfficer("stranger@gmail.com", "admin")
+			await officerActions.addOfficer("stranger@gmail.com", presets.admin)
 		).toEqual(notSignedIn);
 		expect(await count(listings)).toBe(0);
 		expect(await count(newsletters)).toBe(0);
@@ -245,10 +359,11 @@ describe("officers", () => {
 		expect((await listingActions.moveListingAction(id, "down")).ok).toBe(true);
 		expect((await listingActions.publishListing(id, false)).ok).toBe(true);
 		expect((await listingActions.trashListing(id)).ok).toBe(true);
-		expect((await listingActions.restoreListing(id)).ok).toBe(true);
-		expect((await listingActions.trashListing(id)).ok).toBe(true);
-		expect((await listingActions.deleteListingForever(id)).ok).toBe(true);
-		expect(await count(listings)).toBe(0);
+		// Deleting only hides it: the row waits in the (admin-only) trash.
+		const [hidden] = await testDb!.select().from(listings);
+		expect(hidden?.deletedAt).not.toBeNull();
+		expect(hidden?.deletedBy).toBe("officer@gmail.com");
+		expect(await listingActions.trashListing(id)).toMatchObject({ ok: false });
 	});
 
 	it("get field errors for bad input and nothing is saved", async () => {
@@ -342,14 +457,162 @@ describe("officers", () => {
 		expect(stale).toMatchObject({ ok: false, conflict: true });
 	});
 
+	it("can save the announcement, with bad links refused", async () => {
+		expect(
+			await announcementActions.saveAnnouncementAction(announcementInput)
+		).toEqual({ ok: true });
+		expect(updateTag).toHaveBeenCalledWith("announcement");
+		const bad = await announcementActions.saveAnnouncementAction({
+			...announcementInput,
+			linkUrl: "javascript:alert(1)",
+		});
+		expect(bad.ok).toBe(false);
+	});
+
+	it("can import, add, edit, reorder and remove crew", async () => {
+		// Only admins (or a custom mix) can edit the Flight Crew page.
+		await addUserRow("crew-admin@gmail.com", "admin");
+		signInAs("crew-admin@gmail.com");
+		expect((await crewActions.importCrewAction()).ok).toBe(true);
+		expect((await crewActions.importCrewAction()).ok).toBe(false);
+		expect(await crewActions.addCrewMemberAction(crewInput)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("crew");
+		const rows = await testDb!.select().from(crewMembers);
+		const mine = rows.find((row) => row.name === "Peter Stuyvesant")!;
+		expect(
+			await crewActions.updateCrewMemberAction(mine.id, {
+				...crewInput,
+				role: "Captain",
+			})
+		).toEqual({ ok: true });
+		expect(await crewActions.moveCrewMemberAction(mine.id, "up")).toEqual({
+			ok: true,
+		});
+		expect((await crewActions.moveCrewMemberAction(mine.id, "left")).ok).toBe(
+			false
+		);
+		expect(await crewActions.deleteCrewMemberAction(mine.id)).toEqual({
+			ok: true,
+		});
+		expect((await crewActions.deleteCrewMemberAction(mine.id)).ok).toBe(false);
+	});
+
+	it("can import, add, caption and remove gallery photos", async () => {
+		expect((await galleryActions.importGalleryAction()).ok).toBe(true);
+		expect((await galleryActions.importGalleryAction()).ok).toBe(false);
+		expect(await galleryActions.addGalleryPhotoAction(galleryInput)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("gallery");
+		const rows = await testDb!.select().from(galleryPhotos);
+		const mine = rows.find((row) => row.imageUrl !== null)!;
+		expect(await galleryActions.updateGalleryAltAction(mine.id, "New")).toEqual(
+			{ ok: true }
+		);
+		expect(
+			await galleryActions.updateGalleryAltAction(mine.id, " ")
+		).toMatchObject({ ok: false, fieldErrors: { alt: expect.any(String) } });
+		expect(
+			await galleryActions.addGalleryPhotoAction({
+				...galleryInput,
+				imageUrl: "https://example.org/a.jpg",
+			})
+		).toMatchObject({ ok: false });
+		expect(await galleryActions.deleteGalleryPhotoAction(mine.id)).toEqual({
+			ok: true,
+		});
+	});
+
+	it("can import, add, edit and remove testimonials", async () => {
+		expect((await testimonialActions.importTestimonialsAction()).ok).toBe(true);
+		expect((await testimonialActions.importTestimonialsAction()).ok).toBe(
+			false
+		);
+		const input = { quote: "Great club", author: "Peter" };
+		expect(await testimonialActions.addTestimonialAction(input)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("testimonials");
+		const rows = await testDb!.select().from(testimonials);
+		const mine = rows.find((row) => row.quote === "Great club")!;
+		expect(
+			await testimonialActions.updateTestimonialAction(mine.id, {
+				...input,
+				quote: "Greater club",
+			})
+		).toEqual({ ok: true });
+		expect(
+			(await testimonialActions.addTestimonialAction({ ...input, quote: "" }))
+				.ok
+		).toBe(false);
+		expect(await testimonialActions.deleteTestimonialAction(mine.id)).toEqual({
+			ok: true,
+		});
+	});
+
+	it("gets field errors for a bad crew photo link", async () => {
+		// Only admins (or a custom mix) can edit the Flight Crew page.
+		await addUserRow("crew-admin@gmail.com", "admin");
+		signInAs("crew-admin@gmail.com");
+		const result = await crewActions.addCrewMemberAction({
+			...crewInput,
+			imageUrl: "https://example.org/a.jpg",
+		});
+		expect(result).toMatchObject({
+			ok: false,
+			fieldErrors: { imageUrl: expect.any(String) },
+		});
+	});
+
+	it("can triage the inbox", async () => {
+		const rows = await testDb!
+			.insert(submissions)
+			.values({ type: "contact", name: "Peter", message: "Hi" })
+			.returning();
+		const id = rows.at(0)!.id;
+		expect(await inboxActions.markSubmission(id, "read")).toEqual({ ok: true });
+		expect(await inboxActions.markSubmission(id, "archived")).toEqual({
+			ok: true,
+		});
+		const stored = await testDb!.select().from(submissions);
+		expect(stored.at(0)?.status).toBe("archived");
+		const missing = await inboxActions.markSubmission(
+			crypto.randomUUID(),
+			"read"
+		);
+		expect(missing.ok).toBe(false);
+		const bad = await inboxActions.markSubmission(id, "deleted");
+		expect(bad.ok).toBe(false);
+	});
+
+	it("can start a deadline digest only when a card is due", async () => {
+		const empty = await newsletterActions.createDeadlineDigestAction();
+		expect(empty.ok).toBe(false);
+		expect(await count(newsletters)).toBe(0);
+
+		const due = new Date(Date.now() + 17 * 86_400_000)
+			.toISOString()
+			.slice(0, 10);
+		await listingActions.saveListing(undefined, {
+			...card,
+			deadline: due,
+			status: "published",
+		});
+		const made = await newsletterActions.createDeadlineDigestAction();
+		expect(made.ok).toBe(true);
+		expect(await count(newsletters)).toBe(1);
+	});
+
 	it("can't manage officers or settings (admin only)", async () => {
 		const target = await addUserRow("someone@gmail.com", "officer");
-		expect(await officerActions.addOfficer("new@gmail.com", "officer")).toEqual(
-			notAllowed
-		);
-		expect(await officerActions.changeOfficerRole(target.id, "admin")).toEqual(
-			notAllowed
-		);
+		expect(
+			await officerActions.addOfficer("new@gmail.com", presets.officer)
+		).toEqual(notAllowed);
+		expect(
+			await officerActions.changeOfficerPermissions(target.id, presets.admin)
+		).toEqual(notAllowed);
 		expect(await officerActions.removeOfficer(target.id)).toEqual(notAllowed);
 		expect(
 			await settingsActions.saveEpsilonTokenAction("refresh-token-12345")
@@ -434,16 +697,18 @@ describe("admins", () => {
 
 	it("can add officers, change roles and remove them", async () => {
 		expect(
-			await officerActions.addOfficer(" New@Gmail.com ", "officer")
+			await officerActions.addOfficer(" New@Gmail.com ", presets.officer)
 		).toEqual({ ok: true });
 		const added = (await testDb!.select().from(users)).find(
 			(user) => user.email === "new@gmail.com"
 		)!;
 		expect(added.addedBy).toBe("admin@gmail.com");
 		expect(
-			await officerActions.addOfficer("new@gmail.com", "officer")
+			await officerActions.addOfficer("new@gmail.com", presets.officer)
 		).toMatchObject({ ok: false });
-		expect(await officerActions.changeOfficerRole(added.id, "admin")).toEqual({
+		expect(
+			await officerActions.changeOfficerPermissions(added.id, presets.admin)
+		).toEqual({
 			ok: true,
 		});
 		expect(await officerActions.removeOfficer(added.id)).toEqual({ ok: true });
@@ -451,26 +716,24 @@ describe("admins", () => {
 
 	it("validates emails and roles", async () => {
 		expect(
-			await officerActions.addOfficer("not-an-email", "officer")
+			await officerActions.addOfficer("not-an-email", presets.officer)
 		).toMatchObject({ ok: false });
 		expect(
-			await officerActions.addOfficer("a@gmail.com", "owner")
+			await officerActions.addOfficer("a@gmail.com", 99_999)
 		).toMatchObject({ ok: false });
 		expect(
-			await officerActions.changeOfficerRole(admin.id, "superuser")
+			await officerActions.changeOfficerPermissions(admin.id, -5)
 		).toMatchObject({ ok: false });
 		expect(await count(users)).toBe(1);
 	});
 
-	it("can't remove or demote the last admin", async () => {
-		expect(await officerActions.removeOfficer(admin.id)).toEqual({
-			ok: false,
-			error: "There must always be at least one admin.",
-		});
+	it("can't change its own permissions", async () => {
 		expect(
-			await officerActions.changeOfficerRole(admin.id, "officer")
-		).toMatchObject({ ok: false });
-		expect(await count(users)).toBe(1);
+			await officerActions.changeOfficerPermissions(admin.id, presets.officer)
+		).toEqual({ ok: false, error: "You can’t change your own permissions." });
+		expect((await testDb!.select().from(users))[0]?.permissions).toBe(
+			presets.admin
+		);
 	});
 
 	it("reject an Epsilon token that isn't a token", async () => {

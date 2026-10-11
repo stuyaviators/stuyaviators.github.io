@@ -119,7 +119,7 @@ export default function MailingListForm({
 									href={fallbackUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="font-medium text-brand underline underline-offset-2"
+									className="text-link"
 								>
 									Sign up here
 								</a>
@@ -147,7 +147,7 @@ export default function MailingListForm({
 									href={state.fallbackUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="font-medium underline underline-offset-2"
+									className="text-link"
 								>
 									Use the sign-up form instead
 								</a>
@@ -158,7 +158,7 @@ export default function MailingListForm({
 			</div>
 			<p className="mt-3 text-sm text-muted">
 				We only use your email for StuyAviators news and events. To unsubscribe,
-				use the link at the bottom of any newsletter.
+				email us or use the link at the bottom of any newsletter.
 			</p>
 		</form>
 	);

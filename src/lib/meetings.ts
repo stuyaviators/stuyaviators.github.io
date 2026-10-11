@@ -9,9 +9,9 @@ import { z } from "zod";
  * Epsilon only shows meetings to signed-in users, so the request needs an
  * officer's Epsilon session. An admin stores a long-lived refresh token in the
  * dashboard (Settings → Epsilon; see epsilon-token.ts), which is exchanged for
- * hourly access tokens. EPSILON_ACCESS_TOKEN (server-only) still works as a
- * short-lived override. With neither, the board falls back to
- * `manualMeetings` below. Only meeting fields are requested, never members.
+ * hourly access tokens. With no saved token, or one that doesn't work, the
+ * board says it is down and points people to Epsilon (there is no made-up
+ * fallback list). Only meeting fields are requested, never members.
  */
 
 export const meetingsTag = "meetings";
@@ -31,22 +31,6 @@ export type Meeting = {
 	status: MeetingStatus;
 	description?: string;
 };
-
-/**
-Hand-entered meetings, used when Epsilon can't be reached.
-*/
-export const manualMeetings: Meeting[] = [
-	{
-		id: "epsilon-10069",
-		title: "StuyAviators Interest Meeting",
-		start: "2026-10-16T19:35:00Z",
-		end: "2026-10-16T21:00:00Z",
-		room: "313",
-		status: "scheduled",
-		description:
-			"Welcome to StuyAviators! We will be hosting our interest meeting where we will go over club events, future plans, and answer any questions you may have. Pull up!",
-	},
-];
 
 const epsilonMeeting = z.object({
 	id: z.number(),
@@ -96,20 +80,18 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 }
 
 async function accessToken(): Promise<string | undefined> {
+	// The token saved in the dashboard is the only source.
 	const db = getDb();
-	if (db) {
-		try {
-			const token = await getEpsilonAccessToken(db);
-			if (token) {
-				return token;
-			}
-		} catch (error) {
-			console.error("Could not load the Epsilon token", error);
-		}
+	if (!db) {
+		return undefined;
 	}
 
-	const fallback = process.env.EPSILON_ACCESS_TOKEN;
-	return fallback === "" ? undefined : fallback;
+	try {
+		return await getEpsilonAccessToken(db);
+	} catch (error) {
+		console.error("Could not load the Epsilon token", error);
+		return undefined;
+	}
 }
 
 export async function fetchEpsilonMeetings(token?: string): Promise<Meeting[]> {
@@ -137,19 +119,37 @@ export async function fetchEpsilonMeetings(token?: string): Promise<Meeting[]> {
 	return parseEpsilonMeetings(await response.json());
 }
 
-export async function getUpcomingMeetings(
+/**
+The club's page on Epsilon. Epsilon has no page for a single meeting, so every
+"View on Epsilon" link opens the club page, where its meetings are listed.
+*/
+export function epsilonClubUrl(): string {
+	return `https://epsilon.stuysu.org/${epsilonConfig().slug}`;
+}
+
+export type MeetingBoard =
+	{ isUp: true; meetings: Meeting[] } | { isUp: false; meetings?: undefined };
+
+/**
+The upcoming meetings, or `isUp: false` when Epsilon can't be read (no token
+saved, or it doesn't work): the board then says so instead of guessing.
+*/
+export async function getMeetingBoard(
 	now = new Date(),
 	limit = 6
-): Promise<Meeting[]> {
+): Promise<MeetingBoard> {
 	let meetings: Meeting[];
 	try {
 		meetings = await fetchEpsilonMeetings();
 	} catch {
-		meetings = manualMeetings;
+		return { isUp: false };
 	}
 
-	return meetings
-		.filter((meeting) => new Date(meeting.end ?? meeting.start) >= now)
-		.toSorted((a, b) => a.start.localeCompare(b.start))
-		.slice(0, limit);
+	return {
+		isUp: true,
+		meetings: meetings
+			.filter((meeting) => new Date(meeting.end ?? meeting.start) >= now)
+			.toSorted((a, b) => a.start.localeCompare(b.start))
+			.slice(0, limit),
+	};
 }

@@ -6,16 +6,20 @@ import {
 	Notice,
 	PageHeader,
 } from "@/components/dashboard/ui";
+import CountUp from "@/components/motion/CountUp";
 import { ButtonLink } from "@/components/ui/Button";
 import { getDb } from "@/db";
 import { envChecklist, sheetUrl } from "@/lib/dashboard-env";
 import { getDashboardStats } from "@/lib/dashboard-stats";
 import { getEpsilonStatus } from "@/lib/epsilon-token";
-import { hasRole, requirePageUser } from "@/lib/session";
+import { hasAccess, requirePageUser } from "@/lib/session";
 import { Check, ExternalLink, Minus } from "lucide-react";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Overview" };
+// The layout's "· Dashboard" template skips pages in its own folder.
+export const metadata: Metadata = {
+	title: { absolute: "Overview · Dashboard" },
+};
 
 type SearchParameters = { denied?: string };
 
@@ -26,7 +30,7 @@ export default async function OverviewPage({
 }) {
 	const user = await requirePageUser();
 	const { denied } = await searchParams;
-	const isAdmin = hasRole(user, "admin");
+	const isAdmin = hasAccess(user, "settings");
 	const db = getDb();
 	const [stats, epsilon] = await Promise.all([
 		db ? getDashboardStats(db).catch(() => undefined) : undefined,
@@ -35,26 +39,28 @@ export default async function OverviewPage({
 	const checklist = envChecklist();
 	const missing = checklist.filter((item) => item.isRequired && !item.isSet);
 	const signup = sheetUrl("SIGNUP_SHEET_URL");
-	const unsubscribe = sheetUrl("UNSUBSCRIBE_SHEET_URL");
 
 	const tiles = stats
 		? [
 				{
 					label: "Opportunities",
 					href: "/dashboard/opportunities",
+					isAllowed: hasAccess(user, "listings"),
 					...stats.opportunities,
 				},
 				{
 					label: "Scholarships",
 					href: "/dashboard/scholarships",
+					isAllowed: hasAccess(user, "listings"),
 					...stats.scholarships,
 				},
 				{
 					label: "Newsletters",
 					href: "/dashboard/newsletter",
+					isAllowed: hasAccess(user, "newsletters"),
 					...stats.newsletters,
 				},
-			]
+			].filter((tile) => tile.isAllowed)
 		: [];
 
 	return (
@@ -66,7 +72,7 @@ export default async function OverviewPage({
 
 			{denied ? (
 				<Notice tone="warn" className="mb-6">
-					That page is for admins only.
+					Your role doesn’t include that page.
 				</Notice>
 			) : null}
 
@@ -86,7 +92,9 @@ export default async function OverviewPage({
 								className="block rounded-2xl border border-hairline bg-surface p-5 transition-colors hover:border-brand"
 							>
 								<p className="label text-muted">{tile.label}</p>
-								<p className="mt-2 text-4xl font-semibold">{tile.published}</p>
+								<p className="mt-2 text-4xl font-semibold">
+									<CountUp value={tile.published} duration={0.9} />
+								</p>
 								<p className="text-sm text-muted">
 									published
 									{tile.draft > 0
@@ -100,35 +108,29 @@ export default async function OverviewPage({
 			) : null}
 
 			<div className="mt-6 grid gap-4 lg:grid-cols-2">
-				<Card aria-labelledby="lists-heading">
-					<h2 id="lists-heading" className="text-xl">
-						Mailing lists
-					</h2>
-					<p className="mt-1 text-sm text-muted">
-						Sign-ups and unsubscribes land in Google Sheets. See{" "}
-						<code>docs/sending-newsletters.md</code> before sending.
-					</p>
-					<div className="mt-4 flex flex-wrap gap-2">
-						{signup ? (
-							<ButtonLink href={signup} variant="secondary">
-								Sign-up Sheet <ExternalLink aria-hidden className="size-4" />
-							</ButtonLink>
-						) : (
-							<Badge>SIGNUP_SHEET_URL not set</Badge>
-						)}
-						{unsubscribe ? (
-							<ButtonLink href={unsubscribe} variant="secondary">
-								Unsubscribe Sheet{" "}
-								<ExternalLink aria-hidden className="size-4" />
-							</ButtonLink>
-						) : (
-							<Badge>UNSUBSCRIBE_SHEET_URL not set</Badge>
-						)}
-					</div>
-				</Card>
+				{hasAccess(user, "newsletters") ? (
+					<Card aria-labelledby="lists-heading" className="flex flex-col">
+						<h2 id="lists-heading" className="text-xl">
+							Mailing lists
+						</h2>
+						<p className="mt-1 text-sm text-muted">
+							Sign-ups land in a Google Sheet. See{" "}
+							<code>docs/sending-newsletters.md</code> before sending.
+						</p>
+						<div className="mt-auto flex flex-wrap gap-2 pt-4">
+							{signup ? (
+								<ButtonLink href={signup} variant="secondary">
+									Sign-up Sheet <ExternalLink aria-hidden className="size-4" />
+								</ButtonLink>
+							) : (
+								<Badge>SIGNUP_SHEET_URL not set</Badge>
+							)}
+						</div>
+					</Card>
+				) : null}
 
 				{isAdmin ? (
-					<Card aria-labelledby="epsilon-heading">
+					<Card aria-labelledby="epsilon-heading" className="flex flex-col">
 						<h2 id="epsilon-heading" className="text-xl">
 							Epsilon meetings
 						</h2>
@@ -146,11 +148,6 @@ export default async function OverviewPage({
 									<Badge tone="bad">Needs a new token</Badge>{" "}
 									<span className="text-muted">{epsilon.error}</span>
 								</>
-							) : epsilon?.envFallback ? (
-								<>
-									<Badge tone="warn">Using EPSILON_ACCESS_TOKEN</Badge>{" "}
-									<span className="text-muted">expires about hourly</span>
-								</>
 							) : (
 								<>
 									<Badge>Not connected</Badge>{" "}
@@ -160,7 +157,7 @@ export default async function OverviewPage({
 								</>
 							)}
 						</p>
-						<div className="mt-4">
+						<div className="mt-auto pt-4">
 							<ButtonLink href="/dashboard/settings" variant="secondary">
 								Manage token
 							</ButtonLink>
@@ -169,40 +166,42 @@ export default async function OverviewPage({
 				) : null}
 			</div>
 
-			<Card className="mt-6" aria-labelledby="setup-heading">
-				<h2 id="setup-heading" className="text-xl">
-					Setup checklist
-				</h2>
-				<p className="mt-1 text-sm text-muted">
-					{missing.length === 0
-						? "Everything required is set."
-						: `${missing.length} required variable${missing.length === 1 ? " is" : "s are"} missing. Set them in .env.local, and in Vercel’s project settings for the live site.`}
-				</p>
-				<ul className="mt-4 divide-y divide-hairline">
-					{checklist.map((item) => (
-						<li key={item.name} className="flex items-start gap-3 py-2.5">
-							{item.isSet ? (
-								<Check
-									aria-label="Set"
-									className="mt-0.5 size-4 shrink-0 text-success"
-								/>
-							) : (
-								<Minus
-									aria-label={item.isRequired ? "Missing" : "Not set"}
-									className={`mt-0.5 size-4 shrink-0 ${item.isRequired ? "text-danger" : "text-muted"}`}
-								/>
-							)}
-							<div className="min-w-0">
-								<code className="text-sm font-semibold">{item.name}</code>
-								<p className="text-sm text-muted">
-									{item.purpose}
-									{item.isRequired ? "" : " (optional)"}
-								</p>
-							</div>
-						</li>
-					))}
-				</ul>
-			</Card>
+			{isAdmin ? (
+				<Card className="mt-6" aria-labelledby="setup-heading">
+					<h2 id="setup-heading" className="text-xl">
+						Setup checklist
+					</h2>
+					<p className="mt-1 text-sm text-muted">
+						{missing.length === 0
+							? "Everything required is set."
+							: `${missing.length} required variable${missing.length === 1 ? " is" : "s are"} missing. Set them in .env.local, and in Vercel’s project settings for the live site.`}
+					</p>
+					<ul className="mt-4 divide-y divide-hairline">
+						{checklist.map((item) => (
+							<li key={item.name} className="flex items-start gap-3 py-2.5">
+								{item.isSet ? (
+									<Check
+										aria-label="Set"
+										className="mt-0.5 size-4 shrink-0 text-success"
+									/>
+								) : (
+									<Minus
+										aria-label={item.isRequired ? "Missing" : "Not set"}
+										className={`mt-0.5 size-4 shrink-0 ${item.isRequired ? "text-danger" : "text-muted"}`}
+									/>
+								)}
+								<div className="min-w-0">
+									<code className="text-sm font-semibold">{item.name}</code>
+									<p className="text-sm text-muted">
+										{item.purpose}
+										{item.isRequired ? "" : " (optional)"}
+									</p>
+								</div>
+							</li>
+						))}
+					</ul>
+				</Card>
+			) : null}
 		</>
 	);
 }

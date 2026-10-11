@@ -11,7 +11,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Club Charter & Rules",
+	title: "Club Charter",
 	description: pageIntros.charter.intro,
 	alternates: { canonical: "/charter" },
 };
@@ -78,7 +78,7 @@ function CharterPart({
 		<section
 			id={id}
 			aria-labelledby={`${id}-h`}
-			className="scroll-mt-24 border-t border-hairline py-14 lg:grid lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10 lg:py-20"
+			className="scroll-mt-24 border-t border-hairline py-8 lg:grid lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10 lg:py-10"
 		>
 			<div className="below-header sticky z-10 -mx-4 bg-bg/85 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 sm:-mx-6 sm:px-6 lg:mx-0 lg:self-start lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
 				<FlightStrip index={number} label={eyebrow} />
@@ -111,7 +111,7 @@ export default function CharterPage() {
 			<Container className="grid gap-12 pb-24 lg:grid-cols-[13rem_1fr]">
 				<CharterToc items={toc} />
 				<div className="min-w-0">
-					<div className="py-16">
+					<div className="py-8">
 						<FlightStrip label={charter.foundation.title} />
 						<p className="mt-5 max-w-3xl font-display text-3xl leading-snug font-semibold sm:text-4xl">
 							{charter.foundation.paragraphs[0]}

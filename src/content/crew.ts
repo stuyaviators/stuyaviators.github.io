@@ -211,3 +211,24 @@ export const partnerClubs: PartnerClub[] = [
 ];
 
 export const crewApplyUrl = "https://forms.gle/4dRYhvUt7iZH7u9E6";
+
+/**
+Lookup key for a person's bundled photo (stored as `photoKey` when the crew
+moves into the database).
+*/
+export function crewPhotoKey(name: string) {
+	return name
+		.toLowerCase()
+		.replaceAll(/[^\da-z]+/gu, "-")
+		.replaceAll(/^-|-$/gu, "");
+}
+
+export const staticCrewPhotos: Record<string, StaticImageData> =
+	Object.fromEntries(
+		[
+			...crewGroups.flatMap((group) => group.members),
+			...pastAllianceMembers,
+		].flatMap((member) =>
+			member.photo ? [[crewPhotoKey(member.name), member.photo] as const] : []
+		)
+	);

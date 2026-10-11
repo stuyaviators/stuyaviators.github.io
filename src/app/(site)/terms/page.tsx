@@ -4,7 +4,7 @@ import { adminContact, site } from "@/content/site";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-	title: "Terms of Service",
+	title: "Terms",
 	description:
 		"The rules for using the StuyAviators website, including what you can submit and what we promise.",
 	alternates: { canonical: "/terms" },

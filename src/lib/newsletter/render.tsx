@@ -1,13 +1,14 @@
 import type { NewsletterData } from "./types.ts";
 import { site } from "@/content/site";
 import NewsletterEmail from "@/emails/Newsletter";
+import { unsubscribeMailto } from "@/lib/google-forms";
 import { render } from "@react-email/render";
 
 export function newsletterUrls(slug?: string) {
 	return {
 		siteUrl: site.url,
 		webUrl: slug ? `${site.url}/newsletter/${slug}` : undefined,
-		unsubscribeUrl: `${site.url}/newsletter/unsubscribe`,
+		unsubscribeUrl: unsubscribeMailto,
 	};
 }
 

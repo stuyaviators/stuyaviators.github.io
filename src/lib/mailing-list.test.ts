@@ -4,7 +4,6 @@ import {
 	isLastNameMatch,
 	messages,
 	signupSchema,
-	unsubscribeSchema,
 	validateSignup,
 } from "./mailing-list.ts";
 
@@ -257,14 +256,5 @@ describe("schemas", () => {
 		expect(result.success).toBe(false);
 		const paths = result.error?.issues.map((issue) => issue.path[0]);
 		expect(paths).toEqual(["fullName", "email"]);
-	});
-
-	it("unsubscribeSchema only checks domain and digits", () => {
-		expect(unsubscribeSchema.parse({ email: "JSmith61@stuy.edu" })).toEqual({
-			email: "jsmith61@stuy.edu",
-		});
-		expect(
-			unsubscribeSchema.safeParse({ email: "jsmith@stuy.edu" }).success
-		).toBe(false);
 	});
 });

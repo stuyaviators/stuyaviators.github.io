@@ -28,35 +28,11 @@ export function signupFormConfig(): GoogleFormConfig {
 	};
 }
 
+/**
+Unsubscribing is an email to the club: there is no unsubscribe form.
+*/
 export const unsubscribeMailto =
 	"mailto:stuyaviators@gmail.com?subject=Unsubscribe";
-
-/**
-Undefined until GOOGLE_FORM_UNSUBSCRIBE_* are set; callers fall back to mailto.
-*/
-export function unsubscribeFormConfig(): GoogleFormConfig | undefined {
-	const action = process.env.GOOGLE_FORM_UNSUBSCRIBE_ACTION;
-	const email = process.env.GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY;
-	if (!action || !email) {
-		return undefined;
-	}
-
-	return {
-		action,
-		fallbackUrl:
-			process.env.GOOGLE_FORM_UNSUBSCRIBE_FALLBACK_URL ?? unsubscribeMailto,
-		entries: { email },
-	};
-}
-
-/**
-The URL shown in "unsubscribe" links site-wide.
-*/
-export function unsubscribeHref(): string {
-	return unsubscribeFormConfig()
-		? "/newsletter/unsubscribe"
-		: unsubscribeMailto;
-}
 
 export async function submitGoogleForm(
 	config: GoogleFormConfig,

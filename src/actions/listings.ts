@@ -5,14 +5,14 @@ import { actionError, guarded, invalid } from "@/lib/action-guard";
 import { listingsTag } from "@/lib/listings";
 import {
 	createListing,
-	deleteForever,
 	getListing,
 	listingInput,
 	moveListing,
-	setDeleted,
 	setListingStatus,
 	updateListing,
 } from "@/lib/listings-admin";
+import { canDeleteRow, notYours } from "@/lib/ownership";
+import { didMoveToTrash } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -26,8 +26,10 @@ const idSchema = z.uuid();
 
 function refreshPublicPages() {
 	updateTag(listingsTag);
-	revalidatePath("/opportunities");
-	revalidatePath("/scholarships");
+	// "layout" also covers each card's own page below the list.
+	revalidatePath("/opportunities", "layout");
+	revalidatePath("/scholarships", "layout");
+	revalidatePath("/sitemap.xml");
 }
 
 const notFound = actionError("That card no longer exists.");
@@ -36,7 +38,7 @@ export async function saveListing(
 	id: string | undefined,
 	input: unknown
 ): Promise<ActionResult<{ id: string }>> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		const parsed = listingInput.safeParse(input);
 		if (!parsed.success) {
 			return invalid(parsed.error);
@@ -71,7 +73,7 @@ export async function publishListing(
 	id: string,
 	isPublished: boolean
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
@@ -95,7 +97,7 @@ export async function moveListingAction(
 	id: string,
 	direction: "up" | "down"
 ): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
+	return guarded("listings", async ({ db }) => {
 		const parsed = z
 			.object({ id: idSchema, direction: z.enum(["up", "down"]) })
 			.safeParse({ id, direction });
@@ -114,42 +116,23 @@ export async function moveListingAction(
 }
 
 /**
-Soft delete: the card moves to the trash and can be restored.
+Deleting a card hides it everywhere (it waits in the admin-only trash).
 */
 export async function trashListing(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
+	return guarded("listings", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return notFound;
 		}
 
-		await setDeleted(db, id, true, user.email);
+		if (!(await canDeleteRow(db, user, "listing", id))) {
+			return notYours;
+		}
+
+		if (!(await didMoveToTrash(db, "listing", id, user.email))) {
+			return notFound;
+		}
+
 		refreshPublicPages();
-		return { ok: true };
-	});
-}
-
-export async function restoreListing(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ user, db }) => {
-		if (!idSchema.safeParse(id).success) {
-			return notFound;
-		}
-
-		await setDeleted(db, id, false, user.email);
-		refreshPublicPages();
-		return { ok: true };
-	});
-}
-
-/**
-Permanent; only for cards already in the trash.
-*/
-export async function deleteListingForever(id: string): Promise<ActionResult> {
-	return guarded("officer", async ({ db }) => {
-		if (!idSchema.safeParse(id).success) {
-			return notFound;
-		}
-
-		await deleteForever(db, id);
 		return { ok: true };
 	});
 }

@@ -2,8 +2,9 @@ import { photos } from "@/content/photos";
 import { site } from "@/content/site";
 import { ArrowRight } from "lucide-react";
 import HeroMedia from "./HeroMedia.tsx";
+import JoinOrDashboardLink from "./JoinOrDashboardLink.tsx";
 import { Stagger } from "./TransitionProvider.tsx";
-import { ButtonLink } from "./ui/Button.tsx";
+import { buttonClasses, ButtonLink } from "./ui/Button.tsx";
 import { Container } from "./ui/Section.tsx";
 
 /*
@@ -58,9 +59,9 @@ export default function Hero() {
 					</Stagger>
 					<Stagger>
 						<div className="mt-8 flex flex-wrap gap-3">
-							<ButtonLink href="/join" variant="accent">
+							<JoinOrDashboardLink className={buttonClasses("accent")}>
 								Join StuyAviators
-							</ButtonLink>
+							</JoinOrDashboardLink>
 							<ButtonLink href="/meetings" variant="secondary">
 								See meetings{" "}
 								<ArrowRight aria-hidden className="btn-arrow size-4" />

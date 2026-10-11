@@ -6,13 +6,8 @@ import { getDb } from "@/db";
 import { submissions } from "@/db/schema";
 import { notifyDiscord } from "@/lib/discord";
 import { honeypotField } from "@/lib/form-state";
-import {
-	signupFormConfig,
-	submitGoogleForm,
-	unsubscribeFormConfig,
-	unsubscribeMailto,
-} from "@/lib/google-forms";
-import { unsubscribeSchema, validateSignup } from "@/lib/mailing-list";
+import { signupFormConfig, submitGoogleForm } from "@/lib/google-forms";
+import { validateSignup } from "@/lib/mailing-list";
 import { hitRateLimit } from "@/lib/rate-limit";
 import { clientIp, hashKey } from "@/lib/request";
 import { submissionSchemas, submissionTypes } from "@/lib/submission-schemas";
@@ -198,50 +193,4 @@ export async function submitForm(
 
 	after(async () => notifyDiscord({ type, name, message }));
 	return { status: "success", joinedMailingList: mailingList === "submitted" };
-}
-
-/**
-Unsubscribe → second Google Form when configured, otherwise mailto.
-*/
-export async function unsubscribe(
-	_previous: FormState,
-	formData: FormData
-): Promise<FormState> {
-	const config = unsubscribeFormConfig();
-	if (!config) {
-		return {
-			status: "error",
-			message: "Email us to unsubscribe.",
-			fallbackUrl: unsubscribeMailto,
-		};
-	}
-
-	if (isBot(formData)) {
-		return { status: "success" };
-	}
-
-	const parsed = unsubscribeSchema.safeParse({
-		email: text(formData, "email"),
-	});
-	if (!parsed.success) {
-		return {
-			status: "error",
-			fieldErrors: {
-				email: parsed.error.issues[0]?.message ?? "Invalid email.",
-			},
-		};
-	}
-
-	if (!(await isAllowed("unsubscribe"))) {
-		return tooMany;
-	}
-
-	const outcome = await submitGoogleForm(config, parsed.data);
-	return outcome === "submitted"
-		? { status: "success" }
-		: {
-				status: "error",
-				message: "We couldn’t process that right now.",
-				fallbackUrl: config.fallbackUrl,
-			};
 }

@@ -40,7 +40,7 @@ export function SectionHeader({
 	const hasTitle = title !== undefined && title !== null;
 	const hasIntro = intro !== undefined && intro !== null;
 	return (
-		<Stagger className="mb-8 sm:mb-10">
+		<Stagger className="mb-6 sm:mb-8">
 			{eyebrow ? <FlightStrip label={eyebrow} /> : null}
 			<div className="mt-3 flex flex-wrap items-end justify-between gap-4">
 				{hasTitle ? (
@@ -125,7 +125,7 @@ export function Section({
 		<section
 			id={id}
 			aria-labelledby={hasTitle ? headingId : undefined}
-			className={cn("scene-section py-16 sm:py-24", className)}
+			className={cn("scene-section py-8 sm:py-10", className)}
 		>
 			<Container className="scene">
 				{header}

@@ -4,7 +4,13 @@
  * the dashboard layout, every Server Action and the upload route check the
  * allowlist and role again on the server.
  */
-export { auth as proxy } from "@/auth";
+
+import { auth } from "@/auth";
+import { isOpenSignIn } from "@/lib/open-signin";
+import { NextResponse } from "next/server";
+
+// Local development with DASHBOARD_OPEN_SIGNIN=true skips Google entirely.
+export const proxy = isOpenSignIn() ? () => NextResponse.next() : auth;
 
 export const config = {
 	matcher: ["/dashboard/:path*"],

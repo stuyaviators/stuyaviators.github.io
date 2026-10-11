@@ -1,20 +1,19 @@
 import type { Database } from "@/db";
 import { users } from "@/db/schema";
+import { adminMask, allPermissions, roleFor } from "@/lib/permissions";
 import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 /*
  * The dashboard allowlist. Google proves who someone is; this table decides
- * whether they get in and what they can do:
- *   admin   – everything, including managing officers and the Epsilon token
- *   officer – edits content
- * Emails are stored lowercased so "Peter@Stuy.edu" and "peter@stuy.edu" match.
+ * whether they get in and what they can do. Each person has a permission
+ * number (the ticked boxes added together, see permissions.ts); `role` is just
+ * the preset those boxes match, or "custom". Emails are stored lowercased so
+ * "Peter@Stuy.edu" and "peter@stuy.edu" match.
  */
 
 export type User = typeof users.$inferSelect;
 export type Role = User["role"];
-
-export const roles = ["admin", "officer"] as const satisfies Role[];
 
 export const emailSchema = z
 	.string()
@@ -57,7 +56,7 @@ async function adminCount(db: Database): Promise<number> {
 	const rowRows = await db
 		.select({ count: sql<number>`count(*)::int` })
 		.from(users)
-		.where(eq(users.role, "admin"));
+		.where(sql`(${users.permissions} & ${adminMask}::int) = ${adminMask}::int`);
 	const row = rowRows.at(0);
 	return row?.count ?? 0;
 }
@@ -81,7 +80,12 @@ export async function authorizeSignIn(
 	if (!user && adminEmails.includes(email) && (await adminCount(db)) === 0) {
 		const userRows = await db
 			.insert(users)
-			.values({ email, role: "admin", addedBy: "ADMIN_EMAILS" })
+			.values({
+				email,
+				role: "admin",
+				permissions: allPermissions,
+				addedBy: "ADMIN_EMAILS",
+			})
 			.onConflictDoNothing()
 			.returning();
 		user = userRows.at(0);
@@ -109,13 +113,18 @@ export type UserResult = { ok: true } | { ok: false; error: string };
 
 export async function addUser(
 	db: Database,
-	input: { email: string; role: Role },
+	input: { email: string; permissions: number },
 	addedBy: string
 ): Promise<UserResult> {
 	const email = normalizeEmail(input.email);
 	const createdRows = await db
 		.insert(users)
-		.values({ email, role: input.role, addedBy })
+		.values({
+			email,
+			role: roleFor(input.permissions),
+			permissions: input.permissions,
+			addedBy,
+		})
 		.onConflictDoNothing()
 		.returning({ id: users.id });
 	const created = createdRows.at(0);
@@ -124,57 +133,36 @@ export async function addUser(
 		: { ok: false, error: `${email} is already on the list.` };
 }
 
-const lastAdmin = "There must always be at least one admin.";
-
 /**
-Changes a role. A single statement refuses to demote the last admin, so two
-admins demoting each other at once can't leave the club with none.
+Replaces someone's permission number.
 */
-export async function setRole(
+export async function setPermissions(
 	db: Database,
 	id: string,
-	role: Role
+	permissions: number
 ): Promise<UserResult> {
 	const updated = await db
 		.update(users)
-		.set({ role })
-		.where(
-			sql`${users.id} = ${id} and (${role} = 'admin' or ${users.role} <> 'admin' or (select count(*) from ${users} where ${users.role} = 'admin') > 1)`
-		)
+		.set({ permissions, role: roleFor(permissions) })
+		.where(eq(users.id, id))
 		.returning({ id: users.id });
-	if (updated.length > 0) {
-		return { ok: true };
-	}
-
-	const isStillListed = (await findById(db, id)) !== undefined;
-	return {
-		ok: false,
-		error: isStillListed ? lastAdmin : "That person is no longer on the list.",
-	};
+	return updated.length > 0
+		? { ok: true }
+		: { ok: false, error: "That person is no longer on the list." };
 }
 
 /**
-Removes someone from the allowlist; never the last admin.
+Removes someone from the allowlist. Removing someone already gone is fine.
 */
 export async function removeUser(
 	db: Database,
 	id: string
 ): Promise<UserResult> {
-	const removed = await db
-		.delete(users)
-		.where(
-			sql`${users.id} = ${id} and (${users.role} <> 'admin' or (select count(*) from ${users} where ${users.role} = 'admin') > 1)`
-		)
-		.returning({ id: users.id });
-	if (removed.length > 0) {
-		return { ok: true };
-	}
-
-	const isStillListed = (await findById(db, id)) !== undefined;
-	return isStillListed ? { ok: false, error: lastAdmin } : { ok: true };
+	await db.delete(users).where(eq(users.id, id));
+	return { ok: true };
 }
 
-async function findById(db: Database, id: string) {
+export async function findUserById(db: Database, id: string) {
 	const userRows = await db
 		.select()
 		.from(users)

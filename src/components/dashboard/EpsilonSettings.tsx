@@ -7,6 +7,8 @@ import {
 	testEpsilonAction,
 } from "@/actions/settings";
 import Confirm from "@/components/dashboard/Confirm";
+import { Spinner } from "@/components/dashboard/Spinner";
+import { useToast } from "@/components/dashboard/Toast";
 import { Badge, Card, formatWhen, Notice } from "@/components/dashboard/ui";
 import { TextAreaField } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +23,7 @@ export default function EpsilonSettings({
 	readonly status: EpsilonStatus;
 }) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const [isPending, startTransition] = useTransition();
 	const [token, setToken] = useState("");
 	const [tokenError, setTokenError] = useState<string>();
@@ -52,6 +55,7 @@ export default function EpsilonSettings({
 				// Don't keep the secret in the page.
 				setToken("");
 				setNote({ tone: "good", text: "Saved. Epsilon accepted the token." });
+				toast("Epsilon token saved");
 				router.refresh();
 			} else {
 				setTokenError(result.fieldErrors?.token ?? result.error);
@@ -95,8 +99,6 @@ export default function EpsilonSettings({
 								<Badge tone="bad">Needs a new token</Badge>
 							) : status.state === "unreadable" ? (
 								<Badge tone="bad">Unreadable</Badge>
-							) : status.envFallback ? (
-								<Badge tone="warn">Using EPSILON_ACCESS_TOKEN</Badge>
 							) : (
 								<Badge>Not connected</Badge>
 							)}
@@ -212,7 +214,13 @@ export default function EpsilonSettings({
 						}}
 					/>
 					<Button type="submit" disabled={isPending || token.trim() === ""}>
-						{isPending ? "Checking…" : "Check and save"}
+						{isPending ? (
+							<>
+								<Spinner /> Checking…
+							</>
+						) : (
+							"Check and save"
+						)}
 					</Button>
 				</form>
 			</Card>
@@ -231,6 +239,7 @@ export default function EpsilonSettings({
 						const result = await removeEpsilonTokenAction();
 						if (result.ok) {
 							setNote({ tone: "good", text: "Token removed." });
+							toast("Epsilon token removed");
 							router.refresh();
 						} else {
 							setNote({ tone: "bad", text: result.error });

@@ -1,3 +1,5 @@
+import { blobToken } from "@/lib/blob-token";
+import { storeImage } from "@/lib/blob-upload";
 import { AuthorizationError, requireUser } from "@/lib/session";
 import {
 	maxUploadBytes,
@@ -5,7 +7,6 @@ import {
 	UploadError,
 	uploadPurpose,
 } from "@/lib/uploads";
-import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 /*
@@ -20,7 +21,7 @@ function error(message: string, status: number) {
 
 export async function POST(request: Request) {
 	try {
-		await requireUser("officer");
+		await requireUser("upload");
 	} catch (error_) {
 		if (error_ instanceof AuthorizationError) {
 			return error(error_.message, 401);
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
 		return error("Cross-site uploads aren’t allowed.", 403);
 	}
 
-	if (!process.env.BLOB_READ_WRITE_TOKEN) {
+	const token = blobToken();
+	if (token === undefined) {
 		return error(
 			"Uploads aren’t set up yet. An admin needs to connect Vercel Blob (BLOB_READ_WRITE_TOKEN).",
 			503
@@ -65,17 +67,9 @@ export async function POST(request: Request) {
 			new Uint8Array(await file.arrayBuffer()),
 			purpose.data
 		);
-		const blob = await put(
-			`uploads/${purpose.data}/${crypto.randomUUID()}.${image.extension}`,
-			Buffer.from(image.data),
-			{
-				access: "public",
-				contentType: image.contentType,
-				cacheControlMaxAge: 60 * 60 * 24 * 365,
-			}
-		);
+		const url = await storeImage(image, purpose.data);
 		return NextResponse.json({
-			url: blob.url,
+			url,
 			width: image.width,
 			height: image.height,
 		});

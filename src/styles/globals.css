@@ -178,10 +178,41 @@
 		margin-top: 1em;
 	}
 
+	/* Links inside running text: colored, underlined, and they glow on hover
+	   so it's clear they can be clicked. */
+	.text-link,
+	.body-links a,
 	.prose-club a {
-		color: var(--brand);
+		color: var(--accent-text);
+		font-weight: 500;
 		text-decoration: underline;
+		text-decoration-color: color-mix(
+			in srgb,
+			var(--accent-text) 55%,
+			transparent
+		);
+		text-decoration-thickness: 1.5px;
 		text-underline-offset: 3px;
+		transition:
+			color 0.2s,
+			text-decoration-color 0.2s,
+			text-shadow 0.2s;
+	}
+
+	.text-link:hover,
+	.body-links a:hover,
+	.prose-club a:hover {
+		text-decoration-color: currentcolor;
+		text-shadow: 0 0 14px
+			color-mix(in srgb, var(--accent-text) 60%, transparent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.text-link,
+		.body-links a,
+		.prose-club a {
+			transition: none;
+		}
 	}
 
 	.prose-club h3 {
@@ -579,13 +610,13 @@ dialog[open]::backdrop {
 }
 
 /* ───────────── One section at a time ─────────────
-   Each page section fills the screen (.scene-section) and its content
+   Each page section (.scene-section) is as tall as its content, so short
+   sections don't leave big gaps, and its content
    (.scene) rises in as it enters and recedes as it leaves, driven by scroll
    position. Page heroes only animate out (.scene-exit). Browsers without
    scroll-driven animations, and reduced-motion visitors, scroll normally. */
 .scene-section {
 	display: flex;
-	min-height: 100svh;
 	flex-direction: column;
 	justify-content: center;
 }
@@ -760,8 +791,6 @@ dialog[open]::backdrop {
 	}
 }
 
-
-
 /* No hover effects on gallery photos while the page is scrolling. */
 .photo-grid.is-scrolling {
 	pointer-events: none;
@@ -797,4 +826,187 @@ video {
 	-webkit-user-drag: none;
 	user-select: none;
 	-webkit-touch-callout: none;
+}
+
+/* ── Dashboard motion ─────────────────────────────────────────────────────
+   Content rises in (staggered), notices pop, rows slide away when removed,
+   and the whole dashboard fades out on sign-out. All off under reduced
+   motion. */
+@keyframes dash-rise {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+@keyframes dash-pop {
+	from {
+		opacity: 0;
+		transform: scale(0.96) translateY(-4px);
+	}
+}
+
+@keyframes dash-row-leave {
+	from {
+		max-height: 16rem;
+	}
+	to {
+		opacity: 0;
+		transform: translateX(32px);
+		max-height: 0;
+		margin-block: 0;
+		padding-block: 0;
+		border-width: 0;
+	}
+}
+
+@keyframes dash-shell-leave {
+	to {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.985);
+		filter: blur(6px);
+	}
+}
+
+.dash-rise {
+	animation: dash-rise 0.5s var(--ease-out-expo) backwards;
+}
+
+.dash-stagger > * {
+	animation: dash-rise 0.55s var(--ease-out-expo) backwards;
+}
+
+.dash-stagger > :nth-child(2) {
+	animation-delay: 60ms;
+}
+.dash-stagger > :nth-child(3) {
+	animation-delay: 120ms;
+}
+.dash-stagger > :nth-child(4) {
+	animation-delay: 180ms;
+}
+.dash-stagger > :nth-child(5) {
+	animation-delay: 240ms;
+}
+.dash-stagger > :nth-child(6) {
+	animation-delay: 300ms;
+}
+.dash-stagger > :nth-child(7) {
+	animation-delay: 360ms;
+}
+.dash-stagger > :nth-child(8) {
+	animation-delay: 420ms;
+}
+.dash-stagger > :nth-child(n + 9) {
+	animation-delay: 480ms;
+}
+
+.dash-pop {
+	animation: dash-pop 0.35s var(--ease-out-expo) backwards;
+}
+
+.dash-leave {
+	overflow: hidden;
+	pointer-events: none;
+	animation: dash-row-leave 0.35s ease-in forwards;
+}
+
+html.dash-leaving .dash-shell {
+	pointer-events: none;
+	animation: dash-shell-leave 0.38s ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dash-rise,
+	.dash-stagger > *,
+	.dash-pop,
+	.dash-leave,
+	html.dash-leaving .dash-shell {
+		animation: none;
+	}
+}
+
+/* ── Dashboard backdrop ───────────────────────────────────────────────────
+   The site's brand blue as a soft glow, plus a faint dotted grid like the
+   departure board's. Fixed behind everything, so cards sit on top of it. */
+.dash-shell {
+	isolation: isolate;
+}
+
+.dash-shell::before,
+.dash-shell::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+}
+
+.dash-shell::before {
+	background:
+		radial-gradient(
+			56rem 36rem at 88% -8%,
+			color-mix(in srgb, var(--brand) 16%, transparent),
+			transparent 70%
+		),
+		radial-gradient(
+			44rem 32rem at -8% 108%,
+			color-mix(in srgb, var(--accent) 12%, transparent),
+			transparent 70%
+		);
+}
+
+.dash-shell::after {
+	background-image: radial-gradient(
+		color-mix(in srgb, var(--text) 14%, transparent) 1px,
+		transparent 1.2px
+	);
+	background-size: 24px 24px;
+	mask-image: linear-gradient(to bottom, black, transparent 55%);
+}
+
+/* ── Taking off into the dashboard ────────────────────────────────────────
+   The veil covers the page in the dashboard's colors while the next page
+   loads; then the sidebar slides in from the left and the content rises in
+   (see src/lib/takeoff.ts). */
+.takeoff-veil {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	pointer-events: none;
+	background:
+		radial-gradient(
+			56rem 36rem at 88% -8%,
+			color-mix(in srgb, var(--brand) 22%, transparent),
+			transparent 70%
+		),
+		radial-gradient(
+			44rem 32rem at -8% 108%,
+			color-mix(in srgb, var(--accent) 18%, transparent),
+			transparent 70%
+		),
+		var(--bg);
+}
+
+@keyframes dash-arrive-side {
+	from {
+		transform: translateX(-100%);
+	}
+}
+
+@keyframes dash-arrive-main {
+	from {
+		opacity: 0;
+		transform: translateY(16vh) scale(0.97);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html.dash-arriving .dash-shell > aside {
+		animation: dash-arrive-side 0.75s var(--ease-out-expo) backwards;
+	}
+
+	html.dash-arriving .dash-shell > div {
+		animation: dash-arrive-main 0.85s 0.12s var(--ease-out-expo) backwards;
+	}
 }

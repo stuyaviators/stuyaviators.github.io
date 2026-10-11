@@ -17,7 +17,7 @@ const body = z.object({
 
 export async function POST(request: Request) {
 	try {
-		await requireUser("officer");
+		await requireUser("newsletters");
 	} catch (error) {
 		if (error instanceof AuthorizationError) {
 			return NextResponse.json({ error: error.message }, { status: 401 });

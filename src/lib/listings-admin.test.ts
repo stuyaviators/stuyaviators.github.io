@@ -1,14 +1,13 @@
 import type { Database } from "@/db";
+import { didDeleteFromTrash, didMoveToTrash, didRestoreFromTrash } from "@/lib/trash";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
 	createListing,
-	deleteForever,
 	getListing,
 	listForDashboard,
 	listingInput,
 	moveListing,
-	setDeleted,
 	setListingStatus,
 	updateListing,
 } from "./listings-admin.ts";
@@ -39,6 +38,10 @@ const valid = {
 
 function parse(overrides: Record<string, unknown> = {}) {
 	return listingInput.safeParse({ ...valid, ...overrides });
+}
+
+function parsed(overrides: Record<string, unknown> = {}) {
+	return listingInput.parse({ ...valid, ...overrides });
 }
 
 function failure(overrides: Record<string, unknown>) {
@@ -251,34 +254,76 @@ describe("ordering", () => {
 });
 
 describe("trash", () => {
-	it("hides trashed cards, restores them as drafts, and deletes forever only from the trash", async () => {
+	it("hides trashed cards, restores them as drafts, and deletes for good only from the trash", async () => {
 		const card = await createListing(
 			db,
 			listingInput.parse({ ...valid, status: "published" }),
 			"x"
 		);
 
-		await deleteForever(db, card.id); // Not in the trash: must survive.
+		// Not in the trash: deleting for good must leave it alone.
+		expect(await didDeleteFromTrash(db, "listing", card.id)).toBe(false);
 		expect(await getListing(db, card.id)).toBeDefined();
 
-		await setDeleted(db, card.id, true, "x");
+		expect(await didMoveToTrash(db, "listing", card.id, "y")).toBe(true);
 		expect(await listForDashboard(db, "scholarship")).toHaveLength(0);
-		expect(await listForDashboard(db, "scholarship", "trash")).toHaveLength(1);
+		expect(await getListing(db, card.id)).toMatchObject({ deletedBy: "y" });
 
-		await setDeleted(db, card.id, false, "x");
+		expect(await didRestoreFromTrash(db, "listing", card.id, "x")).toBe(true);
 		const restored = await getListing(db, card.id);
-		expect(restored).toMatchObject({ deletedAt: null, status: "draft" });
+		expect(restored).toMatchObject({
+			deletedAt: null,
+			deletedBy: null,
+			status: "draft",
+		});
 
-		await setDeleted(db, card.id, true, "x");
-		await deleteForever(db, card.id);
+		await didMoveToTrash(db, "listing", card.id, "x");
+		expect(await didDeleteFromTrash(db, "listing", card.id)).toBe(true);
 		expect(await getListing(db, card.id)).toBeUndefined();
 	});
 
 	it("won't publish a trashed card", async () => {
 		const card = await createListing(db, listingInput.parse(valid), "x");
-		await setDeleted(db, card.id, true, "x");
+		await didMoveToTrash(db, "listing", card.id, "x");
 		expect(
 			await setListingStatus(db, card.id, "published", "x")
 		).toBeUndefined();
+	});
+});
+
+describe("card addresses", () => {
+	it("gives each new card a slug from its title, and keeps it when the title changes", async () => {
+		const created = await createListing(db, parsed(), "a");
+		expect(created.slug).toBe("aviation-scholarship");
+
+		const renamed = await updateListing(
+			db,
+			created.id,
+			parsed({ title: "A brand new name" }),
+			"a"
+		);
+		expect(renamed?.slug).toBe("aviation-scholarship");
+	});
+
+	it("adds a number when a title is already used, per kind", async () => {
+		const first = await createListing(db, parsed(), "a");
+		const second = await createListing(db, parsed(), "a");
+		const third = await createListing(db, parsed(), "a");
+		const opportunity = await createListing(
+			db,
+			parsed({ kind: "opportunity" }),
+			"a"
+		);
+		expect([first.slug, second.slug, third.slug]).toEqual([
+			"aviation-scholarship",
+			"aviation-scholarship-2",
+			"aviation-scholarship-3",
+		]);
+		expect(opportunity.slug).toBe("aviation-scholarship");
+	});
+
+	it("falls back for titles with no letters or digits", async () => {
+		const created = await createListing(db, parsed({ title: "★★★" }), "a");
+		expect(created.slug).toBe("listing");
 	});
 });

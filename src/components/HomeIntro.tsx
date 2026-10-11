@@ -1,8 +1,10 @@
 "use client";
 
+import type { BeholdPost } from "@/lib/behold";
 import type { StaticImageData } from "next/image";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
+import { useBlobUrl } from "@/lib/use-blob-url";
 import { ArrowRight, ChevronDown, Pause, Play } from "lucide-react";
 import {
 	motion,
@@ -12,9 +14,10 @@ import {
 } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useBlobUrl } from "@/lib/use-blob-url";
 import { useEffect, useRef, useState } from "react";
 import Hero from "./Hero.tsx";
+import { SocialIcon } from "./icons.tsx";
+import JoinOrDashboardLink from "./JoinOrDashboardLink.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
 
 /*
@@ -34,16 +37,32 @@ const cardInset = {
 	mobile: [12, 4, 62, 4, 16],
 } as const;
 
+type CardInset = readonly number[];
+
+/**
+The card's final position on a narrow screen, where the text sits below it:
+the card stops above the text however tall that is. On a screen too short
+to hold both, the card is dropped and the text gets the whole space.
+*/
+function narrowCardInset(
+	textHeight: number,
+	viewportHeight: number
+): CardInset {
+	const [top, right, defaultBottom, left, radius] = cardInset.mobile;
+	// The text sits 6svh above the bottom edge, with a small gap above it.
+	const needed = textHeight + viewportHeight * 0.06 + 24;
+	const bottom = Math.max(defaultBottom, (needed / viewportHeight) * 100);
+	return 100 - top - bottom >= 14
+		? [top, right, bottom, left, radius]
+		: [50, right, 50, left, 0];
+}
+
 function setHeaderOverlay(isOverlay: boolean) {
 	if (isOverlay) {
 		document.documentElement.dataset.header = "overlay";
 	} else {
 		delete document.documentElement.dataset.header;
 	}
-}
-
-function clamp01(value: number) {
-	return Math.min(1, Math.max(0, value));
 }
 
 function Contrail({ className }: { readonly className?: string }) {
@@ -67,12 +86,94 @@ function Contrail({ className }: { readonly className?: string }) {
 	);
 }
 
+/**
+Where the video was: the latest Instagram posts, sliding in from the right
+as the video fades away. Without posts (no Behold feed), a link to follow.
+*/
+function InstagramPanel({
+	posts,
+	username,
+	isActive,
+	isWide,
+}: {
+	readonly posts: BeholdPost[];
+	readonly username: string;
+	readonly isActive: boolean;
+	readonly isWide: boolean;
+}) {
+	const tabIndex = isActive ? undefined : -1;
+	const shown = posts.slice(0, isWide ? 4 : 3);
+	return (
+		<div className="flex h-full flex-col gap-3 rounded-2xl border border-hairline bg-surface p-3 shadow-card sm:rounded-3xl sm:p-4">
+			<div className="flex items-center justify-between gap-3">
+				<p className="label flex min-w-0 items-center gap-2 text-accent-text">
+					<SocialIcon name="instagram" className="size-4 shrink-0" />
+					<span className="truncate">Latest on Instagram</span>
+				</p>
+				<a
+					href={`https://www.instagram.com/${username}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					tabIndex={tabIndex}
+					className="shrink-0 text-sm font-semibold text-brand hover:underline"
+				>
+					@{username}
+				</a>
+			</div>
+			{shown.length > 0 ? (
+				<ul
+					className={cn(
+						"grid min-h-0 flex-1 gap-2",
+						isWide ? "grid-cols-2 grid-rows-2" : "grid-cols-3 grid-rows-1"
+					)}
+				>
+					{shown.map((post) => (
+						<li key={post.id} className="min-h-0">
+							<a
+								href={post.permalink}
+								target="_blank"
+								rel="noopener noreferrer"
+								tabIndex={tabIndex}
+								className="group relative block size-full overflow-hidden rounded-xl"
+								style={{ backgroundColor: post.placeholder }}
+							>
+								<Image
+									src={post.sizes.medium.mediaUrl}
+									alt={post.prunedCaption || `Instagram post from @${username}`}
+									fill
+									unoptimized
+									sizes="(min-width: 1024px) 20vw, 30vw"
+									className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+								/>
+							</a>
+						</li>
+					))}
+				</ul>
+			) : (
+				<a
+					href={`https://www.instagram.com/${username}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					tabIndex={tabIndex}
+					className="flex flex-1 items-center justify-center rounded-xl bg-surface-2 text-center text-lg font-semibold text-brand"
+				>
+					Follow @{username} on Instagram
+				</a>
+			)}
+		</div>
+	);
+}
+
 export default function HomeIntro({
 	poster,
 	posterAlt,
+	posts,
+	username,
 }: {
 	readonly poster: StaticImageData;
 	readonly posterAlt: string;
+	readonly posts: BeholdPost[];
+	readonly username: string;
 }) {
 	const sectionRef = useRef<HTMLElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -81,7 +182,9 @@ export default function HomeIntro({
 	const [isPlaying, setIsPlaying] = useState(true);
 	const [isVideoVisible, setIsVideoVisible] = useState(false);
 	const [isIntroReady, setIsIntroReady] = useState(false);
-	const isDesktopRef = useRef(true);
+	const textRef = useRef<HTMLDivElement>(null);
+	const narrowInsetRef = useRef<CardInset>(cardInset.mobile);
+	const [narrowInset, setNarrowInset] = useState<CardInset>(cardInset.mobile);
 	const [isDesktop, setIsDesktop] = useState(true);
 	const [isSplit, setIsSplit] = useState(false);
 
@@ -91,14 +194,11 @@ export default function HomeIntro({
 		target: sectionRef,
 		offset: ["start start", "end end"],
 	});
-	// Interpolated per frame so it always matches the current breakpoint.
-	const clipPath = useTransform(scrollYProgress, (value) => {
-		const t = clamp01((value - 0.08) / 0.47);
-		const eased = 1 - (1 - t) ** 3;
-		const target = isDesktopRef.current ? cardInset.desktop : cardInset.mobile;
-		const [top, right, bottom, left, radius] = target.map((n) => n * eased);
-		return `inset(${top}% ${right}% ${bottom}% ${left}% round ${radius}px)`;
-	});
+	// The video fades away upward while the Instagram panel slides in.
+	const videoOpacity = useTransform(scrollYProgress, [0.08, 0.5], [1, 0]);
+	const videoY = useTransform(scrollYProgress, [0.08, 0.5], ["0%", "-10%"]);
+	const panelX = useTransform(scrollYProgress, [0.4, 0.75], ["115%", "0%"]);
+	const panelOpacity = useTransform(scrollYProgress, [0.4, 0.55], [0, 1]);
 	const scrimOpacity = useTransform(scrollYProgress, [0.08, 0.45], [1, 0]);
 	const introOpacity = useTransform(scrollYProgress, [0.04, 0.28], [1, 0]);
 	const introY = useTransform(scrollYProgress, [0.04, 0.28], [0, -60]);
@@ -141,7 +241,6 @@ export default function HomeIntro({
 	useEffect(() => {
 		const query = globalThis.matchMedia("(min-width: 1024px)");
 		const update = () => {
-			isDesktopRef.current = query.matches;
 			setIsDesktop(query.matches);
 		};
 
@@ -151,6 +250,29 @@ export default function HomeIntro({
 			query.removeEventListener("change", update);
 		};
 	}, []);
+
+	// Keep the narrow-screen card clear of the text below it.
+	useEffect(() => {
+		const text = textRef.current;
+		if (!text) {
+			return;
+		}
+
+		const measure = () => {
+			const next = narrowCardInset(text.offsetHeight, window.innerHeight);
+			narrowInsetRef.current = next;
+			setNarrowInset(next);
+		};
+
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(text);
+		globalThis.addEventListener("resize", measure);
+		return () => {
+			observer.disconnect();
+			globalThis.removeEventListener("resize", measure);
+		};
+	}, [isReducedMotion]);
 
 	// Fade the title in once the video is playing (never later than 1.6 s),
 	// and keep the video paused while the tab is hidden or the user paused it.
@@ -196,8 +318,11 @@ export default function HomeIntro({
 			className="relative -mt-[5.5rem] h-[260svh]"
 		>
 			<div className="sticky top-0 h-svh overflow-hidden bg-bg">
-				{/* Video layer, clipped from full-screen down to a card. */}
-				<motion.div className="absolute inset-0 bg-ink" style={{ clipPath }}>
+				{/* Video layer: full-screen, then fades up and away. */}
+				<motion.div
+					className="absolute inset-0 bg-ink"
+					style={{ opacity: videoOpacity, y: videoY }}
+				>
 					<Image
 						src={poster}
 						alt={posterAlt}
@@ -283,6 +408,7 @@ export default function HomeIntro({
 				>
 					<div className="mx-auto flex h-full max-w-6xl items-end px-4 pb-[6svh] sm:px-6 lg:items-center lg:px-8 lg:pb-0">
 						<div
+							ref={textRef}
 							className={cn(
 								"max-w-xl lg:max-w-[46%]",
 								isSplit && "pointer-events-auto"
@@ -302,13 +428,12 @@ export default function HomeIntro({
 								{site.tagline}
 							</p>
 							<div className="mt-8 flex flex-wrap gap-3">
-								<Link
-									href="/join"
+								<JoinOrDashboardLink
 									tabIndex={isSplit ? undefined : -1}
 									className={buttonClasses("accent")}
 								>
 									Join StuyAviators
-								</Link>
+								</JoinOrDashboardLink>
 								<Link
 									href="/meetings"
 									tabIndex={isSplit ? undefined : -1}
@@ -322,24 +447,47 @@ export default function HomeIntro({
 					</div>
 				</motion.div>
 
+				{/* Stage 3: recent Instagram posts where the video was. */}
+				{isDesktop || narrowInset[0] !== 50 ? (
+					<motion.div
+						className={cn(
+							"absolute",
+							isSplit ? "pointer-events-auto" : "pointer-events-none"
+						)}
+						style={{
+							x: panelX,
+							opacity: panelOpacity,
+							...(() => {
+								const [top, right, bottom, left] = isDesktop
+									? cardInset.desktop
+									: narrowInset;
+								return {
+									top: `${top}%`,
+									right: `${right}%`,
+									bottom: `${bottom}%`,
+									left: `${left}%`,
+								};
+							})(),
+						}}
+					>
+						<InstagramPanel
+							posts={posts}
+							username={username}
+							isActive={isSplit}
+							isWide={isDesktop}
+						/>
+					</motion.div>
+				) : null}
+
 				<button
 					type="button"
 					aria-label={isPlaying ? "Pause video" : "Play video"}
 					aria-pressed={isPlaying}
-					className="absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90"
-					style={
-						isSplit
-							? (() => {
-									const [, right, bottom] = isDesktop
-										? cardInset.desktop
-										: cardInset.mobile;
-									return {
-										right: `calc(${right}% + 12px)`,
-										bottom: `calc(${bottom}% + 12px)`,
-									};
-								})()
-							: { right: 16, bottom: 16 }
-					}
+					className={cn(
+						"absolute right-4 bottom-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90",
+						// The video is gone once the page is split.
+						isSplit && "hidden"
+					)}
 					onClick={() => {
 						setIsPlaying((value) => !value);
 					}}

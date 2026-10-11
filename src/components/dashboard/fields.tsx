@@ -1,10 +1,11 @@
 "use client";
 
+import type { UploadedImage } from "@/lib/client-upload";
 import type { UploadPurpose } from "@/lib/uploads";
 import type { ComponentProps, ReactNode } from "react";
 import { inputClass } from "@/components/forms/Field";
 import { Button } from "@/components/ui/Button";
-import { uploadImage } from "@/lib/client-upload";
+import { uploadImageSized } from "@/lib/client-upload";
 import { cn } from "@/lib/cn";
 import { ImagePlus, Trash2 } from "lucide-react";
 import { useId, useRef, useState } from "react";
@@ -95,11 +96,18 @@ export function ImageField({
 	onChange,
 	error,
 	hint,
+	onUploaded,
+	isRequired = false,
 }: {
 	readonly label?: string;
+	readonly isRequired?: boolean;
 	readonly purpose: UploadPurpose;
 	readonly value: string;
 	readonly onChange: (url: string) => void;
+	/**
+	Called after an upload with the size, right after `onChange`.
+	*/
+	readonly onUploaded?: (image: UploadedImage) => void;
 	readonly error?: string;
 	readonly hint?: ReactNode;
 }) {
@@ -115,7 +123,9 @@ export function ImageField({
 		setIsUploading(true);
 		setMessage(undefined);
 		try {
-			onChange(await uploadImage(file, purpose));
+			const image = await uploadImageSized(file, purpose);
+			onChange(image.url);
+			onUploaded?.(image);
 			setMessage({ tone: "good", text: "Image uploaded." });
 		} catch (error_) {
 			setMessage({
@@ -137,7 +147,9 @@ export function ImageField({
 		<div>
 			<label htmlFor={id} className="text-sm font-semibold">
 				{label}
-				<span className="ml-1.5 font-normal text-muted">(optional)</span>
+				{isRequired ? null : (
+					<span className="ml-1.5 font-normal text-muted">(optional)</span>
+				)}
 			</label>
 			<div className="mt-1.5 flex flex-wrap items-center gap-2">
 				<input

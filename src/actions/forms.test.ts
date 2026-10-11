@@ -20,8 +20,7 @@ vi.mock("next/server", () => ({
 const fetchMock = vi.fn<typeof fetch>();
 vi.stubGlobal("fetch", fetchMock);
 
-const { signUpForMailingList, submitForm, unsubscribe } =
-	await import("./forms.ts");
+const { signUpForMailingList, submitForm } = await import("./forms.ts");
 
 const formAction =
 	"https://docs.google.com/forms/d/e/1FAIpQLScbjyhaEiBhMZPDi8TNQJZemMCSR9xfpChoRN0RP_sDhfS-ag/formResponse";
@@ -52,8 +51,6 @@ beforeEach(async () => {
 	fetchMock.mockResolvedValue(new Response("ok", { status: 200 }));
 	deferred.length = 0;
 	delete process.env.DISCORD_WEBHOOK_URL;
-	delete process.env.GOOGLE_FORM_UNSUBSCRIBE_ACTION;
-	delete process.env.GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY;
 });
 
 describe("signUpForMailingList", () => {
@@ -234,33 +231,5 @@ describe("submitForm", () => {
 			form({ name: "x" })
 		);
 		expect(state.status).toBe("error");
-	});
-});
-
-describe("unsubscribe", () => {
-	it("falls back to mailto while GOOGLE_FORM_UNSUBSCRIBE_* is unset", async () => {
-		const state = await unsubscribe(
-			initialFormState,
-			form({ email: "pstuyvesant60@stuy.edu" })
-		);
-		expect(state.fallbackUrl).toBe(
-			"mailto:stuyaviators@gmail.com?subject=Unsubscribe"
-		);
-		expect(fetchMock).not.toHaveBeenCalled();
-	});
-
-	it("posts to the unsubscribe form once configured", async () => {
-		process.env.GOOGLE_FORM_UNSUBSCRIBE_ACTION =
-			"https://forms.test/formResponse";
-		process.env.GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY = "entry.42";
-		const state = await unsubscribe(
-			initialFormState,
-			form({ email: "JSmith61@stuy.edu" })
-		);
-		expect(state.status).toBe("success");
-		const body = new URLSearchParams(
-			fetchMock.mock.calls[0]?.[1]?.body as string
-		);
-		expect(body.get("entry.42")).toBe("jsmith61@stuy.edu");
 	});
 });

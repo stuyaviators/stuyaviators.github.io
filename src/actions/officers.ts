@@ -2,58 +2,106 @@
 
 import type { ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
-import { addUser, emailSchema, removeUser, roles, setRole } from "@/lib/users";
+import { grantableMask, isWithin, readMask } from "@/lib/permissions";
+import {
+	addUser,
+	emailSchema,
+	findUserById,
+	removeUser,
+	setPermissions,
+} from "@/lib/users";
 import { z } from "zod";
 
 /*
- * Officer management (admins only): the sign-in allowlist and roles. The
- * database refuses to remove or demote the last admin (src/lib/users.ts).
+ * Managing who can sign in and which boxes are ticked for them (the
+ * permission number, see permissions.ts). Nobody can give boxes they aren't
+ * allowed to give (grantableMask), or edit someone who holds boxes they can't
+ * give, so "Manage people" can't be used to climb past what it holds.
  */
 
 const idSchema = z.uuid();
-const roleSchema = z.enum(roles);
 const missing = actionError("That person is no longer on the list.");
+const notAllowed = actionError(
+	"You can’t give or change those permissions. Ask an admin."
+);
+const noBoxes = actionError("Tick at least one box.");
 
 export async function addOfficer(
 	email: string,
-	role: string
+	permissions: number
 ): Promise<ActionResult> {
-	return guarded("admin", async ({ user, db }) => {
-		const parsed = z
-			.object({ email: emailSchema, role: roleSchema })
-			.safeParse({ email, role });
+	return guarded("officers", async ({ user, db }) => {
+		const parsed = z.object({ email: emailSchema }).safeParse({ email });
 		if (!parsed.success) {
 			return invalid(parsed.error);
 		}
 
-		const result = await addUser(db, parsed.data, user.email);
+		const mask = readMask(permissions);
+		if (mask === undefined || mask === 0) {
+			return noBoxes;
+		}
+
+		if (!isWithin(mask, grantableMask(user.permissions))) {
+			return notAllowed;
+		}
+
+		const result = await addUser(
+			db,
+			{ email: parsed.data.email, permissions: mask },
+			user.email
+		);
 		return result.ok
 			? result
 			: actionError(result.error, { email: result.error });
 	});
 }
 
-export async function changeOfficerRole(
+export async function changeOfficerPermissions(
 	id: string,
-	role: string
+	permissions: number
 ): Promise<ActionResult> {
-	return guarded("admin", async ({ db }) => {
-		const parsed = z
-			.object({ id: idSchema, role: roleSchema })
-			.safeParse({ id, role });
-		if (!parsed.success) {
+	return guarded("officers", async ({ user, db }) => {
+		if (!idSchema.safeParse(id).success) {
 			return missing;
 		}
 
-		const result = await setRole(db, parsed.data.id, parsed.data.role);
+		const mask = readMask(permissions);
+		if (mask === undefined || mask === 0) {
+			return noBoxes;
+		}
+
+		const target = await findUserById(db, id);
+		if (target === undefined) {
+			return missing;
+		}
+
+		if (target.id === user.id) {
+			return actionError("You can’t change your own permissions.");
+		}
+
+		// Both what they hold now and what they would hold.
+		const allowed = grantableMask(user.permissions);
+		if (!isWithin(target.permissions, allowed) || !isWithin(mask, allowed)) {
+			return notAllowed;
+		}
+
+		const result = await setPermissions(db, target.id, mask);
 		return result.ok ? result : actionError(result.error);
 	});
 }
 
 export async function removeOfficer(id: string): Promise<ActionResult> {
-	return guarded("admin", async ({ db }) => {
+	return guarded("officers", async ({ user, db }) => {
 		if (!idSchema.safeParse(id).success) {
 			return missing;
+		}
+
+		const target = await findUserById(db, id);
+		if (
+			target !== undefined &&
+			!isWithin(target.permissions, grantableMask(user.permissions))
+		) {
+			return notAllowed;
 		}
 
 		const result = await removeUser(db, id);

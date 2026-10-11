@@ -36,6 +36,9 @@ const storedSchema = z.object({
 	email: z.string().optional(),
 	refreshedAt: z.number().optional(), // Unix ms
 	error: z.string().optional(),
+	// True only when Epsilon itself refused the token (used, revoked, signed
+	// out): then a new one must be pasted. Other failures just retry.
+	isRejected: z.boolean().optional(),
 });
 
 export type StoredEpsilonToken = z.infer<typeof storedSchema>;
@@ -124,7 +127,8 @@ async function didWriteToken(
 }
 
 export type RefreshResult =
-	{ ok: true; token: StoredEpsilonToken } | { ok: false; error: string };
+	| { ok: true; token: StoredEpsilonToken }
+	| { ok: false; error: string; isRejected: boolean };
 
 /**
 Trades a refresh token for a fresh access token (and a new refresh token).
@@ -146,12 +150,13 @@ export async function refreshEpsilonSession(
 			}
 		);
 		if (!response.ok) {
+			const isRejected = response.status === 400 || response.status === 401;
 			return {
 				ok: false,
-				error:
-					response.status === 400 || response.status === 401
-						? "Epsilon rejected the token. It may have been used, revoked or signed out. Paste a new one."
-						: `Epsilon responded ${response.status}. Try again later.`,
+				isRejected,
+				error: isRejected
+					? "Epsilon rejected the token. It may have been used, revoked or signed out. Paste a new one."
+					: `Epsilon responded ${response.status}. Try again later.`,
 			};
 		}
 
@@ -168,7 +173,11 @@ export async function refreshEpsilonSession(
 			},
 		};
 	} catch {
-		return { ok: false, error: "Couldn’t reach Epsilon. Try again later." };
+		return {
+			ok: false,
+			isRejected: false,
+			error: "Couldn’t reach Epsilon. Try again later.",
+		};
 	}
 }
 
@@ -185,6 +194,7 @@ export async function saveEpsilonToken(
 	if (!refreshToken) {
 		return {
 			ok: false,
+			isRejected: false,
 			error:
 				"That doesn’t look like a refresh token. Paste the refresh_token value (or the whole auth JSON).",
 		};
@@ -226,18 +236,24 @@ export async function getEpsilonAccessToken(
 		return stored.accessToken;
 	}
 
-	if (stored.error) {
-		return undefined; // Already failed; wait for an admin to paste a new one.
+	if (stored.isRejected === true) {
+		return undefined; // Epsilon refused it; wait for an admin to paste a new one.
 	}
 
 	const result = await refreshEpsilonSession(stored.refreshToken, fetcher);
 	if (!result.ok) {
-		await didWriteToken(
-			db,
-			{ ...stored, error: result.error },
-			"system",
-			row.raw
-		);
+		// Only a refusal from Epsilon retires the token. A slow or unreachable
+		// Epsilon just means the board uses the manual list until the next try;
+		// the saved token stays, and a failed refresh never spends it.
+		if (result.isRejected) {
+			await didWriteToken(
+				db,
+				{ ...stored, error: result.error, isRejected: true },
+				"system",
+				row.raw
+			);
+		}
+
 		return undefined;
 	}
 
@@ -252,11 +268,10 @@ export async function getEpsilonAccessToken(
 }
 
 export type EpsilonStatus =
-	| { state: "missing"; envFallback: boolean }
-	| { state: "unreadable"; envFallback: boolean }
+	| { state: "missing" }
+	| { state: "unreadable" }
 	| {
 			state: "connected" | "error";
-			envFallback: boolean;
 			email?: string;
 			expiresAt?: number;
 			refreshedAt?: number;
@@ -269,7 +284,6 @@ export type EpsilonStatus =
 What the dashboard shows. Never includes the tokens themselves.
 */
 export async function getEpsilonStatus(db: Database): Promise<EpsilonStatus> {
-	const isEnvFallback = Boolean(process.env.EPSILON_ACCESS_TOKEN);
 	const rowRows = await db
 		.select()
 		.from(settings)
@@ -277,18 +291,18 @@ export async function getEpsilonStatus(db: Database): Promise<EpsilonStatus> {
 		.limit(1);
 	const row = rowRows.at(0);
 	if (!row) {
-		return { state: "missing", envFallback: isEnvFallback };
+		return { state: "missing" };
 	}
 
 	const parsed = await readRow(db);
 	const token = parsed?.token;
 	if (!token) {
-		return { state: "unreadable", envFallback: isEnvFallback };
+		return { state: "unreadable" };
 	}
 
 	return {
-		state: token.error ? "error" : "connected",
-		envFallback: isEnvFallback,
+		// "Needs a new token" only when Epsilon refused it.
+		state: token.isRejected === true ? "error" : "connected",
 		email: token.email,
 		expiresAt: token.expiresAt,
 		refreshedAt: token.refreshedAt,

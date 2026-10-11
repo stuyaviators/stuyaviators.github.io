@@ -12,7 +12,7 @@ describe("renderNewsletter", () => {
 		const { html, text } = await renderNewsletter(
 			data({ footerLinks: [], footerText: "" })
 		);
-		expect(html).toContain("/newsletter/unsubscribe");
+		expect(html).toContain("mailto:stuyaviators@gmail.com?subject=Unsubscribe");
 		expect(html).toContain("Unsubscribe");
 		expect(text).toContain("Unsubscribe");
 	});

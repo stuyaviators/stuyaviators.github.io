@@ -133,7 +133,7 @@ function MembersContent({
 						<div className="grid">
 							{testimonials.map((item, index) => (
 								<SequencedQuote
-									key={item.author}
+									key={item.quote}
 									item={item}
 									index={index}
 									total={testimonials.length}
@@ -144,7 +144,7 @@ function MembersContent({
 						<div className="mt-6 flex gap-2">
 							{testimonials.map((item, index) => (
 								<Dot
-									key={item.author}
+									key={item.quote}
 									index={index}
 									total={testimonials.length}
 									progress={progress}
@@ -155,7 +155,7 @@ function MembersContent({
 				) : (
 					<div className="mt-10 grid gap-6 [text-shadow:none] md:grid-cols-2">
 						{testimonials.map((item) => (
-							<QuoteCard key={item.author} item={item} />
+							<QuoteCard key={item.quote} item={item} />
 						))}
 					</div>
 				)}

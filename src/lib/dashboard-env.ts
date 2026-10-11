@@ -43,13 +43,13 @@ const checks: Array<Omit<EnvCheck, "isSet">> = [
 		isRequired: true,
 	},
 	{
-		name: "SIGNUP_SHEET_URL",
-		purpose: "Link to the mailing-list sign-up Sheet",
+		name: "GEMINI_API_KEY",
+		purpose: "Suggested descriptions for new gallery photos (free Gemini key)",
 		isRequired: false,
 	},
 	{
-		name: "UNSUBSCRIBE_SHEET_URL",
-		purpose: "Link to the unsubscribe Sheet",
+		name: "SIGNUP_SHEET_URL",
+		purpose: "Link to the mailing-list sign-up Sheet",
 		isRequired: false,
 	},
 	{
@@ -60,11 +60,11 @@ const checks: Array<Omit<EnvCheck, "isSet">> = [
 ];
 
 function isSet(name: string) {
-	const value =
-		process.env[name] ??
-		(name === "DATABASE_URL"
-			? process.env.stuyaviators_DATABASE_URL
-			: undefined);
+	const fallbacks: Record<string, string | undefined> = {
+		DATABASE_URL: process.env.stuyaviators_DATABASE_URL,
+		BLOB_READ_WRITE_TOKEN: process.env.aviatorsblob_READ_WRITE_TOKEN,
+	};
+	const value = process.env[name] ?? fallbacks[name];
 	return value !== undefined && value.trim() !== "";
 }
 
@@ -83,7 +83,7 @@ export function isGoogleConfigured() {
 /**
 A sheet link from the environment, only if it's an https URL.
 */
-export function sheetUrl(name: "SIGNUP_SHEET_URL" | "UNSUBSCRIBE_SHEET_URL") {
+export function sheetUrl(name: "SIGNUP_SHEET_URL") {
 	const value = process.env[name]?.trim();
 	return value && /^https:\/\//iu.test(value) ? value : undefined;
 }

@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import { signInWithGoogle, signOutAction } from "@/actions/auth";
 import logo from "@/assets/brand/logo.png";
 import { auth } from "@/auth";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClasses } from "@/components/ui/Button";
 import { safeCallback } from "@/lib/auth-redirect";
 import { isGoogleConfigured } from "@/lib/dashboard-env";
 import { currentUser } from "@/lib/session";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-	title: "Officer sign-in",
+	title: "Sign In",
 	robots: { index: false, follow: false },
 };
 
@@ -40,7 +41,7 @@ export default async function SignInPage({
 
 	return (
 		<main className="flex min-h-dvh items-center justify-center px-4 py-12">
-			<div className="w-full max-w-md rounded-3xl border border-hairline bg-surface p-8 shadow-card">
+			<div className="dash-rise w-full max-w-md rounded-3xl border border-hairline bg-surface p-8 shadow-card">
 				<Image
 					src={logo}
 					alt=""
@@ -57,7 +58,7 @@ export default async function SignInPage({
 				{isDenied ? (
 					<div
 						role="alert"
-						className="mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4"
+						className="dash-pop mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4"
 					>
 						<h2 className="text-lg">You’re not authorized</h2>
 						<p className="mt-1 text-sm">
@@ -77,7 +78,7 @@ export default async function SignInPage({
 				{error && !isDenied ? (
 					<div
 						role="alert"
-						className="mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4 text-sm"
+						className="dash-pop mt-6 rounded-xl border border-danger/60 bg-danger/10 p-4 text-sm"
 					>
 						Couldn’t sign you in. Try again; if it keeps happening, tell an
 						admin.
@@ -118,14 +119,9 @@ export default async function SignInPage({
 					</form>
 				) : null}
 
-				<p className="mt-6 text-center text-sm">
-					<Link
-						href="/"
-						className="text-brand underline-offset-4 hover:underline"
-					>
-						Back to stuyaviators site
-					</Link>
-				</p>
+				<Link href="/" className={buttonClasses("secondary", "mt-6 w-full")}>
+					<ArrowLeft aria-hidden className="size-4" /> Back to site
+				</Link>
 			</div>
 		</main>
 	);

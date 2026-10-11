@@ -10,7 +10,7 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 
 export const metadata: Metadata = {
-	title: "Future Careers",
+	title: "Careers",
 	description: pageIntros.careers.intro,
 	alternates: { canonical: "/careers" },
 };
@@ -36,6 +36,9 @@ export default function CareersPage() {
 				<ButtonLink href="#explore" variant="secondary">
 					Browse {total} careers
 				</ButtonLink>
+				<ButtonLink href="#start" variant="ghost">
+					High school first steps
+				</ButtonLink>
 			</PageHero>
 
 			<Section
@@ -60,13 +63,24 @@ export default function CareersPage() {
 				intro="Search all the roles in aviation, aerospace and STEM, or filter by family. Tap a career for how to get there."
 				className="scroll-mt-20"
 			>
+				<p className="-mt-2 mb-6">
+					<a href="#start" className="text-link text-sm">
+						Skip to first steps you can take in high school ↓
+					</a>
+				</p>
 				<CareerExplorer families={careerFamilies} />
+				<p className="mt-8">
+					<a href="#start" className="text-link">
+						Done browsing? Jump to first steps in high school ↓
+					</a>
+				</p>
 			</Section>
 
-			<Container className="scene-section pb-24">
+			<Container className="scene-section">
 				<section
+					id="start"
 					aria-labelledby="start-h"
-					className="scene on-dark rounded-3xl bg-ink p-6 sm:p-12"
+					className="scene on-dark scroll-mt-24 rounded-3xl bg-ink p-6 sm:p-12"
 				>
 					<p className="label text-accent-text">Start now</p>
 					<h2 id="start-h" className="mt-2 text-3xl sm:text-4xl">

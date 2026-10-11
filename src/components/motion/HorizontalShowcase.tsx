@@ -5,9 +5,32 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 /**
+How far the track must slide. On wide screens the first card starts a third
+of the way across and the last card ends two thirds of the way across; on
+phones the last card ends centered.
+*/
+function slideDistance(track: HTMLElement): number {
+	const last = track.lastElementChild;
+	if (!(last instanceof HTMLElement)) {
+		return 0;
+	}
+
+	const trackBox = track.getBoundingClientRect();
+	const lastBox = last.getBoundingClientRect();
+	const width = window.innerWidth;
+	if (width >= 640) {
+		return Math.max(0, lastBox.right - trackBox.left - (width * 2) / 3);
+	}
+
+	const center = lastBox.left - trackBox.left + lastBox.width / 2;
+	return Math.max(0, center - width / 2);
+}
+
+/**
 Pinned horizontal carousel: the section locks while vertical scrolling
-slides the cards sideways, on every screen size. Reduced-motion visitors and
-very short screens get a native swipeable row with scroll-snap.
+slides the cards sideways, on every screen size, and the last card ends
+in the middle third of the screen. Reduced-motion visitors and very short screens get a native
+swipeable row with scroll-snap.
 */
 export default function HorizontalShowcase({
 	header,
@@ -28,7 +51,7 @@ export default function HorizontalShowcase({
 			setIsPinned(tall.matches && !reduced.matches);
 			const track = trackRef.current;
 			if (track) {
-				setDistance(Math.max(0, track.scrollWidth - window.innerWidth));
+				setDistance(slideDistance(track));
 			}
 		};
 
@@ -48,7 +71,7 @@ export default function HorizontalShowcase({
 	useEffect(() => {
 		const track = trackRef.current;
 		if (track) {
-			setDistance(Math.max(0, track.scrollWidth - window.innerWidth));
+			setDistance(slideDistance(track));
 		}
 	}, [isPinned]);
 
@@ -72,7 +95,7 @@ export default function HorizontalShowcase({
 				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">{header}</div>
 				<div
 					ref={trackRef}
-					className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-4 sm:scroll-px-6 sm:px-6"
+					className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[max(1rem,calc(50vw-min(37vw,12rem)))] pb-4 sm:px-[max(1.5rem,calc(50vw-11rem))]"
 				>
 					{children}
 				</div>
@@ -93,7 +116,7 @@ export default function HorizontalShowcase({
 				<motion.div
 					ref={trackRef}
 					style={{ x }}
-					className="mt-8 flex gap-4 pr-4 pl-4 sm:mt-10 sm:gap-6 sm:pr-16 sm:pl-[max(1.5rem,calc((100vw-72rem)/2+2rem))]"
+					className="mt-8 flex gap-4 pr-4 pl-4 sm:mt-10 sm:gap-6 sm:pr-16 sm:pl-[33.333vw]"
 				>
 					{children}
 				</motion.div>

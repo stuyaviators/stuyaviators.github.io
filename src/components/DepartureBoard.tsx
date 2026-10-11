@@ -1,10 +1,13 @@
 import type { Meeting } from "@/lib/meetings";
+import { epsilonClubUrl } from "@/lib/meetings";
 import Link from "next/link";
 
 /*
  * Split-flap style departure board for upcoming meetings. Characters flip in
- * once via CSS (disabled under prefers-reduced-motion). Falls back to the
- * charter's regular schedule when no meetings are scheduled.
+ * once via CSS (disabled under prefers-reduced-motion). Each meeting has a
+ * "View on Epsilon" button. When Epsilon can't be read (no working token) the
+ * board says it is down and points to Epsilon; when it can be read but nothing
+ * is scheduled it shows the charter's regular schedule.
  */
 const timeFormat = new Intl.DateTimeFormat("en-US", {
 	timeZone: "America/New_York",
@@ -62,13 +65,49 @@ const statusLabel: Record<Meeting["status"], string> = {
 	moved: "Moved",
 };
 
+const epsilonButton =
+	"label inline-flex items-center gap-1 rounded-full border border-board-line px-3 py-1 text-board-text transition-colors hover:border-board-text";
+
 export default function DepartureBoard({
 	meetings,
+	status = "up",
 	showAllLink = true,
 }: {
 	readonly meetings: Meeting[];
+	// "down" when Epsilon can't be read: shows the notice instead of meetings.
+	readonly status?: "up" | "down";
 	readonly showAllLink?: boolean;
 }) {
+	const epsilonUrl = epsilonClubUrl();
+	if (status === "down") {
+		return (
+			<div className="overflow-hidden rounded-2xl border border-board-line bg-board-bg font-mono text-board-text shadow-card">
+				<div className="flex items-center justify-between border-b border-board-line px-4 py-3 sm:px-6">
+					<p className="label font-bold">Departures</p>
+					<p className="label text-[#ff8a80]">Board down</p>
+				</div>
+				<div role="status" className="px-4 py-6 sm:px-6 sm:py-8">
+					<p className="text-lg sm:text-2xl">
+						<Flap text="Board is down" />
+					</p>
+					<p className="mt-3 max-w-xl text-board-dim">
+						We can’t load the meeting times right now. Check Epsilon for more
+						information, or ask on Discord.
+					</p>
+					<a
+						href={epsilonUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className={`${epsilonButton} mt-5`}
+					>
+						Check Epsilon <span aria-hidden>↗</span>
+						<span className="sr-only">(opens in a new tab)</span>
+					</a>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="overflow-hidden rounded-2xl border border-board-line bg-board-bg font-mono text-board-text shadow-card">
 			<div className="flex items-center justify-between border-b border-board-line px-4 py-3 sm:px-6">
@@ -94,11 +133,14 @@ export default function DepartureBoard({
 						>
 							Room
 						</th>
+						<th scope="col" className="px-2 py-2 text-right font-normal">
+							Status
+						</th>
 						<th
 							scope="col"
 							className="px-4 py-2 text-right font-normal sm:px-6"
 						>
-							Status
+							Details
 						</th>
 					</tr>
 				</thead>
@@ -126,9 +168,20 @@ export default function DepartureBoard({
 										{meeting.room ?? "TBA"}
 									</td>
 									<td
-										className={`px-4 py-3 text-right whitespace-nowrap sm:px-6 ${meeting.status === "scheduled" ? "" : "text-[#ff8a80]"}`}
+										className={`px-2 py-3 text-right whitespace-nowrap ${meeting.status === "scheduled" ? "" : "text-[#ff8a80]"}`}
 									>
 										{statusLabel[meeting.status].toUpperCase()}
+									</td>
+									<td className="px-4 py-3 text-right whitespace-nowrap sm:px-6">
+										<a
+											href={epsilonUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											aria-label={`View ${meeting.title} on Epsilon (opens in a new tab)`}
+											className={epsilonButton}
+										>
+											View on Epsilon <span aria-hidden>↗</span>
+										</a>
 									</td>
 								</tr>
 							);
@@ -145,9 +198,10 @@ export default function DepartureBoard({
 								<Flap text="Regular meetings" />
 							</td>
 							<td className="hidden px-2 py-4 sm:table-cell">TBA</td>
-							<td className="px-4 py-4 text-right text-board-dim sm:px-6">
+							<td className="px-2 py-4 text-right text-board-dim">
 								SEE DISCORD
 							</td>
+							<td className="px-4 py-4 sm:px-6" />
 						</tr>
 					)}
 				</tbody>
@@ -186,6 +240,15 @@ export default function DepartureBoard({
 								<p className="label mt-1 text-board-dim">
 									Room {meeting.room ?? "TBA"}
 								</p>
+								<a
+									href={epsilonUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label={`View ${meeting.title} on Epsilon (opens in a new tab)`}
+									className={`${epsilonButton} mt-3`}
+								>
+									View on Epsilon <span aria-hidden>↗</span>
+								</a>
 							</li>
 						);
 					})
@@ -207,10 +270,7 @@ export default function DepartureBoard({
 							? "Times shown in New York time."
 							: "Meetings run until 5:00 PM. Exact dates are posted on Discord and Epsilon."}
 					</p>
-					<Link
-						href="/meetings"
-						className="label underline underline-offset-4"
-					>
+					<Link href="/meetings" className="label underline underline-offset-4">
 						All meetings →
 					</Link>
 				</div>

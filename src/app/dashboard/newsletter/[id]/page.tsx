@@ -7,7 +7,7 @@ import { getDb } from "@/db";
 import { defaultNewsletter } from "@/lib/newsletter/defaults";
 import { newsletterSchema } from "@/lib/newsletter/types";
 import { getNewsletter } from "@/lib/newsletters";
-import { requirePageUser } from "@/lib/session";
+import { hasAccess, requirePageUser } from "@/lib/session";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -19,7 +19,7 @@ export default async function EditNewsletterPage({
 }: {
 	readonly params: Promise<{ id: string }>;
 }) {
-	await requirePageUser();
+	const user = await requirePageUser("newsletters");
 	const { id } = await params;
 	const db = getDb();
 	if (!db || !z.uuid().safeParse(id).success) {
@@ -32,15 +32,19 @@ export default async function EditNewsletterPage({
 	}
 
 	if (newsletter.deletedAt) {
+		// Deleted newsletters are only known to people who can see the trash.
+		if (!hasAccess(user, "trash")) {
+			notFound();
+		}
+
 		return (
 			<>
 				<PageHeader title={newsletter.title} />
 				<Notice tone="warn">
-					This newsletter is in the trash. Restore it from the Trash tab to edit
-					it.
+					This newsletter is in the trash. Restore it from Trash to edit it.
 				</Notice>
 				<Link
-					href="/dashboard/newsletter?view=trash"
+					href="/dashboard/trash"
 					className={`${buttonClasses("secondary")} mt-4`}
 				>
 					Open trash

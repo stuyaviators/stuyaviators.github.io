@@ -5,12 +5,14 @@ import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import logo from "@/assets/brand/logo.png";
 import { isHashLink, nav } from "@/content/site";
 import { cn } from "@/lib/cn";
+import { useIsSignedIn } from "@/lib/use-dashboard-user";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import JoinOrDashboardLink from "./JoinOrDashboardLink.tsx";
 import ThemeToggle from "./ThemeToggle.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
 
@@ -273,8 +275,32 @@ function NavDropdown({
 	);
 }
 
+/**
+Signed-in officers get a shortcut to the dashboard in the "Join Now" button,
+so the menu entry for the dashboard turns into the way to join instead.
+*/
+function navFor(isSignedIn: boolean): NavGroup[] {
+	if (!isSignedIn) {
+		return nav;
+	}
+
+	return nav.map((group) => ({
+		...group,
+		links: group.links.map((link) =>
+			link.href === "/dashboard"
+				? {
+						href: "/join",
+						label: "How To Join",
+						description: "Ways to get involved",
+					}
+				: link
+		),
+	}));
+}
+
 export default function Header() {
 	const pathname = usePathname();
+	const groups = navFor(useIsSignedIn());
 	const isReducedMotion = useReducedMotion();
 	const [isNavOpen, setIsNavOpen] = useState(false);
 	const [openGroup, setOpenGroup] = useState<string | undefined>(undefined);
@@ -368,7 +394,7 @@ export default function Header() {
 		};
 	}, []);
 
-		const closeMobile = useCallback((shouldReturnFocus: boolean) => {
+	const closeMobile = useCallback((shouldReturnFocus: boolean) => {
 		setIsNavOpen(false);
 		if (shouldReturnFocus) {
 			toggleRef.current?.focus();
@@ -475,7 +501,7 @@ export default function Header() {
 								setHoveredItem(undefined);
 							}}
 						>
-							{nav.map((group) => (
+							{groups.map((group) => (
 								<NavDropdown
 									key={group.label}
 									group={group}
@@ -500,15 +526,14 @@ export default function Header() {
 
 					<div className="flex items-center gap-2 justify-self-end">
 						<ThemeToggle />
-						<Link
-							href="/join"
+						<JoinOrDashboardLink
 							className={buttonClasses(
 								"accent",
 								"hidden min-h-10 sm:inline-flex"
 							)}
 						>
 							Join Now
-						</Link>
+						</JoinOrDashboardLink>
 						<button
 							ref={toggleRef}
 							type="button"
@@ -538,7 +563,7 @@ export default function Header() {
 							className="mt-2 max-h-[calc(100dvh-6rem)] origin-top overflow-y-auto rounded-2xl border border-hairline bg-surface/95 p-4 shadow-card backdrop-blur-xl lg:hidden"
 						>
 							<ul className="grid gap-5 sm:grid-cols-2">
-								{nav.map((group, groupIndex) => (
+								{groups.map((group, groupIndex) => (
 									<motion.li
 										key={group.label}
 										initial={{ opacity: 0, y: 10 }}
@@ -569,12 +594,11 @@ export default function Header() {
 									</motion.li>
 								))}
 							</ul>
-							<Link
-								href="/join"
+							<JoinOrDashboardLink
 								className={buttonClasses("accent", "mt-5 w-full")}
 							>
 								Join Now
-							</Link>
+							</JoinOrDashboardLink>
 						</motion.nav>
 					) : null}
 				</AnimatePresence>

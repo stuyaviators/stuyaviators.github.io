@@ -2,17 +2,18 @@ import type { Metadata } from "next";
 import DepartureBoard from "@/components/DepartureBoard";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import { Paragraphs } from "@/components/Md";
+import StackingCards from "@/components/motion/StackingCards";
 import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
-import StackingCards from "@/components/motion/StackingCards";
 import { Section } from "@/components/ui/Section";
 import { charter } from "@/content/charter";
 import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
-import { getUpcomingMeetings } from "@/lib/meetings";
+import { site } from "@/content/site";
+import { getMeetingBoard } from "@/lib/meetings";
 import Image from "next/image";
 
 export const revalidate = 3600;
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MeetingsPage() {
-	const upcoming = await getUpcomingMeetings(new Date(), 10);
+	const board = await getMeetingBoard(new Date(), 10);
 	const schedule = charter.sections.filter((section) =>
 		["when-we-meet", "schedule", "meeting-structure"].includes(section.id)
 	);
@@ -46,15 +47,32 @@ export default async function MeetingsPage() {
 				</ButtonLink>
 			</PageHero>
 
-			<Section
-				pin
-				id="upcoming"
-				label="Departures"
-				title="Upcoming meetings"
-			>
+			<Section pin id="upcoming" label="Departures" title="Upcoming meetings">
 				<Stagger>
-					<DepartureBoard meetings={upcoming} showAllLink={false} />
+					<DepartureBoard
+						status={board.isUp ? "up" : "down"}
+						meetings={board.meetings ?? []}
+						showAllLink={false}
+					/>
 				</Stagger>
+				{board.isUp ? (
+					<div className="mt-6 flex flex-wrap gap-3">
+						<ButtonLink
+							external
+							href="/meetings/calendar.ics"
+							variant="secondary"
+						>
+							Add to calendar
+						</ButtonLink>
+						<ButtonLink
+							external
+							href={`webcal://${site.url.replace(/^https?:\/\//u, "")}/meetings/calendar.ics`}
+							variant="secondary"
+						>
+							Subscribe
+						</ButtonLink>
+					</div>
+				) : null}
 			</Section>
 
 			<Section
@@ -99,7 +117,7 @@ export default async function MeetingsPage() {
 				</StackingCards>
 			</Section>
 
-			<Section pin id="schedule" label="Schedule" title="When we meet">
+			<Section id="schedule" label="Schedule" title="When we meet">
 				<div className="grid gap-8 lg:grid-cols-3">
 					{schedule.map((section) => (
 						<Stagger key={section.id}>
@@ -114,7 +132,6 @@ export default async function MeetingsPage() {
 			</Section>
 
 			<Section
-				pin
 				id="ideas"
 				label="Suggestions"
 				title={meetings.ideaHeading}
