@@ -1,6 +1,8 @@
 :root {
-	--sa-navy: #0F1B32;
 	--sa-blue: #0B64A9;
-	--sa-ice: #DDEBFF;
+	--sa-black: #0A0A0C;
 	--sa-white: #FFFFFF;
+	--sa-cloud: #F5F5F7;
+	--sa-ice: #DDEBFF;
+	--sa-navy: #0F1B32;
 }

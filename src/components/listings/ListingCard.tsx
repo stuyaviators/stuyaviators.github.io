@@ -64,7 +64,7 @@ export default function ListingCard({
 		>
 			<div className="flex flex-wrap items-center gap-2">
 				{listing.featured ? (
-					<span className="label rounded-sm bg-ice px-2 py-0.5 text-navy">
+					<span className="label rounded-sm bg-ice px-2 py-0.5 text-ink">
 						Featured
 					</span>
 				) : null}

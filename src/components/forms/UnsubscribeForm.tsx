@@ -21,7 +21,7 @@ export default function UnsubscribeForm() {
 		return (
 			<p
 				role="status"
-				className="flex gap-3 rounded-lg border border-hairline bg-surface p-5"
+				className="flex gap-3 rounded-3xl bg-surface p-5"
 			>
 				<CheckCircle2 aria-hidden className="size-5 shrink-0 text-success" />
 				You’ve been unsubscribed. It may take a few days for emails to stop.

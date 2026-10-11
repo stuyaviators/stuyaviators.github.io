@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import MailingListForm from "@/components/forms/MailingListForm";
 import { EpsilonWordmark, SocialIcon } from "@/components/icons";
 import { Stagger } from "@/components/TransitionProvider";
 import { buttonClasses } from "@/components/ui/Button";
@@ -7,8 +6,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { photos } from "@/content/photos";
 import { site, socials } from "@/content/site";
-import { signupFormConfig } from "@/lib/google-forms";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Mail } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -30,10 +28,10 @@ export default function JoinPage() {
 				image={photos.heroJoystick.src}
 				imageAlt={photos.heroJoystick.alt}
 			/>
-			<Section id="steps" index={1} label="Checklist" title="Four steps">
+			<Section id="steps" label="Checklist" title="Four steps">
 				<ol className="grid gap-5 md:grid-cols-2">
 					<Stagger as="li">
-						<div className="h-full rounded-lg border-2 border-brand bg-surface p-6">
+						<div className="h-full rounded-3xl bg-surface ring-2 ring-brand p-6">
 							<p className="label text-accent-text">Step 01 · Required</p>
 							<h3 className="mt-2 text-2xl">Join the club on Epsilon</h3>
 							<p className="mt-2 text-muted">
@@ -53,7 +51,7 @@ export default function JoinPage() {
 						</div>
 					</Stagger>
 					<Stagger as="li">
-						<div className="h-full rounded-lg border border-hairline bg-surface p-6">
+						<div className="h-full rounded-3xl bg-surface p-6">
 							<p className="label text-accent-text">Step 02</p>
 							<h3 className="mt-2 text-2xl">Join the Discord</h3>
 							<p className="mt-2 text-muted">
@@ -70,18 +68,20 @@ export default function JoinPage() {
 							</a>
 						</div>
 					</Stagger>
-					<Stagger as="li" className="md:col-span-2">
-						<div className="rounded-lg border border-hairline bg-surface p-6">
+					<Stagger as="li">
+						<div className="h-full rounded-3xl bg-surface p-6">
 							<p className="label text-accent-text">Step 03</p>
 							<h3 className="mt-2 text-2xl">Get on the mailing list</h3>
-							<MailingListForm
-								className="mt-5"
-								fallbackUrl={signupFormConfig().fallbackUrl}
-							/>
+							<p className="mt-2 text-muted">
+								Meeting updates, events and opportunities in your inbox.
+							</p>
+							<a href="#mailing-list" className={buttonClasses("secondary", "mt-5")}>
+								<Mail aria-hidden className="size-4" /> Sign up
+							</a>
 						</div>
 					</Stagger>
-					<Stagger as="li" className="md:col-span-2">
-						<div className="rounded-lg border border-hairline bg-surface p-6">
+					<Stagger as="li">
+						<div className="h-full rounded-3xl bg-surface p-6">
 							<p className="label text-accent-text">Step 04</p>
 							<h3 className="mt-2 text-2xl">Come to a meeting</h3>
 							<p className="mt-2 text-muted">

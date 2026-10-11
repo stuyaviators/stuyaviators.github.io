@@ -6,7 +6,7 @@ export const alt = "StuyAviators · StuyAviators";
 export default async function Image() {
 	return renderOg({
 		title: "StuyAviators",
-		eyebrow: "Stuyvesant High School’s aviation club",
+		eyebrow: "Stuyvesant High School’s Official Aviation Club",
 		photo: await readFile(
 			new URL("../assets/photos/hero-cessna-backseat.jpg", import.meta.url)
 		),

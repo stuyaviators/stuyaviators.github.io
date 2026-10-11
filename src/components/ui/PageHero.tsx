@@ -1,5 +1,6 @@
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import HeaderOverlay from "@/components/HeaderOverlay";
 import Parallax from "@/components/motion/Parallax";
 import RevealText from "@/components/motion/RevealText";
 import { Stagger } from "@/components/TransitionProvider";
@@ -8,8 +9,9 @@ import { Container } from "./Section.tsx";
 
 /**
  Interior page header. With an image, the photo fills the header and the
- text sits on a navy scrim (left-weighted on desktop, even on mobile) so it
- keeps AA contrast over any photo.
+ text sits on a dark scrim (left-weighted on desktop, even on mobile) so it
+ keeps AA contrast over any photo, and the site header goes transparent over
+ it.
  */
 export function PageHero({
 	eyebrow,
@@ -52,14 +54,15 @@ export function PageHero({
 
 	if (!image) {
 		return (
-			<header className="border-b border-hairline bg-surface">
-				<Container className="py-14 sm:py-20">{content}</Container>
+			<header className="border-b border-hairline">
+				<Container className="py-16 sm:py-24">{content}</Container>
 			</header>
 		);
 	}
 
 	return (
-		<header className="on-dark relative isolate -mt-[5.5rem] overflow-hidden bg-navy pt-[5.5rem]">
+		<header className="on-dark relative isolate -mt-[5.5rem] overflow-hidden bg-ink pt-[5.5rem]">
+			<HeaderOverlay />
 			<div className="absolute inset-0 -z-20">
 				<Parallax distance={120}>
 					<Image
@@ -75,10 +78,10 @@ export function PageHero({
 			</div>
 			<div
 				aria-hidden
-				className="absolute inset-0 -z-10 bg-navy/80 lg:bg-transparent lg:bg-linear-to-r lg:from-navy/95 lg:via-navy/80 lg:to-navy/35"
+				className="absolute inset-0 -z-10 bg-black/60 lg:bg-transparent lg:bg-linear-to-r lg:from-black/85 lg:via-black/55 lg:to-black/15"
 			/>
-			<Container className="flex min-h-[26rem] flex-col justify-end py-14 sm:min-h-[30rem] sm:py-20">
-				<div className="max-w-3xl">{content}</div>
+			<Container className="flex min-h-[28rem] flex-col justify-end py-14 sm:min-h-[34rem] sm:py-20">
+				<div className="text-lift max-w-3xl">{content}</div>
 			</Container>
 		</header>
 	);

@@ -45,7 +45,7 @@ export default function HeroMedia({
 	}, [isPlaying]);
 
 	return (
-		<div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-hairline bg-navy shadow-card">
+		<div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-hairline bg-ink shadow-card">
 			<Image
 				src={poster}
 				alt={posterAlt}
@@ -76,7 +76,7 @@ export default function HeroMedia({
 				type="button"
 				aria-label={isPlaying ? "Pause video" : "Play video"}
 				aria-pressed={isPlaying}
-				className="absolute right-3 bottom-3 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-navy/70 text-white transition-colors hover:bg-navy/90"
+				className="absolute right-3 bottom-3 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white transition-colors hover:bg-ink/90"
 				onClick={() => {
 					setIsPlaying((value) => !value);
 				}}

@@ -41,7 +41,7 @@ export default function MailingListForm({
 			<div
 				role="status"
 				className={cn(
-					"flex items-start gap-3 rounded-lg border border-hairline bg-surface p-4",
+					"flex items-start gap-3 rounded-3xl bg-surface p-4",
 					className
 				)}
 			>
@@ -114,7 +114,7 @@ export default function MailingListForm({
 					extra={
 						showEscapeHatch ? (
 							<p className="mt-1 text-sm text-muted">
-								Email stuyvesantsn’t follow this pattern?{" "}
+								Email doesn’t follow this pattern?{" "}
 								<a
 									href={fallbackUrl}
 									target="_blank"

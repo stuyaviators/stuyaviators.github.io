@@ -87,7 +87,7 @@ export default function CharterPage() {
 				<div className="min-w-0 space-y-16">
 					<Stagger>
 						<FlightStrip label={charter.foundation.title} />
-						<p className="mt-5 max-w-3xl text-xl italic">
+						<p className="mt-5 max-w-3xl text-xl">
 							{charter.foundation.paragraphs[0]}
 						</p>
 					</Stagger>
@@ -98,7 +98,7 @@ export default function CharterPage() {
 							aria-labelledby={`${section.id}-h`}
 							className="scroll-mt-28"
 						>
-							<FlightStrip index={index + 1} label="Charter" code="" />
+							<FlightStrip index={index + 1} label="Charter" />
 							<h2 id={`${section.id}-h`} className="mt-4 text-3xl">
 								{section.title}
 							</h2>
@@ -114,11 +114,11 @@ export default function CharterPage() {
 						aria-labelledby="coc-h"
 						className="scroll-mt-28"
 					>
-						<FlightStrip index={7} label="Rules & expectations" code="" />
+						<FlightStrip index={7} label="Rules & expectations" />
 						<h2 id="coc-h" className="mt-4 text-3xl">
 							{expectations.codeOfConduct.title}
 						</h2>
-						<p className="prose-club mt-4 italic">
+						<p className="prose-club mt-4">
 							{expectations.codeOfConduct.intro}
 						</p>
 						<NumberedRules items={expectations.codeOfConduct.items} />
@@ -128,7 +128,7 @@ export default function CharterPage() {
 						aria-labelledby="att-h"
 						className="scroll-mt-28"
 					>
-						<FlightStrip index={8} label="Rules & expectations" code="" />
+						<FlightStrip index={8} label="Rules & expectations" />
 						<h2 id="att-h" className="mt-4 text-3xl">
 							{expectations.attendance.title}
 						</h2>
@@ -142,11 +142,11 @@ export default function CharterPage() {
 						aria-labelledby="eti-h"
 						className="scroll-mt-28"
 					>
-						<FlightStrip index={9} label="Rules & expectations" code="" />
+						<FlightStrip index={9} label="Rules & expectations" />
 						<h2 id="eti-h" className="mt-4 text-3xl">
 							{expectations.etiquette.title}
 						</h2>
-						<p className="prose-club mt-4 italic">
+						<p className="prose-club mt-4">
 							{expectations.etiquette.intro}
 						</p>
 						<NumberedRules items={expectations.etiquette.items} />
@@ -156,7 +156,7 @@ export default function CharterPage() {
 						aria-labelledby="can-h"
 						className="scroll-mt-28"
 					>
-						<FlightStrip index={10} label="Rules & expectations" code="" />
+						<FlightStrip index={10} label="Rules & expectations" />
 						<h2 id="can-h" className="mt-4 text-3xl">
 							{expectations.cancellations.title}
 						</h2>

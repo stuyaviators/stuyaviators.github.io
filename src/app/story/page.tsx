@@ -27,7 +27,6 @@ export default function StoryPage() {
 			/>
 			<Section
 				id="timeline"
-				index={1}
 				label="Flight log"
 				title="From hobby to initiative"
 			>
@@ -74,7 +73,7 @@ export default function StoryPage() {
 							label: "Jan 8, 2025 · First guest speaker",
 							content: (
 								<figure className="max-w-2xl">
-									<div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-hairline bg-surface-2">
+									<div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-surface-2">
 										<Image
 											src={speaker.src}
 											alt={speaker.alt}

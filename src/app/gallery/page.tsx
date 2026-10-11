@@ -29,7 +29,6 @@ export default function GalleryPage() {
 			/>
 			<Section
 				id="features"
-				index={1}
 				label={galleryCopy.featuresHeading}
 				title={galleryCopy.momentsHeading}
 				intro={galleryCopy.momentsIntro}
@@ -41,7 +40,6 @@ export default function GalleryPage() {
 			</Section>
 			<Section
 				id="submit"
-				index={2}
 				label="Submit"
 				title={galleryCopy.submitHeading}
 			>

@@ -1,32 +1,32 @@
 import DepartureBoard from "@/components/DepartureBoard";
+import MembersScene from "@/components/home/MembersScene";
 import HomeIntro from "@/components/HomeIntro";
-import InstagramGrid from "@/components/InstagramGrid";
-import BackgroundVideo from "@/components/motion/BackgroundVideo";
 import HorizontalShowcase from "@/components/motion/HorizontalShowcase";
+import InView from "@/components/motion/InView";
 import Parallax from "@/components/motion/Parallax";
+import PinnedScene from "@/components/motion/PinnedScene";
 import RevealText from "@/components/motion/RevealText";
 import ScrollHighlight from "@/components/motion/ScrollHighlight";
-import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { FlightStrip } from "@/components/ui/FlightStrip";
-import { Container, Section } from "@/components/ui/Section";
+import { Container } from "@/components/ui/Section";
 import { home } from "@/content/home";
 import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { photos } from "@/content/photos";
-import { getInstagramFeed } from "@/lib/behold";
 import { getUpcomingMeetings } from "@/lib/meetings";
-import { ArrowRight, Quote } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export const revalidate = 900;
 
+/*
+ * Homepage: a short sequence of full-screen scenes, each locking in place
+ * for a moment while you scroll (Apple-style), then handing off to the next.
+ */
 export default async function Home() {
-	const [upcoming, feed] = await Promise.all([
-		getUpcomingMeetings(),
-		getInstagramFeed(),
-	]);
+	const upcoming = await getUpcomingMeetings();
 
 	return (
 		<>
@@ -35,43 +35,53 @@ export default async function Home() {
 				posterAlt={photos.heroCessnaBackseat.alt}
 			/>
 
-			<Section
-				id="departures"
-				index={1}
-				label="Next departures"
-				title="Upcoming meetings"
-				intro="Drop in whenever your schedule allows. No experience needed."
-			>
-				<Stagger>
-					<DepartureBoard meetings={upcoming} />
-				</Stagger>
-			</Section>
-
-			<section aria-label="Our mission" className="py-20 sm:py-28">
+			<PinnedScene id="departures" length={0.5} labelledBy="departures-heading">
 				<Container>
-					<FlightStrip index={2} label="Our mission" />
+					<FlightStrip label="Next departures" />
+					<RevealText
+						as="h2"
+						id="departures-heading"
+						text="Upcoming meetings"
+						className="mt-3 block text-4xl sm:text-6xl"
+					/>
+					<p className="mt-4 max-w-2xl text-lg text-muted">
+						Drop in whenever your schedule allows. No experience needed.
+					</p>
+					<InView className="mt-8 sm:mt-10">
+						<DepartureBoard meetings={upcoming.slice(0, 3)} />
+					</InView>
+				</Container>
+			</PinnedScene>
+
+			<PinnedScene length={1} label="Our mission">
+				<Container>
+					<FlightStrip label="Our mission" />
 					<ScrollHighlight
 						text="Aviation didn’t formally exist at Stuyvesant—so we built the space for it."
-						className="mt-10 max-w-5xl font-display text-4xl leading-[1.08] font-semibold tracking-tight sm:text-6xl lg:text-7xl"
+						className="mt-6 max-w-5xl font-display text-4xl leading-[1.1] font-semibold tracking-[-0.015em] sm:text-6xl lg:text-7xl"
 					/>
 					<ButtonLink href="/about" variant="secondary" className="mt-10">
 						About Project Skylab{" "}
 						<ArrowRight aria-hidden className="btn-arrow size-4" />
 					</ButtonLink>
 				</Container>
-			</section>
+			</PinnedScene>
 
 			<HorizontalShowcase
 				header={
 					<>
-						<FlightStrip index={3} label="What we do" />
-						<div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+						<FlightStrip label="What we do" />
+						<div className="mt-3 flex flex-wrap items-end justify-between gap-4">
 							<RevealText
 								as="h2"
 								text="Eight ways to fly with us"
-								className="max-w-3xl text-4xl sm:text-5xl"
+								className="max-w-3xl text-4xl sm:text-6xl"
 							/>
-							<ButtonLink href="/meetings#types" variant="ghost">
+							<ButtonLink
+								href="/meetings#types"
+								variant="ghost"
+								className="hidden sm:inline-flex"
+							>
 								All meeting types{" "}
 								<ArrowRight aria-hidden className="btn-arrow size-4" />
 							</ButtonLink>
@@ -85,7 +95,7 @@ export default async function Home() {
 						<Link
 							key={type.name}
 							href={`/meetings#${type.code?.toLowerCase() ?? `type-${index + 1}`}`}
-							className="group on-dark relative isolate flex aspect-[4/5] w-[78vw] max-w-[24rem] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-navy p-6 sm:w-[22rem]"
+							className="group on-dark relative isolate flex aspect-[4/5] w-[74vw] max-w-[24rem] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-ink p-6 sm:w-[22rem]"
 						>
 							<Image
 								src={photo.src}
@@ -97,7 +107,7 @@ export default async function Home() {
 							/>
 							<div
 								aria-hidden
-								className="absolute inset-0 -z-10 bg-linear-to-t from-navy via-navy/55 to-navy/0"
+								className="absolute inset-0 -z-10 bg-linear-to-t from-black/85 via-black/35 to-transparent"
 							/>
 							<p className="label text-accent-text">
 								{type.code ?? "Meeting"}
@@ -112,73 +122,16 @@ export default async function Home() {
 				})}
 			</HorizontalShowcase>
 
-			<section
-				aria-labelledby="members-heading"
-				className="on-dark relative isolate overflow-hidden bg-navy py-24 sm:py-32"
-			>
-				<BackgroundVideo
-					src="/videos/club-members.mp4"
-					poster={photos.homeGrassRunway.src}
-					label="StuyAviators club video (muted)"
-					className="-z-20"
-				/>
-				<div aria-hidden className="absolute inset-0 -z-10 bg-navy/75" />
-				<Container>
-					<FlightStrip
-						index={4}
-						label="From our members"
-						className="bg-navy/40"
-					/>
-					<RevealText
-						as="h2"
-						id="members-heading"
-						text={home.testimonialsHeading}
-						className="mt-6 block text-4xl sm:text-5xl"
-					/>
-					<p className="mt-4 max-w-2xl text-lg text-muted">
-						{home.testimonialsIntro}
-					</p>
-					<div className="mt-10 grid gap-6 md:grid-cols-2">
-						{home.testimonials.map((item) => (
-							<Stagger key={item.author}>
-								<figure className="h-full rounded-3xl border border-white/15 bg-navy/50 p-6 backdrop-blur-md sm:p-8">
-									<Quote aria-hidden className="size-7 text-brand" />
-									<blockquote className="mt-4 text-lg leading-relaxed">
-										“{item.quote}”
-									</blockquote>
-									<figcaption className="label mt-5 text-muted">
-										— {item.author}
-									</figcaption>
-								</figure>
-							</Stagger>
-						))}
-					</div>
-				</Container>
-			</section>
+			<MembersScene
+				heading={home.testimonialsHeading}
+				intro={home.testimonialsIntro}
+				testimonials={home.testimonials}
+				poster={photos.homeGrassRunway.src}
+			/>
 
-			{feed ? (
-				<Section
-					id="instagram"
-					index={5}
-					label="From the flight deck"
-					title="Latest on Instagram"
-					action={
-						<ButtonLink
-							href="https://www.instagram.com/stuyaviators"
-							variant="ghost"
-						>
-							@stuyaviators{" "}
-							<ArrowRight aria-hidden className="btn-arrow size-4" />
-						</ButtonLink>
-					}
-				>
-					<InstagramGrid posts={feed.posts} />
-				</Section>
-			) : null}
-
-			<section aria-labelledby="join-heading" className="pb-24">
+			<section aria-labelledby="join-heading" className="py-24 sm:py-32">
 				<Container>
-					<div className="clip-reveal on-dark relative isolate overflow-hidden rounded-3xl bg-navy px-6 py-16 sm:px-12 sm:py-24">
+					<div className="clip-reveal on-dark relative isolate overflow-hidden rounded-3xl bg-ink px-6 py-16 sm:px-12 sm:py-24">
 						<div className="absolute inset-0 -z-20">
 							<Parallax distance={60}>
 								<Image
@@ -193,7 +146,7 @@ export default async function Home() {
 						</div>
 						<div
 							aria-hidden
-							className="absolute inset-0 -z-10 bg-navy/70 sm:bg-transparent sm:bg-linear-to-r sm:from-navy/90 sm:to-navy/30"
+							className="absolute inset-0 -z-10 bg-black/55 sm:bg-transparent sm:bg-linear-to-r sm:from-black/80 sm:to-black/10"
 						/>
 						<p className="label text-accent-text">Cleared for takeoff</p>
 						<RevealText
@@ -207,9 +160,9 @@ export default async function Home() {
 								How to join{" "}
 								<ArrowRight aria-hidden className="btn-arrow size-4" />
 							</ButtonLink>
-							<ButtonLink href="/about" variant="secondary">
-								About the club
-							</ButtonLink>
+							<a href="#mailing-list" className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+								Join the mailing list
+							</a>
 						</div>
 					</div>
 				</Container>

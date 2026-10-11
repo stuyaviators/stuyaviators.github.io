@@ -3,7 +3,7 @@
 import type { NavGroup } from "@/content/site";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import logo from "@/assets/brand/logo.png";
-import { isNavGroup, nav } from "@/content/site";
+import { isHashLink, nav } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -54,6 +54,43 @@ function MenuIcon({ isOpen }: { readonly isOpen: boolean }) {
 				)}
 			/>
 		</span>
+	);
+}
+
+/**
+Page links use next/link; "#…" links open the mailing-list modal.
+*/
+function NavItemLink({
+	href,
+	pathname,
+	className,
+	onClick,
+	children,
+}: {
+	readonly href: string;
+	readonly pathname: string;
+	readonly className: string;
+	readonly onClick?: () => void;
+	readonly children: React.ReactNode;
+}) {
+	if (isHashLink(href)) {
+		return (
+			<a href={href} className={className} onClick={onClick}>
+				{children}
+			</a>
+		);
+	}
+
+	return (
+		<Link
+			href={href}
+			prefetch={href === "/dashboard" ? false : undefined}
+			aria-current={isActive(pathname, href) ? "page" : undefined}
+			className={className}
+			onClick={onClick}
+		>
+			{children}
+		</Link>
 	);
 }
 
@@ -197,7 +234,7 @@ function NavDropdown({
 						exit={{ opacity: 0, y: -6, scale: 0.98 }}
 						transition={{ duration: 0.25, ease }}
 						onKeyDown={onPanelKeyDown}
-						className="absolute top-full left-0 z-50 mt-3 w-80 origin-top-left rounded-2xl border border-hairline bg-surface/95 p-2 shadow-card backdrop-blur-xl"
+						className="absolute top-full left-1/2 z-50 mt-3 w-72 origin-top -translate-x-1/2 rounded-2xl border border-hairline bg-surface/95 p-2 shadow-card backdrop-blur-xl"
 					>
 						{group.links.map((link, index) => (
 							<motion.li
@@ -206,11 +243,9 @@ function NavDropdown({
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.04 * index, duration: 0.3, ease }}
 							>
-								<Link
+								<NavItemLink
 									href={link.href}
-									aria-current={
-										isActive(pathname, link.href) ? "page" : undefined
-									}
+									pathname={pathname}
 									className="group block rounded-xl px-3.5 py-3 transition-colors hover:bg-surface-2 aria-[current=page]:bg-surface-2"
 									onClick={onClose}
 								>
@@ -228,7 +263,7 @@ function NavDropdown({
 											{link.description}
 										</span>
 									) : null}
-								</Link>
+								</NavItemLink>
 							</motion.li>
 						))}
 					</motion.ul>
@@ -385,16 +420,17 @@ export default function Header() {
 				)}
 			>
 				<div
+					data-open={isNavOpen || openGroup !== undefined ? "" : undefined}
 					className={cn(
-						"flex items-center justify-between gap-3 rounded-2xl border px-3 backdrop-blur-xl backdrop-saturate-150 transition-[padding,background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none sm:px-4",
+						"header-bar flex items-center justify-between gap-3 rounded-2xl border px-3 backdrop-blur-xl backdrop-saturate-150 transition-[padding,background-color,box-shadow,border-color,color] duration-300 motion-reduce:transition-none sm:px-4 lg:grid lg:grid-cols-[1fr_auto_1fr]",
 						isScrolled || isNavOpen
-							? "border-hairline bg-surface/90 py-1.5 shadow-card"
-							: "border-transparent bg-surface/70 py-2.5"
+							? "border-hairline bg-bg/80 py-1.5 shadow-card"
+							: "border-transparent bg-bg/70 py-2.5"
 					)}
 				>
 					<Link
 						href="/"
-						className="group flex shrink-0 items-center gap-2.5 rounded-md"
+						className="group flex shrink-0 items-center gap-2.5 justify-self-start rounded-md"
 						aria-label="StuyAviators home"
 					>
 						<Image
@@ -415,66 +451,35 @@ export default function Header() {
 
 					<nav aria-label="Primary" className="hidden lg:block">
 						<ul
-							className="isolate flex items-center gap-0.5"
+							className="isolate flex items-center gap-1"
 							onMouseLeave={() => {
 								setHoveredItem(undefined);
 							}}
 						>
-							{nav.map((item) =>
-								isNavGroup(item) ? (
-									<NavDropdown
-										key={item.label}
-										group={item}
-										pathname={pathname}
-										isOpen={openGroup === item.label}
-										isHovered={!isReducedMotion && hoveredItem === item.label}
-										onHover={() => {
-											setHoveredItem(item.label);
-										}}
-										onToggle={() => {
-											setOpenGroup((current) =>
-												current === item.label ? undefined : item.label
-											);
-										}}
-										onClose={() => {
-											setOpenGroup(undefined);
-										}}
-									/>
-								) : (
-									<li
-										key={item.href}
-										className="relative"
-										onMouseEnter={() => {
-											setHoveredItem(item.href);
-										}}
-									>
-										<Link
-											href={item.href}
-											aria-current={
-												isActive(pathname, item.href) ? "page" : undefined
-											}
-											className="relative flex min-h-10 items-center rounded-full px-3.5 text-sm font-medium transition-colors duration-200 hover:text-brand aria-[current=page]:text-brand"
-										>
-											{!isReducedMotion && hoveredItem === item.href ? (
-												<motion.span
-													layoutId="nav-hover"
-													className="absolute inset-0 -z-10 rounded-full bg-surface-2"
-													transition={{
-														type: "spring",
-														stiffness: 420,
-														damping: 34,
-													}}
-												/>
-											) : null}
-											{item.label}
-										</Link>
-									</li>
-								)
-							)}
+							{nav.map((group) => (
+								<NavDropdown
+									key={group.label}
+									group={group}
+									pathname={pathname}
+									isOpen={openGroup === group.label}
+									isHovered={!isReducedMotion && hoveredItem === group.label}
+									onHover={() => {
+										setHoveredItem(group.label);
+									}}
+									onToggle={() => {
+										setOpenGroup((current) =>
+											current === group.label ? undefined : group.label
+										);
+									}}
+									onClose={() => {
+										setOpenGroup(undefined);
+									}}
+								/>
+							))}
 						</ul>
 					</nav>
 
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-2 justify-self-end">
 						<ThemeToggle />
 						<Link
 							href="/join"
@@ -514,9 +519,9 @@ export default function Header() {
 							className="mt-2 max-h-[calc(100dvh-6rem)] origin-top overflow-y-auto rounded-2xl border border-hairline bg-surface/95 p-4 shadow-card backdrop-blur-xl lg:hidden"
 						>
 							<ul className="grid gap-5 sm:grid-cols-2">
-								{nav.map((item, groupIndex) => (
+								{nav.map((group, groupIndex) => (
 									<motion.li
-										key={isNavGroup(item) ? item.label : item.href}
+										key={group.label}
 										initial={{ opacity: 0, y: 10 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{
@@ -525,22 +530,20 @@ export default function Header() {
 											ease,
 										}}
 									>
-										<p className="label mb-1.5 text-muted">{item.label}</p>
+										<p className="label mb-1.5 text-muted">{group.label}</p>
 										<ul>
-											{(isNavGroup(item)
-												? item.links
-												: [{ href: item.href, label: "Socials & contact" }]
-											).map((link) => (
+											{group.links.map((link) => (
 												<li key={link.href}>
-													<Link
+													<NavItemLink
 														href={link.href}
-														aria-current={
-															isActive(pathname, link.href) ? "page" : undefined
-														}
-														className="flex min-h-11 items-center rounded-lg px-2 font-medium transition-colors hover:bg-surface-2 aria-[current=page]:text-brand"
+														pathname={pathname}
+														className="flex min-h-11 items-center rounded-2xl px-2 font-medium transition-colors hover:bg-surface-2 aria-[current=page]:text-brand"
+														onClick={() => {
+															setIsNavOpen(false);
+														}}
 													>
 														{link.label}
-													</Link>
+													</NavItemLink>
 												</li>
 											))}
 										</ul>

@@ -33,7 +33,6 @@ export default function StoriesPage() {
 			/>
 			<Section
 				id="stories"
-				index={1}
 				label={storiesCopy.spotlightHeading}
 				title={storiesCopy.sharedHeading}
 				intro={storiesCopy.sharedIntro}
@@ -46,7 +45,7 @@ export default function StoriesPage() {
 						const photo = storyPhotos[index];
 						return (
 							<Stagger key={story.name}>
-								<article className="grid overflow-hidden rounded-lg border border-hairline bg-surface md:grid-cols-[18rem_1fr]">
+								<article className="grid overflow-hidden rounded-3xl bg-surface md:grid-cols-[18rem_1fr]">
 									<div className="relative aspect-[4/3] bg-surface-2 md:aspect-auto">
 										<Image
 											src={photo.src}
@@ -73,7 +72,6 @@ export default function StoriesPage() {
 			</Section>
 			<Section
 				id="share"
-				index={2}
 				label="Share"
 				title={storiesCopy.shareHeading}
 			>

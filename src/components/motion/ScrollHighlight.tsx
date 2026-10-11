@@ -8,6 +8,7 @@ import {
 	useTransform,
 } from "motion/react";
 import { useRef } from "react";
+import { useOptionalScene } from "./PinnedScene.tsx";
 
 function Word({
 	word,
@@ -31,7 +32,9 @@ function Word({
 
 /**
 Large statement whose words light up one by one as you scroll past it
-(scroll-synchronized word highlighting).
+(scroll-synchronized word highlighting). Inside a pinned <PinnedScene> it
+follows the scene's progress, so the words fill in while the section is
+locked.
 */
 export default function ScrollHighlight({
 	text,
@@ -46,6 +49,13 @@ export default function ScrollHighlight({
 		target: ref,
 		offset: ["start 85%", "end 45%"],
 	});
+	const scene = useOptionalScene();
+	const sceneProgress = useTransform(
+		scene?.progress ?? scrollYProgress,
+		[0.05, 0.8],
+		[0, 1]
+	);
+	const progress = scene ? sceneProgress : scrollYProgress;
 	const words = text.split(" ");
 	if (isReducedMotion) {
 		return (
@@ -64,7 +74,7 @@ export default function ScrollHighlight({
 						word={word}
 						index={index}
 						total={words.length}
-						progress={scrollYProgress}
+						progress={progress}
 					/>
 				))}
 			</span>

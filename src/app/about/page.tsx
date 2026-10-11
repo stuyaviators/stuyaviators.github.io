@@ -3,7 +3,8 @@ import { Paragraphs } from "@/components/Md";
 import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
-import { RunwayDivider, Section } from "@/components/ui/Section";
+import Parallax from "@/components/motion/Parallax";
+import { Section } from "@/components/ui/Section";
 import Waypoints from "@/components/Waypoints";
 import { about } from "@/content/about";
 import { pageIntros } from "@/content/pages";
@@ -36,7 +37,6 @@ export default function AboutPage() {
 
 			<Section
 				id="skylab"
-				index={1}
 				label="Project Skylab"
 				title={about.skylab.heading}
 			>
@@ -47,45 +47,52 @@ export default function AboutPage() {
 							className="prose-club text-lg"
 						/>
 					</Stagger>
-					<Stagger className="relative aspect-[3/4] overflow-hidden rounded-lg border border-hairline bg-surface-2">
-						<Image
-							src={photos.heroWorksheets.src}
-							alt={photos.heroWorksheets.alt}
-							fill
-							placeholder="blur"
-							sizes="(min-width: 1024px) 35vw, 100vw"
-							className="object-cover"
-						/>
-					</Stagger>
+					<div className="clip-reveal relative aspect-[3/4] overflow-hidden rounded-3xl bg-surface-2">
+						<Parallax distance={50}>
+							<Image
+								src={photos.heroWorksheets.src}
+								alt={photos.heroWorksheets.alt}
+								fill
+								placeholder="blur"
+								sizes="(min-width: 1024px) 35vw, 100vw"
+								className="object-cover"
+							/>
+						</Parallax>
+					</div>
 				</div>
 			</Section>
 
-			<RunwayDivider />
-
 			<Section
 				id="impact"
-				index={2}
 				label="Impact & benefits"
 				title={about.impact.heading}
 			>
-				<div className="grid gap-6 sm:grid-cols-2">
+				{/* Cards lock under the header one after another and stack up. */}
+				<ol className="grid gap-6">
 					{about.impact.items.map((item, index) => (
-						<Stagger key={item.title}>
-							<article className="h-full rounded-lg border border-hairline bg-surface p-6">
-								<p className="font-mono text-sm text-accent-text">
+						<li
+							key={item.title}
+							className="motion-safe:sticky"
+							style={{ top: `calc(6.5rem + ${index * 1.25}rem)` }}
+						>
+							<article className="grid gap-4 rounded-3xl border border-hairline bg-surface p-6 shadow-card sm:grid-cols-[8rem_1fr] sm:p-10">
+								<p className="font-display text-5xl font-semibold text-accent-text sm:text-6xl">
 									{String(index + 1).padStart(2, "0")}
 								</p>
-								<h3 className="mt-1 text-xl">{item.title}</h3>
-								<p className="mt-3 text-muted">{item.body}</p>
+								<div>
+									<h3 className="text-2xl sm:text-3xl">{item.title}</h3>
+									<p className="mt-3 max-w-2xl text-lg text-muted">
+										{item.body}
+									</p>
+								</div>
 							</article>
-						</Stagger>
+						</li>
 					))}
-				</div>
+				</ol>
 			</Section>
 
 			<Section
 				id="objectives"
-				index={3}
 				label="Flight plan"
 				title={about.objectives.heading}
 			>

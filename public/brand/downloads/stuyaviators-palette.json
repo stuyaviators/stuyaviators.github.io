@@ -1,16 +1,5 @@
 [
   {
-    "id": "navy",
-    "name": "Night Navy",
-    "hex": "#0F1B32",
-    "rgb": [
-      15,
-      27,
-      50
-    ],
-    "use": "Primary dark: backgrounds, body text on light"
-  },
-  {
     "id": "blue",
     "name": "Stuy Blue",
     "hex": "#0B64A9",
@@ -19,18 +8,18 @@
       100,
       169
     ],
-    "use": "Logo, links, buttons"
+    "use": "Logo, links, buttons and highlights"
   },
   {
-    "id": "ice",
-    "name": "Ice",
-    "hex": "#DDEBFF",
+    "id": "black",
+    "name": "Night",
+    "hex": "#0A0A0C",
     "rgb": [
-      221,
-      235,
-      255
+      10,
+      10,
+      12
     ],
-    "use": "Light backgrounds, highlights, text on navy"
+    "use": "Dark backgrounds and text on light"
   },
   {
     "id": "white",
@@ -41,6 +30,39 @@
       255,
       255
     ],
-    "use": "Cards and logo fill"
+    "use": "Light backgrounds, text on dark, logo fill"
+  },
+  {
+    "id": "cloud",
+    "name": "Cloud",
+    "hex": "#F5F5F7",
+    "rgb": [
+      245,
+      245,
+      247
+    ],
+    "use": "Cards and panels on white"
+  },
+  {
+    "id": "ice",
+    "name": "Ice",
+    "hex": "#DDEBFF",
+    "rgb": [
+      221,
+      235,
+      255
+    ],
+    "use": "Secondary: soft highlights and selection"
+  },
+  {
+    "id": "navy",
+    "name": "Night Navy",
+    "hex": "#0F1B32",
+    "rgb": [
+      15,
+      27,
+      50
+    ],
+    "use": "Secondary: from the logo artwork"
   }
 ]

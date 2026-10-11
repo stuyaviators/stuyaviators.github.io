@@ -33,6 +33,14 @@ const cardInset = {
 	mobile: [12, 4, 62, 4, 16],
 } as const;
 
+function setHeaderOverlay(isOverlay: boolean) {
+	if (isOverlay) {
+		document.documentElement.dataset.header = "overlay";
+	} else {
+		delete document.documentElement.dataset.header;
+	}
+}
+
 function clamp01(value: number) {
 	return Math.min(1, Math.max(0, value));
 }
@@ -97,7 +105,20 @@ export default function HomeIntro({
 
 	useMotionValueEvent(scrollYProgress, "change", (value) => {
 		setIsSplit(value > 0.5);
+		setHeaderOverlay(value < 0.12);
 	});
+
+	// While the video is full-screen, the header drops its bar (globals.css).
+	useEffect(() => {
+		if (isReducedMotion) {
+			return;
+		}
+
+		setHeaderOverlay(scrollYProgress.get() < 0.12);
+		return () => {
+			setHeaderOverlay(false);
+		};
+	}, [isReducedMotion, scrollYProgress]);
 
 	useEffect(() => {
 		const query = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
@@ -164,9 +185,9 @@ export default function HomeIntro({
 			aria-label="Welcome to StuyAviators"
 			className="relative -mt-[5.5rem] h-[260svh]"
 		>
-			<div className="sticky top-0 h-svh overflow-hidden bg-surface">
+			<div className="sticky top-0 h-svh overflow-hidden bg-bg">
 				{/* Video layer, clipped from full-screen down to a card. */}
-				<motion.div className="absolute inset-0 bg-navy" style={{ clipPath }}>
+				<motion.div className="absolute inset-0 bg-ink" style={{ clipPath }}>
 					<Image
 						src={poster}
 						alt={posterAlt}
@@ -199,7 +220,12 @@ export default function HomeIntro({
 					/>
 					<motion.div
 						aria-hidden
-						className="absolute inset-0 bg-navy/55"
+						className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_50%,rgb(0_0_0/0.55),rgb(0_0_0/0.3))]"
+						style={{ opacity: scrimOpacity }}
+					/>
+					<motion.div
+						aria-hidden
+						className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-black/45 to-transparent"
 						style={{ opacity: scrimOpacity }}
 					/>
 				</motion.div>
@@ -212,16 +238,16 @@ export default function HomeIntro({
 				>
 					<div
 						className={cn(
-							"intro-reveal flex flex-col items-center",
+							"intro-reveal text-lift flex flex-col items-center",
 							isIntroReady && "is-ready"
 						)}
 					>
 						<p className="label text-accent-text">{site.eyebrow}</p>
-						<h1 className="mt-4 text-5xl font-semibold tracking-tight sm:text-8xl lg:text-9xl">
+						<h1 className="mt-4 text-5xl font-semibold tracking-[-0.02em] sm:text-8xl lg:text-9xl">
 							StuyAviators
 						</h1>
-						<Contrail className="mt-3 h-8 w-full max-w-xl text-[#ddebff]" />
-						<p className="mt-5 max-w-2xl text-lg text-muted sm:text-xl">
+						<Contrail className="mt-3 h-8 w-full max-w-xl text-white/90" />
+						<p className="mt-5 max-w-2xl text-lg text-white/90 sm:text-xl">
 							{site.tagline}
 						</p>
 					</div>
@@ -254,7 +280,7 @@ export default function HomeIntro({
 							</p>
 							<p
 								aria-hidden
-								className="mt-3 text-4xl font-semibold tracking-tight sm:text-6xl lg:mt-4 lg:text-7xl"
+								className="mt-3 text-4xl font-semibold tracking-[-0.015em] sm:text-6xl lg:mt-4 lg:text-7xl"
 							>
 								StuyAviators
 							</p>
@@ -287,7 +313,7 @@ export default function HomeIntro({
 					type="button"
 					aria-label={isPlaying ? "Pause video" : "Play video"}
 					aria-pressed={isPlaying}
-					className="absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-navy/70 text-white hover:bg-navy/90"
+					className="absolute z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/70 text-white hover:bg-ink/90"
 					style={
 						isSplit
 							? (() => {

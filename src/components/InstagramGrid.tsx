@@ -54,7 +54,7 @@ export default function InstagramGrid({
 								className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
 							/>
 							{post.mediaType === "IMAGE" ? null : (
-								<span className="absolute top-2 right-2 rounded bg-navy/70 p-1 text-white">
+								<span className="absolute top-2 right-2 rounded bg-ink/70 p-1 text-white">
 									{post.mediaType === "VIDEO" ? (
 										<Clapperboard aria-hidden className="size-4" />
 									) : (
@@ -67,7 +67,7 @@ export default function InstagramGrid({
 							)}
 							<span
 								aria-hidden
-								className="absolute inset-x-0 bottom-0 line-clamp-3 bg-linear-to-t from-navy/90 to-transparent p-2 pt-8 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+								className="absolute inset-x-0 bottom-0 line-clamp-3 bg-linear-to-t from-ink/90 to-transparent p-2 pt-8 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
 							>
 								{caption}
 							</span>

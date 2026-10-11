@@ -1,26 +1,58 @@
+import bannerBlue from "@/assets/brand/banner-blue.png";
 import bannerWhite from "@/assets/brand/banner-white.png";
-import MailingListForm from "@/components/forms/MailingListForm";
 import { SocialIcon } from "@/components/icons";
-import { adminContact, isNavGroup, nav, site, socials } from "@/content/site";
-import { signupFormConfig } from "@/lib/google-forms";
+import { adminContact, isHashLink, nav, site, socials } from "@/content/site";
+import { Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { buttonClasses } from "./ui/Button.tsx";
 import { Container } from "./ui/Section.tsx";
+
+const tagline = "Stuyvesant High School’s Official Aviation Club";
 
 export default function Footer() {
 	const year = new Date().getFullYear();
 	return (
-		<footer className="z-0 -mt-10 bg-navy pt-10 lg:sticky lg:bottom-0 text-[#eef4ff] [--brand:#8dbdf2] [--field:#5f7ca8] [--hairline:#243b63] [--muted:#a9bedd] [--surface:#172a4d] [--text:#eef4ff] [--accent:#ddebff] [--accent-ink:#0f1b32] [--danger:#ff8a80] [--success:#6fd39b]">
+		<footer className="z-0 -mt-10 border-t border-hairline bg-surface pt-10 text-sm lg:sticky lg:bottom-0">
 			<Container className="py-14">
-				<div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
-					<div>
-						<Image
-							src={bannerWhite}
-							alt="StuyAviators"
-							className="h-auto w-56"
-							sizes="224px"
-						/>
-						<p className="mt-5 max-w-md text-[#a9bedd]">{site.tagline}</p>
+				<div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(4,1fr)] lg:gap-8">
+					<div className="sm:col-span-2 lg:col-span-1">
+						<Link href="/" aria-label="StuyAviators home" className="inline-block">
+							<Image
+								src={bannerBlue}
+								alt=""
+								className="only-light h-auto w-48"
+								sizes="192px"
+							/>
+							<Image
+								src={bannerWhite}
+								alt=""
+								className="only-dark h-auto w-48"
+								sizes="192px"
+							/>
+						</Link>
+						<p className="mt-4 text-base font-medium text-text">{tagline}</p>
+						<p className="mt-3 text-muted">
+							<span className="block">{adminContact.label}</span>
+							<a
+								href={adminContact.href}
+								className="break-all text-text underline-offset-2 hover:text-brand hover:underline"
+							>
+								{adminContact.value}
+							</a>
+						</p>
+						<p className="mt-3 text-muted">
+							{site.address.school}
+							<br />
+							{site.address.line}
+						</p>
+						<a
+							href="#mailing-list"
+							className={buttonClasses("accent", "mt-6")}
+						>
+							<Mail aria-hidden className="size-4" />
+							Join the Mailing List
+						</a>
 						<ul className="mt-6 flex flex-wrap gap-2" aria-label="Social media">
 							{socials.map((social) => (
 								<li key={social.key}>
@@ -30,83 +62,54 @@ export default function Footer() {
 										rel="noopener noreferrer"
 										aria-label={social.label}
 										title={social.label}
-										className="inline-flex size-11 items-center justify-center rounded-md border border-[#243b63] hover:border-[#8dbdf2] hover:text-[#8dbdf2]"
+										className="inline-flex size-10 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-brand hover:text-brand"
 									>
-										<SocialIcon name={social.key} className="size-5" />
+										<SocialIcon name={social.key} className="size-[1.125rem]" />
 									</a>
 								</li>
 							))}
 						</ul>
 					</div>
-					<div>
-						<h2 className="label text-[#a9bedd]">Mailing list</h2>
-						<p className="mt-2 text-lg font-semibold">
-							Meeting updates, events and opportunities in your inbox.
-						</p>
-						<MailingListForm
-							compact
-							className="mt-4"
-							fallbackUrl={signupFormConfig().fallbackUrl}
-						/>
-					</div>
-				</div>
 
-				<div className="mt-14 grid gap-10 border-t border-[#243b63] pt-10 sm:grid-cols-2 lg:grid-cols-4">
-					{nav.filter(isNavGroup).map((group) => (
+					{nav.map((group) => (
 						<nav key={group.label} aria-label={group.label}>
-							<h2 className="label text-[#a9bedd]">{group.label}</h2>
-							<ul className="mt-3 space-y-2">
+							<h2 className="font-semibold text-text">{group.label}</h2>
+							<ul className="mt-3 space-y-2.5">
 								{group.links.map((link) => (
 									<li key={link.href}>
-										<Link href={link.href} className="hover:text-[#8dbdf2]">
-											{link.label}
-										</Link>
+										{isHashLink(link.href) ? (
+											<a
+												href={link.href}
+												className="text-muted transition-colors hover:text-text"
+											>
+												{link.label}
+											</a>
+										) : (
+											<Link
+												href={link.href}
+												prefetch={link.href === "/dashboard" ? false : undefined}
+												className="text-muted transition-colors hover:text-text"
+											>
+												{link.label}
+											</Link>
+										)}
 									</li>
 								))}
 							</ul>
 						</nav>
 					))}
-					<div>
-						<h2 className="label text-[#a9bedd]">Contact</h2>
-						<ul className="mt-3 space-y-2 text-sm">
-							<li>
-								<span className="block text-[#a9bedd]">
-									{adminContact.label}
-								</span>
-								<a
-									href={adminContact.href}
-									className="break-all underline-offset-2 hover:text-[#8dbdf2] hover:underline"
-								>
-									{adminContact.value}
-								</a>
-							</li>
-							<li className="pt-1 text-[#a9bedd]">
-								{site.address.school}
-								<br />
-								{site.address.line}
-							</li>
-						</ul>
-					</div>
 				</div>
 
-				<div className="mt-10 flex flex-col gap-3 border-t border-[#243b63] pt-6 text-sm text-[#a9bedd] sm:flex-row sm:items-center sm:justify-between">
+				<div className="mt-12 flex flex-col gap-3 border-t border-hairline pt-6 text-muted sm:flex-row sm:items-center sm:justify-between">
 					<p>
-						© {year} StuyAviators · Stuyvesant High School’s student-run
-						aviation club
+						© {year} StuyAviators · {tagline}
 					</p>
-					<p className="flex gap-4">
-						<Link href="/brand" className="hover:text-[#eef4ff]">
-							Brand guidelines
+					<p className="flex gap-5">
+						<Link href="/brand" className="hover:text-text">
+							Brand Guidelines
 						</Link>
-						<Link href="/connect" className="hover:text-[#eef4ff]">
-							Contact
-						</Link>
-						<Link
-							href="/dashboard"
-							className="hover:text-[#eef4ff]"
-							prefetch={false}
-						>
-							Officer login
+						<Link href="/dashboard" className="hover:text-text" prefetch={false}>
+							Officer Login
 						</Link>
 					</p>
 				</div>

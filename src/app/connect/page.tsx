@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import CopyButton from "@/components/CopyButton";
-import MailingListForm from "@/components/forms/MailingListForm";
 import SubmissionForm from "@/components/forms/SubmissionForm";
 import GoogleMap from "@/components/GoogleMap";
 import { SocialIcon } from "@/components/icons";
 import InstagramGrid from "@/components/InstagramGrid";
 import { Stagger } from "@/components/TransitionProvider";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
 import { connectCopy } from "@/content/connect";
@@ -14,7 +13,6 @@ import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { contacts, mapsLinks, site, socials } from "@/content/site";
 import { getInstagramFeed } from "@/lib/behold";
-import { signupFormConfig } from "@/lib/google-forms";
 import { ArrowUpRight, Mail, MapPin } from "lucide-react";
 import Image from "next/image";
 
@@ -36,11 +34,17 @@ export default async function ConnectPage() {
 				intro={pageIntros.socials.intro}
 				image={photos.heroSimRyanair.src}
 				imageAlt={photos.heroSimRyanair.alt}
-			/>
+			>
+				<a href="#mailing-list" className={buttonClasses("accent")}>
+					<Mail aria-hidden className="size-4" /> Join the Mailing List
+				</a>
+				<ButtonLink href="#contact" variant="secondary">
+					Contact us
+				</ButtonLink>
+			</PageHero>
 
 			<Section
 				id="socials"
-				index={1}
 				label="Stay in the loop"
 				title="Find us online"
 			>
@@ -51,7 +55,7 @@ export default async function ConnectPage() {
 								href={social.href}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="group flex h-full items-center justify-between gap-3 rounded-lg border border-hairline bg-surface p-4 hover:border-brand"
+								className="group flex h-full items-center justify-between gap-3 rounded-3xl bg-surface p-4 transition-[transform,background-color] duration-300 hover:-translate-y-1 hover:bg-surface-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
 							>
 								<span className="flex items-center gap-3">
 									<span className="flex size-10 items-center justify-center rounded-md bg-surface-2 text-brand">
@@ -76,7 +80,6 @@ export default async function ConnectPage() {
 
 			<Section
 				id="contact"
-				index={2}
 				label="Contact information"
 				title="Contact us"
 				intro={pageIntros.contact.intro}
@@ -87,7 +90,7 @@ export default async function ConnectPage() {
 							{contacts.map((contact) => (
 								<li
 									key={contact.value}
-									className="flex items-center gap-3 rounded-lg border border-hairline bg-surface p-3 pl-4"
+									className="flex items-center gap-3 rounded-3xl bg-surface p-3 pl-4"
 								>
 									<Mail aria-hidden className="size-5 shrink-0 text-brand" />
 									<a href={contact.href} className="min-w-0 flex-1">
@@ -109,7 +112,7 @@ export default async function ConnectPage() {
 									/>
 								</li>
 							))}
-							<li className="flex items-center gap-3 rounded-lg border border-hairline bg-surface p-3 pl-4">
+							<li className="flex items-center gap-3 rounded-3xl bg-surface p-3 pl-4">
 								<MapPin aria-hidden className="size-5 shrink-0 text-brand" />
 								<a
 									href={mapsLinks.open}
@@ -125,7 +128,7 @@ export default async function ConnectPage() {
 								<CopyButton value={site.address.line} label="address" />
 							</li>
 						</ul>
-						<p className="mt-4 text-sm text-muted italic">
+						<p className="mt-4 text-sm text-muted">
 							{connectCopy.contactNote}
 						</p>
 					</div>
@@ -141,7 +144,6 @@ export default async function ConnectPage() {
 
 			<Section
 				id="message"
-				index={3}
 				label="Send a message"
 				title="Write to us"
 			>
@@ -164,25 +166,13 @@ export default async function ConnectPage() {
 				</div>
 			</Section>
 
-			<Section
-				id="mailing-list"
-				index={4}
-				label="Mailing list"
-				title="Join the mailing list"
-			>
-				<div className="max-w-3xl">
-					<MailingListForm fallbackUrl={signupFormConfig().fallbackUrl} />
-				</div>
-			</Section>
-
 			{feed ? (
 				<Section
 					id="instagram"
-					index={5}
 					label="Instagram"
 					title="From the flight deck"
 				>
-					<div className="mb-8 flex flex-wrap items-center justify-between gap-6 rounded-lg border border-hairline bg-surface p-5">
+					<div className="mb-8 flex flex-wrap items-center justify-between gap-6 rounded-3xl bg-surface p-5">
 						<div className="flex items-center gap-4">
 							{feed.profilePictureUrl ? (
 								<Image
@@ -203,7 +193,7 @@ export default async function ConnectPage() {
 							{typeof feed.followersCount === "number" ? (
 								<div>
 									<p className="label text-muted">Followers</p>
-									<p className="font-mono text-3xl font-bold text-brand">
+									<p className="font-display text-3xl font-semibold text-brand">
 										{feed.followersCount.toLocaleString("en-US")}
 									</p>
 								</div>

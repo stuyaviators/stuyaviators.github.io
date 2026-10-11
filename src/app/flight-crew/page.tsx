@@ -1,7 +1,7 @@
 import type { CrewMember } from "@/content/crew";
 import type { Metadata } from "next";
 import { Stagger } from "@/components/TransitionProvider";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { Initials } from "@/components/ui/Initials";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
@@ -31,7 +31,7 @@ function MemberCard({ member }: { readonly member: CrewMember }) {
 		? `${member.name} (${member.classOf})`
 		: member.name;
 	return (
-		<li className="overflow-hidden rounded-lg border border-hairline bg-surface">
+		<li className="group overflow-hidden rounded-3xl bg-surface transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
 			<div className="relative aspect-square bg-surface-2">
 				{member.photo ? (
 					<Image
@@ -40,13 +40,13 @@ function MemberCard({ member }: { readonly member: CrewMember }) {
 						fill
 						placeholder="blur"
 						sizes="(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw"
-						className="object-cover"
+						className="object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
 					/>
 				) : (
 					<Initials name={member.name} className="absolute inset-0" />
 				)}
 			</div>
-			<div className="border-t border-dashed border-hairline p-4">
+			<div className="border-t border-hairline p-4">
 				<p className="font-semibold">{name}</p>
 				<p className="label mt-1 text-muted">{member.role}</p>
 			</div>
@@ -76,7 +76,6 @@ export default function FlightCrewPage() {
 				<Section
 					key={group.id}
 					id={group.id}
-					index={index + 1}
 					label={group.title}
 					title={group.title}
 					intro={
@@ -94,7 +93,6 @@ export default function FlightCrewPage() {
 
 			<Section
 				id="positions"
-				index={crewGroups.length + 1}
 				label="Positions"
 				title="Positions"
 				intro={crewCopy.positionsIntro}
@@ -104,7 +102,7 @@ export default function FlightCrewPage() {
 						const level = commitmentLevel[position.commitment] ?? 0;
 						return (
 							<Stagger key={position.title}>
-								<details className="group rounded-lg border border-hairline bg-surface open:shadow-card">
+								<details className="group rounded-3xl bg-surface open:shadow-card">
 									<summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 p-5 sm:p-6 [&::-webkit-details-marker]:hidden">
 										<h3 className="text-lg">{position.title}</h3>
 										<span className="flex items-center gap-3">
@@ -121,7 +119,7 @@ export default function FlightCrewPage() {
 											</span>
 										</span>
 									</summary>
-									<div className="grid gap-6 border-t border-dashed border-hairline p-5 sm:grid-cols-2 sm:p-6">
+									<div className="grid gap-6 border-t border-hairline p-5 sm:grid-cols-2 sm:p-6">
 										<div>
 											<h4 className="label text-accent-text">
 												Responsibilities
@@ -152,21 +150,21 @@ export default function FlightCrewPage() {
 
 			<section aria-labelledby="apply-heading" className="pb-20">
 				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-					<div className="rounded-lg bg-navy px-6 py-10 text-[#eef4ff] sm:px-10">
+					<div className="on-dark rounded-3xl bg-ink px-6 py-12 sm:px-12 sm:py-16">
 						<h2 id="apply-heading" className="text-3xl">
 							{crewCopy.joinHeading}
 						</h2>
-						<p className="mt-4 max-w-3xl text-[#a9bedd]">{crewCopy.joinBody}</p>
+						<p className="mt-4 max-w-3xl text-muted">{crewCopy.joinBody}</p>
 						<a
 							href={crewApplyUrl}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-ice px-5 py-2.5 text-sm font-semibold text-navy"
+							className={buttonClasses("accent", "mt-6")}
 						>
 							Apply now{" "}
 							<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 						</a>
-						<p className="mt-3 text-sm text-[#a9bedd]">
+						<p className="mt-3 text-sm text-muted">
 							The application form asks you to sign in with your Stuy Google
 							account.
 						</p>

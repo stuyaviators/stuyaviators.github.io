@@ -50,7 +50,6 @@ export default async function ListingsSection({
 	return (
 		<Section
 			id="listings"
-			index={1}
 			label={`Explore ${noun}`}
 			title={`Current ${noun}`}
 			intro={intro}
@@ -59,7 +58,7 @@ export default async function ListingsSection({
 				<ListingBrowser items={current} past={past} noun={noun} />
 			) : (
 				<Stagger>
-					<div className="grid overflow-hidden rounded-lg border border-dashed border-field bg-surface sm:grid-cols-[1fr_auto]">
+					<div className="grid overflow-hidden rounded-2xl border border-field bg-surface sm:grid-cols-[1fr_auto]">
 						<div className="p-8 sm:p-10">
 							<Compass aria-hidden className="size-8 text-brand" />
 							<p className="label mt-4 text-accent-text">Holding pattern</p>
@@ -80,7 +79,7 @@ export default async function ListingsSection({
 						</div>
 						<div
 							aria-hidden
-							className="hidden w-40 border-l border-dashed border-field bg-surface-2 p-5 font-mono text-sm text-muted sm:block"
+							className="hidden w-40 border-l border-field bg-surface-2 p-5 font-mono text-sm text-muted sm:block"
 						>
 							<p className="label">Status</p>
 							<p className="mt-1">STANDBY</p>

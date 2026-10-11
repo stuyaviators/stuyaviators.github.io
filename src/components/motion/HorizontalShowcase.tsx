@@ -5,9 +5,9 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 /**
-Pinned horizontal carousel: on desktop the section sticks while vertical
-scrolling slides the cards sideways. Phones, tablets and reduced-motion
-visitors get a native swipeable row with scroll-snap.
+Pinned horizontal carousel: the section locks while vertical scrolling
+slides the cards sideways, on every screen size. Reduced-motion visitors and
+very short screens get a native swipeable row with scroll-snap.
 */
 export default function HorizontalShowcase({
 	header,
@@ -22,10 +22,10 @@ export default function HorizontalShowcase({
 	const [isPinned, setIsPinned] = useState(false);
 
 	useEffect(() => {
-		const desktop = globalThis.matchMedia("(min-width: 1024px)");
+		const tall = globalThis.matchMedia("(min-height: 560px)");
 		const reduced = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
 		const measure = () => {
-			setIsPinned(desktop.matches && !reduced.matches);
+			setIsPinned(tall.matches && !reduced.matches);
 			const track = trackRef.current;
 			if (track) {
 				setDistance(Math.max(0, track.scrollWidth - window.innerWidth));
@@ -35,11 +35,11 @@ export default function HorizontalShowcase({
 		measure();
 		const observer = new ResizeObserver(measure);
 		observer.observe(document.documentElement);
-		desktop.addEventListener("change", measure);
+		tall.addEventListener("change", measure);
 		reduced.addEventListener("change", measure);
 		return () => {
 			observer.disconnect();
-			desktop.removeEventListener("change", measure);
+			tall.removeEventListener("change", measure);
 			reduced.removeEventListener("change", measure);
 		};
 	}, []);
@@ -84,15 +84,17 @@ export default function HorizontalShowcase({
 			style={{ height: `calc(100svh + ${distance}px)` }}
 		>
 			<div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
-				<div className="mx-auto w-full max-w-6xl px-8">{header}</div>
+				<div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+					{header}
+				</div>
 				<motion.div
 					ref={trackRef}
 					style={{ x }}
-					className="mt-10 flex gap-6 pr-16 pl-[max(2rem,calc((100vw-72rem)/2+2rem))]"
+					className="mt-8 flex gap-4 pr-4 pl-4 sm:mt-10 sm:gap-6 sm:pr-16 sm:pl-[max(1.5rem,calc((100vw-72rem)/2+2rem))]"
 				>
 					{children}
 				</motion.div>
-				<div className="mx-auto mt-10 h-0.5 w-full max-w-6xl overflow-hidden rounded-full bg-hairline px-8">
+				<div className="mx-auto mt-8 h-0.5 w-[calc(100%-2rem)] max-w-[calc(72rem-4rem)] overflow-hidden rounded-full bg-hairline sm:mt-10 sm:w-[calc(100%-3rem)]">
 					<motion.div
 						className="h-full bg-brand"
 						style={{ width: progressWidth }}

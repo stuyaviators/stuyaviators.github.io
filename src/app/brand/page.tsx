@@ -4,8 +4,9 @@ import { Stagger } from "@/components/TransitionProvider";
 import { buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import { brandRules, logoVariants, palette } from "@/content/brand";
-import { Check, Download, X } from "lucide-react";
+import { brandRules, logoVariants, palette, typefaces, typeRules } from "@/content/brand";
+import TypeTester from "@/components/TypeTester";
+import { ArrowUpRight, Check, Download, X } from "lucide-react";
 
 export const metadata: Metadata = {
 	title: "Brand Guidelines",
@@ -15,6 +16,46 @@ export const metadata: Metadata = {
 };
 
 const base = "/brand/downloads";
+
+const typeScale = [
+	{
+		name: "Display",
+		spec: "Inter Tight 600",
+		sample: "StuyAviators",
+		className: "font-display text-5xl font-semibold sm:text-7xl",
+	},
+	{
+		name: "Heading",
+		spec: "Inter Tight 600",
+		sample: "Eight ways to fly with us",
+		className: "font-display text-3xl font-semibold sm:text-5xl",
+	},
+	{
+		name: "Subhead",
+		spec: "Inter Tight 600",
+		sample: "Flight Simulator Demonstrations",
+		className: "font-display text-2xl font-semibold",
+	},
+	{
+		name: "Body",
+		spec: "Inter 400",
+		sample:
+			"Drop in whenever your schedule allows. No experience needed.",
+		className: "text-lg",
+	},
+	{
+		name: "Label",
+		spec: "Inter 600 caps",
+		sample: "Next departures",
+		className: "label text-accent-text",
+	},
+	{
+		name: "Data",
+		spec: "Inter tabular",
+		sample: "15:30 · WED 16 OCT · RM 313",
+		className: "font-mono text-lg",
+	},
+];
 
 export default function BrandPage() {
 	return (
@@ -35,15 +76,13 @@ export default function BrandPage() {
 
 			<Section
 				id="logos"
-				index={1}
-				label="Logos"
 				title="Logos"
 				intro="Use the vector SVG whenever you can; it stays sharp at any size. PNGs have transparent backgrounds."
 			>
 				<div className="grid gap-6 md:grid-cols-2">
 					{logoVariants.map((variant) => (
 						<Stagger key={variant.id}>
-							<article className="h-full overflow-hidden rounded-lg border border-hairline bg-surface">
+							<article className="h-full overflow-hidden rounded-3xl bg-surface">
 								<div
 									className="flex items-center justify-center border-b border-hairline p-8"
 									style={{ backgroundColor: variant.preview }}
@@ -100,17 +139,16 @@ export default function BrandPage() {
 
 			<Section
 				id="colors"
-				index={2}
 				label="Color palette"
 				title="Colors"
-				intro="Night Navy, Stuy Blue and Ice are the core palette. Text combinations shown on each swatch meet WCAG AA contrast."
+				intro="Stuy Blue on clean white and near-black is the core palette, with Ice and Night Navy from the logo artwork as secondary colors. Text on each swatch meets WCAG AA contrast."
 			>
-				<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{palette.map((color) => (
 						<Stagger as="li" key={color.id}>
-							<div className="overflow-hidden rounded-lg border border-hairline bg-surface">
+							<div className="overflow-hidden rounded-3xl bg-surface">
 								<div
-									className="flex h-32 items-end p-4"
+									className="flex h-32 items-end border-b border-hairline p-4"
 									style={{ backgroundColor: color.hex, color: color.onColor }}
 								>
 									<span className="text-lg font-semibold">{color.name}</span>
@@ -152,31 +190,106 @@ export default function BrandPage() {
 				</p>
 			</Section>
 
-			<Section id="type" index={3} label="Typography" title="Type">
-				<div className="grid gap-6 md:grid-cols-2">
-					<div className="rounded-lg border border-hairline bg-surface p-6">
-						<p className="label text-muted">Headings & body</p>
-						<p className="mt-3 text-4xl font-semibold">Lexend</p>
-						<p className="mt-2 text-muted">
-							Clean and highly readable. Free on Google Fonts.
-						</p>
-					</div>
-					<div className="rounded-lg border border-hairline bg-surface p-6">
-						<p className="label text-muted">Labels & data</p>
-						<p className="mt-3 font-label text-4xl font-bold tracking-wide uppercase">
-							B612
-						</p>
-						<p className="mt-2 text-muted">
-							Designed for Airbus cockpit displays. Use in caps for labels; B612
-							Mono for numbers.
-						</p>
-					</div>
+			<Section
+				id="type"
+				label="Typography"
+				title="Type"
+				intro="Our type follows Airbus’s brand typography: Inter Tight for display and graphic design, Inter for everything you read on screen. All are free on Google Fonts."
+			>
+				<div className="grid gap-6 lg:grid-cols-3">
+					{typefaces.map((face) => (
+						<Stagger key={face.id}>
+							<article className="flex h-full flex-col rounded-3xl bg-surface p-6 sm:p-8">
+								<p className="label text-accent-text">{face.role}</p>
+								<p
+									aria-hidden
+									className="mt-4 text-8xl leading-none"
+									style={{
+										fontFamily: face.variable,
+										fontWeight: face.weights.at(-1)?.value,
+									}}
+								>
+									Aa
+								</p>
+								<h3 className="mt-6 text-2xl">{face.name}</h3>
+								<p className="mt-2 flex-1 text-muted">{face.use}</p>
+								<ul className="mt-5 space-y-1.5 border-t border-hairline pt-5">
+									{face.weights.map((weight) => (
+										<li
+											key={weight.value}
+											className="flex items-baseline justify-between gap-3"
+										>
+											<span
+												className="text-lg"
+												style={{
+													fontFamily: face.variable,
+													fontWeight: weight.value,
+												}}
+											>
+												{weight.name}
+											</span>
+											<span className="font-mono text-sm text-muted">
+												{weight.value}
+											</span>
+										</li>
+									))}
+								</ul>
+								<p
+									aria-hidden
+									className="mt-5 text-sm leading-relaxed break-all text-muted"
+									style={{ fontFamily: face.variable }}
+								>
+									ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+									0123456789 &amp;@#?!→
+								</p>
+								<a
+									href={face.href}
+									target="_blank"
+									rel="noopener noreferrer"
+									className={buttonClasses("secondary", "mt-6 self-start")}
+								>
+									Get {face.name}{" "}
+									<ArrowUpRight aria-hidden className="btn-arrow size-4" />
+								</a>
+							</article>
+						</Stagger>
+					))}
 				</div>
+
+				<h3 className="mt-16 text-2xl">Try it</h3>
+				<div className="mt-5">
+					<TypeTester typefaces={typefaces} />
+				</div>
+
+				<h3 className="mt-16 text-2xl">Type scale</h3>
+				<ol className="mt-5 divide-y divide-hairline rounded-3xl bg-surface px-6 sm:px-8">
+					{typeScale.map((item) => (
+						<li
+							key={item.name}
+							className="grid gap-2 py-5 sm:grid-cols-[10rem_1fr] sm:items-baseline"
+						>
+							<span className="font-mono text-sm text-muted">
+								{item.name} · {item.spec}
+							</span>
+							<span className={item.className}>{item.sample}</span>
+						</li>
+					))}
+				</ol>
+
+				<h3 className="mt-16 text-2xl">Typesetting</h3>
+				<ul className="mt-5 grid gap-3 sm:grid-cols-2">
+					{typeRules.map((rule) => (
+						<li key={rule} className="flex gap-3 rounded-2xl bg-surface p-5">
+							<Check aria-hidden className="mt-1 size-4 shrink-0 text-success" />
+							{rule}
+						</li>
+					))}
+				</ul>
 			</Section>
 
-			<Section id="usage" index={4} label="Usage" title="Do’s and don’ts">
+			<Section id="usage" label="Usage" title="Do’s and don’ts">
 				<div className="grid gap-6 md:grid-cols-2">
-					<ul className="space-y-3 rounded-lg border border-hairline bg-surface p-6">
+					<ul className="space-y-3 rounded-3xl bg-surface p-6">
 						{brandRules.do.map((rule) => (
 							<li key={rule} className="flex gap-3">
 								<Check
@@ -190,7 +303,7 @@ export default function BrandPage() {
 							</li>
 						))}
 					</ul>
-					<ul className="space-y-3 rounded-lg border border-hairline bg-surface p-6">
+					<ul className="space-y-3 rounded-3xl bg-surface p-6">
 						{brandRules.dont.map((rule) => (
 							<li key={rule} className="flex gap-3">
 								<X aria-hidden className="mt-1 size-4 shrink-0 text-danger" />

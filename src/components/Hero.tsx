@@ -23,7 +23,7 @@ export default function Hero() {
 						</p>
 					</Stagger>
 					<Stagger className="relative">
-						<h1 className="mt-4 text-5xl tracking-tight sm:text-6xl lg:text-7xl">
+						<h1 className="mt-4 text-5xl tracking-[-0.015em] sm:text-6xl lg:text-7xl">
 							StuyAviators
 						</h1>
 						<svg

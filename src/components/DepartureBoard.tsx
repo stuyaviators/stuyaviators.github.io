@@ -70,9 +70,9 @@ export default function DepartureBoard({
 	readonly showAllLink?: boolean;
 }) {
 	return (
-		<div className="overflow-hidden rounded-lg border border-[#1e3350] bg-board-bg font-mono text-board-text shadow-card">
-			<div className="flex items-center justify-between border-b border-[#1e3350] px-4 py-3 sm:px-6">
-				<p className="label font-bold tracking-[0.16em]">Departures</p>
+		<div className="overflow-hidden rounded-2xl border border-board-line bg-board-bg font-mono text-board-text shadow-card">
+			<div className="flex items-center justify-between border-b border-board-line px-4 py-3 sm:px-6">
+				<p className="label font-bold">Departures</p>
 				<p className="label text-board-dim">Stuyvesant HS · NYC</p>
 			</div>
 			<table className="hidden w-full text-left text-sm sm:table sm:text-base">
@@ -107,7 +107,7 @@ export default function DepartureBoard({
 						meetings.map((meeting) => {
 							const start = new Date(meeting.start);
 							return (
-								<tr key={meeting.id} className="border-t border-[#1e3350]/70">
+								<tr key={meeting.id} className="border-t border-board-line">
 									<td className="px-4 py-3 sm:px-6">
 										<Flap text={timeFormat.format(start)} />
 									</td>
@@ -134,7 +134,7 @@ export default function DepartureBoard({
 							);
 						})
 					) : (
-						<tr className="border-t border-[#1e3350]/70">
+						<tr className="border-t border-board-line">
 							<td className="px-4 py-4 sm:px-6">
 								<Flap text="After school" />
 							</td>
@@ -153,7 +153,7 @@ export default function DepartureBoard({
 				</tbody>
 			</table>
 			<ul
-				className="divide-y divide-[#1e3350]/70 sm:hidden"
+				className="divide-y divide-board-line sm:hidden"
 				aria-label="Upcoming StuyAviators meetings"
 			>
 				{meetings.length > 0 ? (
@@ -201,7 +201,7 @@ export default function DepartureBoard({
 				)}
 			</ul>
 			{showAllLink ? (
-				<div className="flex flex-wrap justify-between gap-2 border-t border-[#1e3350] px-4 py-3 text-sm sm:px-6">
+				<div className="flex flex-wrap justify-between gap-2 border-t border-board-line px-4 py-3 text-sm sm:px-6">
 					<p className="text-board-dim">
 						{meetings.length > 0
 							? "Times shown in New York time."
@@ -209,7 +209,7 @@ export default function DepartureBoard({
 					</p>
 					<Link
 						href="/meetings"
-						className="font-label text-xs tracking-[0.08em] uppercase underline underline-offset-4"
+						className="label underline underline-offset-4"
 					>
 						All meetings →
 					</Link>

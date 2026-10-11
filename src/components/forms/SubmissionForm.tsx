@@ -43,7 +43,7 @@ export default function SubmissionForm({
 		return (
 			<div
 				role="status"
-				className="flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5"
+				className="flex items-start gap-3 rounded-3xl bg-surface p-5"
 			>
 				<CheckCircle2
 					aria-hidden

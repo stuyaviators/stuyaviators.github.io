@@ -272,6 +272,12 @@ review on request.
 | 2026-10-10 | Meetings | Read from Epsilon with an officer's session token (`EPSILON_ACCESS_TOKEN`, server-only). Tokens expire hourly; manual fallback list until refreshed. **Phase 3:** admin dashboard setting to add/replace/remove the token (stored encrypted, validity + expiry shown). |
 | 2026-10-10 | Homepage | Apple-style intro: club video full-screen with title fade-in, shrinking into the split hero on scroll. Reduced motion gets the static split hero. Slimmer homepage (hero, departures, 4 meeting types, quotes, Instagram, join). Interior pages have photos behind their titles. |
 | 2026-10-10 | Crew | Current leadership matches Epsilon roles (Andrew Zhang, Alexander Smelyansky, Caleb Paugh, Sheng Yue Huang, Nathan Lai); Allyson Win, Andrew Archvadze and Evan Ye moved to Past Leadership. |
+| 2026-10-10 | Type | Matches Airbus's brand typography: **Inter Tight** (display) and **Inter** (text, labels, data with tabular figures). B612/B612 Mono removed. Goudy Bookletter 1911 only for the navbar wordmark (from Figma). Headings −0.01 em, labels +0.05 em caps. Brand page has a typography section (specimens, type tester, scale, typesetting rules). |
+| 2026-10-10 | Palette (revised) | Apple-style neutrals: white background in light mode, near-black (`#000`) in dark mode, Stuy Blue `#0B64A9` as the accent. Ice and Night Navy stay as secondary logo colors. |
+| 2026-10-10 | Homepage (revised) | Each section locks in place while scrolling (pinned scenes): departures, mission statement (words fill in), eight meeting types sliding sideways (all screen sizes), member quotes over the expanding club video (lighter overlay). Instagram moved off the homepage (still on Connect). Header goes transparent over the hero video and photo headers. |
+| 2026-10-10 | Mailing list | Sign-up is a site-wide modal (any `#mailing-list` link opens it) instead of a footer form. |
+| 2026-10-10 | Nav & footer | Four even dropdowns: About (+ Brand Guidelines), Explore, Community, Connect (Contact & Socials, Mailing List, Officer Login). Footer mirrors them and reads "Stuyvesant High School's Official Aviation Club". |
+| 2026-10-10 | Careers (revised) | Quiz shows one question at a time and ends with animated % match scores; searchable career explorer with family filters and expandable role cards. |
 
 ### D2: what's cut vs kept
 

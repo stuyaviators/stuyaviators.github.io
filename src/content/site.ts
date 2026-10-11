@@ -3,7 +3,7 @@ export const site = {
 	url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://stuyaviators.vercel.app",
 	tagline:
 		"Bringing aviation to life at Stuyvesant High School, making the skies inclusive and accessible, and inspiring today’s youth to become tomorrow’s aviation leaders.",
-	eyebrow: "Stuyvesant High School’s Aviation Club",
+	eyebrow: "Stuyvesant High School’s Official Aviation Club",
 	founded: "2022-11-19",
 	epsilonUrl: "https://epsilon.stuysu.org/stuyaviators",
 	instagramHandle: "stuyaviators",
@@ -17,7 +17,7 @@ export const site = {
 export type NavLink = { href: string; label: string; description?: string };
 export type NavGroup = { label: string; links: NavLink[] };
 
-export const nav: Array<NavGroup | NavLink> = [
+export const nav: NavGroup[] = [
 	{
 		label: "About",
 		links: [
@@ -31,6 +31,11 @@ export const nav: Array<NavGroup | NavLink> = [
 				href: "/charter",
 				label: "Charter & Rules",
 				description: "How the club runs",
+			},
+			{
+				href: "/brand",
+				label: "Brand Guidelines",
+				description: "Logos, colors and type",
 			},
 		],
 	},
@@ -79,11 +84,37 @@ export const nav: Array<NavGroup | NavLink> = [
 			},
 		],
 	},
-	{ href: "/connect", label: "Connect" },
+	{
+		label: "Connect",
+		links: [
+			{
+				href: "/connect",
+				label: "Contact & Socials",
+				description: "Email, Discord and Instagram",
+			},
+			{
+				href: "#mailing-list",
+				label: "Mailing List",
+				description: "News in your inbox",
+			},
+			{
+				href: "/dashboard",
+				label: "Officer Login",
+				description: "For club officers",
+			},
+		],
+	},
 ];
 
 export function isNavGroup(item: NavGroup | NavLink): item is NavGroup {
 	return "links" in item;
+}
+
+/**
+Links that open something on the current page (the mailing-list modal).
+*/
+export function isHashLink(href: string) {
+	return href.startsWith("#");
 }
 
 export type Contact = {

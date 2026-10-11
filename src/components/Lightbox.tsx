@@ -89,7 +89,7 @@ export default function Lightbox({
 			<dialog
 				ref={dialogRef}
 				aria-label={current ? current.alt : "Photo viewer"}
-				className="m-auto max-h-[92dvh] w-[min(96vw,1200px)] bg-transparent p-0 backdrop:bg-navy/90"
+				className="m-auto max-h-[92dvh] w-[min(96vw,1200px)] bg-transparent p-0 backdrop:bg-ink/90"
 				onClick={(event) => {
 					if (event.target === event.currentTarget) {
 						dialogRef.current?.close();
@@ -114,7 +114,7 @@ export default function Lightbox({
 							<button
 								type="button"
 								aria-label="Previous photo"
-								className="rounded-md bg-navy/80 p-2 text-white"
+								className="rounded-md bg-ink/80 p-2 text-white"
 								onClick={() => {
 									step(-1);
 								}}
@@ -124,7 +124,7 @@ export default function Lightbox({
 							<button
 								type="button"
 								aria-label="Next photo"
-								className="rounded-md bg-navy/80 p-2 text-white"
+								className="rounded-md bg-ink/80 p-2 text-white"
 								onClick={() => {
 									step(1);
 								}}
@@ -135,7 +135,7 @@ export default function Lightbox({
 								type="button"
 								aria-label="Close"
 								autoFocus
-								className="rounded-md bg-navy/80 p-2 text-white"
+								className="rounded-md bg-ink/80 p-2 text-white"
 								onClick={() => dialogRef.current?.close()}
 							>
 								<X aria-hidden className="size-5" />

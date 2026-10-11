@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import { ImageResponse } from "next/og";
 
 /*
- * Shared Open Graph card (1200×630): club photo behind a navy scrim, logo,
- * B612 label and Inter Tight title. Drawn with next/og at build time for static
+ * Shared Open Graph card (1200×630): club photo behind a dark scrim, logo,
+ * label and title in Inter Tight (Airbus's display face). Drawn with next/og at build time for static
  * pages (and on demand for dynamic ones), so no external service is used.
  */
 export const ogSize = { width: 1200, height: 630 };
@@ -23,15 +23,12 @@ export async function renderOg({
 	photo?: Uint8Array;
 	detail?: string;
 }) {
-	const [interTight, b612, logo] = await Promise.all([
+	const [interTight, logo] = await Promise.all([
 		readFile(
 			new URL(
 				"../assets/fonts/inter-tight-latin-600-normal.woff",
 				import.meta.url
 			)
-		),
-		readFile(
-			new URL("../assets/fonts/b612-latin-700-normal.woff", import.meta.url)
 		),
 		readFile(new URL("../assets/brand/logo.png", import.meta.url)),
 	]);
@@ -46,7 +43,7 @@ export async function renderOg({
 				height: "100%",
 				display: "flex",
 				position: "relative",
-				backgroundColor: "#0F1B32",
+				backgroundColor: "#0A0A0C",
 				fontFamily: "Inter Tight",
 			}}
 		>
@@ -75,7 +72,7 @@ export async function renderOg({
 					height: 630,
 					display: "flex",
 					backgroundImage:
-						"linear-gradient(90deg, rgba(15,27,50,0.96) 0%, rgba(15,27,50,0.86) 55%, rgba(15,27,50,0.5) 100%)",
+						"linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.3) 100%)",
 				}}
 			/>
 			<div
@@ -92,10 +89,9 @@ export async function renderOg({
 					<img src={dataUri(logo, "image/png")} alt="" width={76} height={76} />
 					<span
 						style={{
-							fontFamily: "B612",
 							fontSize: 28,
-							letterSpacing: 3,
-							color: "#EEF4FF",
+							letterSpacing: 2,
+							color: "#F5F5F7",
 						}}
 					>
 						STUYAVIATORS
@@ -106,10 +102,9 @@ export async function renderOg({
 				>
 					<span
 						style={{
-							fontFamily: "B612",
 							fontSize: 24,
-							letterSpacing: 3,
-							color: "#8DBDF2",
+							letterSpacing: 1.5,
+							color: "#8CC4F7",
 							textTransform: "uppercase",
 						}}
 					>
@@ -126,7 +121,7 @@ export async function renderOg({
 						{title}
 					</span>
 					{detail ? (
-						<span style={{ marginTop: 18, fontSize: 30, color: "#DDEBFF" }}>
+						<span style={{ marginTop: 18, fontSize: 30, color: "#D2D2D7" }}>
 							{detail}
 						</span>
 					) : null}
@@ -137,15 +132,14 @@ export async function renderOg({
 							display: "flex",
 							height: 3,
 							width: 120,
-							backgroundColor: "#DDEBFF",
+							backgroundColor: "#0B64A9",
 						}}
 					/>
 					<span
 						style={{
-							fontFamily: "B612",
 							fontSize: 22,
-							color: "#A9BEDD",
-							letterSpacing: 2,
+							color: "#D2D2D7",
+							letterSpacing: 1.5,
 						}}
 					>
 						STUYVESANT HIGH SCHOOL · NEW YORK
@@ -157,7 +151,6 @@ export async function renderOg({
 			...ogSize,
 			fonts: [
 				{ name: "Inter Tight", data: interTight, weight: 600, style: "normal" },
-				{ name: "B612", data: b612, weight: 700, style: "normal" },
 			],
 		}
 	);

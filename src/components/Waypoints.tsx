@@ -10,7 +10,7 @@ export default function Waypoints({
 	readonly items: Array<{ key: string; label: string; content: ReactNode }>;
 }) {
 	return (
-		<ol className="relative ml-2 border-l-2 border-dashed border-field">
+		<ol className="relative ml-2 border-l-2 border-field">
 			{items.map((item) => (
 				<Stagger
 					as="li"

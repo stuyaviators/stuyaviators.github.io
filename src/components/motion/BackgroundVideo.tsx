@@ -187,7 +187,7 @@ export default function BackgroundVideo({
 						isUserPaused ? "Play background video" : "Pause background video"
 					}
 					aria-pressed={!isUserPaused}
-					className="absolute right-4 bottom-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-navy/60 text-white backdrop-blur transition-colors hover:bg-navy/80"
+					className="absolute right-4 bottom-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-white/40 bg-ink/60 text-white backdrop-blur transition-colors hover:bg-ink/80"
 					onClick={() => {
 						setIsUserPaused((value) => !value);
 					}}

@@ -42,7 +42,7 @@ export default function ListingBrowser({
 
 	return (
 		<div>
-			<div className="mb-6 flex flex-col gap-4 rounded-lg border border-hairline bg-surface p-4 sm:flex-row sm:items-center">
+			<div className="mb-6 flex flex-col gap-4 rounded-3xl bg-surface p-4 sm:flex-row sm:items-center">
 				<label htmlFor={searchId} className="sr-only">
 					Search {noun}
 				</label>
@@ -99,12 +99,12 @@ export default function ListingBrowser({
 					))}
 				</ul>
 			) : (
-				<p className="rounded-lg border border-dashed border-field p-8 text-center text-muted">
+				<p className="rounded-2xl border border-field p-8 text-center text-muted">
 					No {noun} match your search.
 				</p>
 			)}
 			{past.length > 0 ? (
-				<details className="mt-10 rounded-lg border border-hairline">
+				<details className="mt-10 rounded-2xl border border-hairline">
 					<summary className="cursor-pointer p-4 font-semibold">
 						Past {noun} ({past.length})
 					</summary>

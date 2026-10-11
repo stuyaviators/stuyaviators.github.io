@@ -39,7 +39,6 @@ export default async function MeetingsPage() {
 
 			<Section
 				id="upcoming"
-				index={1}
 				label="Departures"
 				title="Upcoming meetings"
 			>
@@ -50,7 +49,6 @@ export default async function MeetingsPage() {
 
 			<Section
 				id="types"
-				index={2}
 				label="Types of meetings"
 				title="What happens at a meeting"
 				intro={meetings.typesIntro}
@@ -62,7 +60,7 @@ export default async function MeetingsPage() {
 							<Stagger as="li" key={type.name}>
 								<article
 									id={type.code?.toLowerCase() ?? `type-${index + 1}`}
-									className="h-full scroll-mt-28 overflow-hidden rounded-lg border border-hairline bg-surface"
+									className="h-full scroll-mt-28 overflow-hidden rounded-3xl bg-surface"
 								>
 									<div className="relative aspect-[16/9] bg-surface-2">
 										<Image
@@ -84,7 +82,7 @@ export default async function MeetingsPage() {
 											{type.name}
 											{type.code ? ` (${type.code})` : ""}
 										</h3>
-										<p className="mt-1 font-medium text-muted italic">
+										<p className="mt-1 font-medium text-muted">
 											{type.tagline}
 										</p>
 										<p className="mt-3">{type.description}</p>
@@ -96,7 +94,7 @@ export default async function MeetingsPage() {
 				</ul>
 			</Section>
 
-			<Section id="schedule" index={3} label="Schedule" title="When we meet">
+			<Section id="schedule" label="Schedule" title="When we meet">
 				<div className="grid gap-8 lg:grid-cols-3">
 					{schedule.map((section) => (
 						<Stagger key={section.id}>
@@ -112,7 +110,6 @@ export default async function MeetingsPage() {
 
 			<Section
 				id="ideas"
-				index={4}
 				label="Suggestions"
 				title={meetings.ideaHeading}
 				intro={meetings.ideaIntro}

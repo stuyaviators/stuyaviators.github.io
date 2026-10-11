@@ -12,19 +12,17 @@ export default function GoogleMap({
 	directionsUrl,
 	title,
 	label = "Location",
-	code = "40.7179° N · 74.0139° W",
 }: {
 	readonly embedUrl: string;
 	readonly openUrl: string;
 	readonly directionsUrl: string;
 	readonly title: string;
 	readonly label?: string;
-	readonly code?: string;
 }) {
 	return (
 		<figure>
-			<FlightStrip label={label} code={code} />
-			<div className="mt-3 aspect-[4/3] overflow-hidden rounded-lg border border-hairline bg-surface-2 sm:aspect-[16/10]">
+			<FlightStrip label={label} />
+			<div className="mt-3 aspect-[4/3] overflow-hidden rounded-2xl border border-hairline bg-surface-2 sm:aspect-[16/10]">
 				<iframe
 					src={embedUrl}
 					title={title}

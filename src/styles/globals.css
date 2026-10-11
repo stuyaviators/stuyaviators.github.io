@@ -3,75 +3,73 @@
 /*
  * Design tokens. Light is the default; dark follows the OS unless the visitor
  * picked a theme (data-theme on <html>, set pre-paint by the inline script in
- * layout.tsx). Club palette: navy #0F1B32, ice #DDEBFF, brand blue #0B64A9.
- * All text pairs meet WCAG AA; see /brand.
+ * layout.tsx). Apple-style neutrals: white in light mode, near-black in dark,
+ * with club brand blue #0B64A9 as the accent. All text pairs meet WCAG AA;
+ * see /brand.
  */
 :root {
 	color-scheme: light;
-	--bg: #f6f9ff;
-	--surface: #ffffff;
-	--surface-2: #eaf2ff;
+	--bg: #ffffff;
+	--surface: #f5f5f7;
+	--surface-2: #ebebef;
 	--ice: #ddebff;
-	--navy: #0f1b32;
-	--text: #0f1b32;
-	--muted: #475670;
+	--ink: #0a0a0c;
+	--text: #1d1d1f;
+	--muted: #5f5f66;
 	--brand: #0b64a9;
 	--brand-ink: #ffffff;
 	--accent: #0b64a9;
 	--accent-ink: #ffffff;
 	--accent-text: #0b64a9;
-	--field: #6e84a3;
-	--hairline: #d3deee;
-	--board-bg: #081226;
-	--board-text: #ddebff;
-	--board-dim: #6f8bb8;
-	--danger: #b42318;
+	--field: #86868b;
+	--hairline: #e3e3e8;
+	--board-bg: #0a0a0c;
+	--board-text: #f5f5f7;
+	--board-dim: #8e8e93;
+	--board-line: #26262b;
+	--danger: #c4271b;
 	--success: #1e7a46;
-	--shadow: 0 1px 2px rgb(15 27 50 / 6%), 0 8px 24px rgb(15 27 50 / 7%);
+	--shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 12px 32px rgb(0 0 0 / 8%);
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
 		color-scheme: dark;
-		--bg: #0f1b32;
-		--surface: #172a4d;
-		--surface-2: #1e355e;
-		--ice: #ddebff;
-		--navy: #0f1b32;
-		--text: #eef4ff;
-		--muted: #a9bedd;
-		--brand: #8dbdf2;
-		--brand-ink: #0f1b32;
-		--accent: #ddebff;
-		--accent-ink: #0f1b32;
-		--accent-text: #8dbdf2;
-		--field: #5f7ca8;
-		--hairline: #243b63;
+		--bg: #000000;
+		--surface: #121214;
+		--surface-2: #1d1d20;
+		--text: #f5f5f7;
+		--muted: #a1a1a8;
+		--brand: #6cb4f5;
+		--brand-ink: #000000;
+		--accent: #1479cc;
+		--accent-ink: #ffffff;
+		--accent-text: #6cb4f5;
+		--field: #6e6e75;
+		--hairline: #2a2a2f;
 		--danger: #ff8a80;
 		--success: #6fd39b;
-		--shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 25%);
+		--shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px rgb(0 0 0 / 40%);
 	}
 }
 
 :root[data-theme="dark"] {
 	color-scheme: dark;
-	--bg: #0f1b32;
-	--surface: #172a4d;
-	--surface-2: #1e355e;
-	--ice: #ddebff;
-	--navy: #0f1b32;
-	--text: #eef4ff;
-	--muted: #a9bedd;
-	--brand: #8dbdf2;
-	--brand-ink: #0f1b32;
-	--accent: #ddebff;
-	--accent-ink: #0f1b32;
-	--accent-text: #8dbdf2;
-	--field: #5f7ca8;
-	--hairline: #243b63;
+	--bg: #000000;
+	--surface: #121214;
+	--surface-2: #1d1d20;
+	--text: #f5f5f7;
+	--muted: #a1a1a8;
+	--brand: #6cb4f5;
+	--brand-ink: #000000;
+	--accent: #1479cc;
+	--accent-ink: #ffffff;
+	--accent-text: #6cb4f5;
+	--field: #6e6e75;
+	--hairline: #2a2a2f;
 	--danger: #ff8a80;
 	--success: #6fd39b;
-	--shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 25%);
+	--shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px rgb(0 0 0 / 40%);
 }
 
 @theme inline {
@@ -79,7 +77,7 @@
 	--color-surface: var(--surface);
 	--color-surface-2: var(--surface-2);
 	--color-ice: var(--ice);
-	--color-navy: var(--navy);
+	--color-ink: var(--ink);
 	--color-text: var(--text);
 	--color-muted: var(--muted);
 	--color-brand: var(--brand);
@@ -92,6 +90,7 @@
 	--color-board-bg: var(--board-bg);
 	--color-board-text: var(--board-text);
 	--color-board-dim: var(--board-dim);
+	--color-board-line: var(--board-line);
 	--color-danger: var(--danger);
 	--color-success: var(--success);
 	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -99,8 +98,8 @@
 		var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui,
 		sans-serif;
 	--font-wordmark: var(--font-goudy), Georgia, serif;
-	--font-label: var(--font-b612), ui-sans-serif, system-ui, sans-serif;
-	--font-mono: var(--font-b612-mono), ui-monospace, monospace;
+	--font-label: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	--font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 	--shadow-card: var(--shadow);
 }
 
@@ -118,6 +117,7 @@
 		font-family: var(--font-sans);
 		font-size: 1.0625rem;
 		line-height: 1.6;
+		letter-spacing: -0.003em;
 		overflow-x: clip;
 	}
 
@@ -126,8 +126,8 @@
 	h3,
 	h4 {
 		font-family: var(--font-display);
-		line-height: 1.08;
-		letter-spacing: -0.025em;
+		line-height: 1.1;
+		letter-spacing: -0.01em;
 		font-weight: 600;
 		text-wrap: balance;
 	}
@@ -148,17 +148,26 @@
 
 	::selection {
 		background: var(--ice);
-		color: var(--navy);
+		color: var(--ink);
 	}
 }
 
 @layer components {
-	/* B612 uppercase label used by flight strips, badges and data captions. */
+	/* Small caps-style label for eyebrows, badges and data captions. Airbus
+	   keeps all caps to short labels of a few words, which is all this is
+	   used for. */
 	.label {
 		font-family: var(--font-label);
 		font-size: 0.75rem;
-		letter-spacing: 0.08em;
+		font-weight: 600;
+		letter-spacing: 0.05em;
 		text-transform: uppercase;
+	}
+
+	/* Data (times, codes, hex values): Inter with tabular figures. */
+	.font-mono {
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.01em;
 	}
 
 	.prose-club {
@@ -192,23 +201,6 @@
 
 	.prose-club li + li {
 		margin-top: 0.4em;
-	}
-
-	/* Runway centerline: dashed line between threshold bars. */
-	.runway {
-		height: 12px;
-		background:
-			linear-gradient(var(--accent), var(--accent)) left center / 3px 100%
-				no-repeat,
-			linear-gradient(var(--accent), var(--accent)) right center / 3px 100%
-				no-repeat,
-			repeating-linear-gradient(
-					90deg,
-					var(--accent) 0 28px,
-					transparent 28px 52px
-				)
-				center / calc(100% - 24px) 2px no-repeat;
-		opacity: 0.85;
 	}
 
 	/* Perforation between a boarding pass body and its stub. */
@@ -310,19 +302,19 @@
 	}
 }
 
-/* Text over photos/navy: dark-theme tokens regardless of the page theme. */
+/* Text over photos/video: dark-theme tokens regardless of the page theme. */
 .on-dark {
-	--text: #eef4ff;
-	--muted: #d3e0f2;
-	--brand: #8dbdf2;
-	--brand-ink: #0f1b32;
-	--accent: #ddebff;
-	--accent-ink: #0f1b32;
-	--accent-text: #ddebff;
-	--surface: #172a4d;
-	--surface-2: #1e355e;
-	--field: #8aa3c7;
-	--hairline: rgb(221 235 255 / 22%);
+	--text: #f5f5f7;
+	--muted: #d2d2d7;
+	--brand: #8cc4f7;
+	--brand-ink: #000000;
+	--accent: #1479cc;
+	--accent-ink: #ffffff;
+	--accent-text: #8cc4f7;
+	--surface: #121214;
+	--surface-2: #1d1d20;
+	--field: #8e8e93;
+	--hairline: rgb(255 255 255 / 20%);
 	--danger: #ff8a80;
 	--success: #6fd39b;
 	color: var(--text);
@@ -535,4 +527,53 @@ dialog[open]::backdrop {
 	.btn-arrow {
 		transition: none;
 	}
+}
+
+/* Header over the homepage's full-screen video (HomeIntro sets
+   data-header="overlay" on <html>): no bar, white text. */
+:root[data-header="overlay"] .header-bar:not([data-open]) {
+	--text: #ffffff;
+	--brand: #ffffff;
+	--surface-2: rgb(255 255 255 / 16%);
+	--hairline: rgb(255 255 255 / 35%);
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	backdrop-filter: none;
+	color: var(--text);
+}
+
+/* Soft shadow that lifts text off photos and video. */
+.text-lift {
+	text-shadow:
+		0 1px 2px rgb(0 0 0 / 25%),
+		0 4px 32px rgb(0 0 0 / 45%);
+}
+
+/* Hold the split-flap until the board is on screen (InView). */
+.js [data-inview="out"] .flap {
+	animation-play-state: paused;
+}
+
+/* Show one of a light/dark asset pair to match the active theme. */
+.only-dark {
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .only-dark {
+		display: block;
+	}
+
+	:root:not([data-theme="light"]) .only-light {
+		display: none;
+	}
+}
+
+:root[data-theme="dark"] .only-dark {
+	display: block;
+}
+
+:root[data-theme="dark"] .only-light {
+	display: none;
 }
