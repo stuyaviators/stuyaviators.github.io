@@ -12,6 +12,7 @@ import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
+import { site } from "@/content/site";
 import { getUpcomingMeetings } from "@/lib/meetings";
 import Image from "next/image";
 
@@ -55,6 +56,22 @@ export default async function MeetingsPage() {
 				<Stagger>
 					<DepartureBoard meetings={upcoming} showAllLink={false} />
 				</Stagger>
+				<div className="mt-6 flex flex-wrap gap-3">
+					<ButtonLink
+						external
+						href="/meetings/calendar.ics"
+						variant="secondary"
+					>
+						Add to calendar
+					</ButtonLink>
+					<ButtonLink
+						external
+						href={`webcal://${site.url.replace(/^https?:\/\//u, "")}/meetings/calendar.ics`}
+						variant="secondary"
+					>
+						Subscribe
+					</ButtonLink>
+				</div>
 			</Section>
 
 			<Section
