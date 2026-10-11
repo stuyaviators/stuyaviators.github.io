@@ -291,6 +291,12 @@ review on request.
 | 2026-10-10 | About | Impact & Benefits is a plain 2×2 grid of tilt cards (no sticky stacking). Project Skylab stages use the flight-path timeline so every stage is fully readable. |
 | 2026-10-10 | Gallery (revised) | Photos clump closer and wander slow loops; the viewer keeps its controls in fixed positions, slides between photos, and shows specs only after the photo loads. |
 | 2026-10-10 | Alliance | Lists only partnered organizations (K2-18B Rocketry, StuySky) with the legacy SAAA description; sits above Past Leadership & Crew. Esther Lee moves to the past section. |
+| 2026-10-11 | Dashboard | Sign-in is Google only; the `users` table decides who gets in (admin or officer). `ADMIN_EMAILS` creates the first admin only while there are none. Every page, Server Action and upload re-checks the session and role on the server; removals take effect on the next click. Setup: `docs/google-oauth-setup.md`. |
+| 2026-10-11 | Dashboard | Local-only switch `DASHBOARD_OPEN_SIGNIN=true` lets any Google account in as an admin (requested for testing). It is ignored unless `NODE_ENV` is development, so it cannot take effect on Vercel, and a red banner shows while it's on. |
+| 2026-10-11 | Opportunities & Scholarships | Dashboard CRUD with a live preview (the real card component), image upload, up/down ordering, publish toggle and a trash with restore. Deleting is soft (restored cards come back as drafts). Saving expires the public pages immediately (`updateTag`). |
+| 2026-10-11 | Newsletter | Ported recode's builder to `/dashboard/newsletter`: block editor (up/down plus drag), debounced autosave to Postgres with a conflict check, presets, preview in an iframe from the same React Email render, Copy for Gmail / Copy HTML / Download, and a published web version at `/newsletter/[slug]` (a snapshot of the saved draft). Nothing is emailed from the site; sending steps are in `docs/sending-newsletters.md`. |
+| 2026-10-11 | Settings | Admins paste an Epsilon refresh token in Settings; it is checked with Epsilon, stored AES-256-GCM encrypted, renewed automatically, and can be tested or removed. Status shows the account, expiry and last refresh, never the token. |
+| 2026-10-11 | Officers | Admins add or remove allowed emails and change roles. The last admin can't be removed or demoted (enforced in a single SQL statement). |
 
 ### D2: what's cut vs kept
 
