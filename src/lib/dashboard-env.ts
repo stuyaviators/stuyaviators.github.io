@@ -43,6 +43,11 @@ const checks: Array<Omit<EnvCheck, "isSet">> = [
 		isRequired: true,
 	},
 	{
+		name: "GEMINI_API_KEY",
+		purpose: "Suggested descriptions for new gallery photos (free Gemini key)",
+		isRequired: false,
+	},
+	{
 		name: "SIGNUP_SHEET_URL",
 		purpose: "Link to the mailing-list sign-up Sheet",
 		isRequired: false,

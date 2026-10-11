@@ -2,6 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-guard";
 import { actionError, guarded, invalid } from "@/lib/action-guard";
+import { CaptionError, captionPhoto } from "@/lib/ai-caption";
 import {
 	addGalleryPhoto,
 	altSchema,
@@ -12,6 +13,7 @@ import {
 	newPhotoSchema,
 	updateGalleryAlt,
 } from "@/lib/gallery";
+import { hitRateLimit } from "@/lib/rate-limit";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
@@ -39,6 +41,34 @@ export async function addGalleryPhotoAction(
 		await addGalleryPhoto(db, parsed.data, user.email);
 		refresh();
 		return { ok: true };
+	});
+}
+
+/**
+A suggested description for a photo that was just uploaded. Nothing is saved:
+the officer reads it, edits it if needed and then adds the photo.
+*/
+export async function suggestCaptionAction(
+	imageUrl: string
+): Promise<ActionResult<{ caption: string }>> {
+	return guarded("officer", async ({ user, db }) => {
+		// The free tier is small, so keep one officer from using it all up.
+		const limit = await hitRateLimit(db, `caption:${user.email}`, 40, 3600);
+		if (!limit.allowed) {
+			return actionError(
+				"Too many automatic captions this hour. Type one instead."
+			);
+		}
+
+		try {
+			return { ok: true, caption: await captionPhoto(imageUrl) };
+		} catch (error) {
+			if (error instanceof CaptionError) {
+				return actionError(error.message);
+			}
+
+			throw error;
+		}
 	});
 }
 

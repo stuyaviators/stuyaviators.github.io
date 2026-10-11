@@ -5,6 +5,7 @@ import {
 	deleteGalleryPhotoAction,
 	importGalleryAction,
 	moveGalleryPhotoAction,
+	suggestCaptionAction,
 	updateGalleryAltAction,
 } from "@/actions/gallery";
 import Confirm from "@/components/dashboard/Confirm";
@@ -234,6 +235,34 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 	const [alt, setAlt] = useState("");
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [message, setMessage] = useState<string>();
+	const [isWriting, setIsWriting] = useState(false);
+	const [caption, setCaption] = useState<{ tone: "good" | "neutral"; text: string }>();
+
+	/*
+	 * Asks for a suggested description of a photo that was just uploaded.
+	 */
+	async function suggest(url: string) {
+		setCaption(undefined);
+		setIsWriting(true);
+		try {
+			const result = await suggestCaptionAction(url);
+			if (!result.ok) {
+				setCaption({ tone: "neutral", text: result.error });
+				return;
+			}
+
+			// Never replace what the officer typed while we were waiting.
+			setAlt((current) => (current.trim() === "" ? result.caption : current));
+			setCaption({
+				tone: "good",
+				text: "Written by AI. Check it and fix anything that’s wrong; visitors see it labeled as AI-generated.",
+			});
+		} catch {
+			setCaption({ tone: "neutral", text: "Couldn’t write a caption. Type one instead." });
+		} finally {
+			setIsWriting(false);
+		}
+	}
 
 	function submit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -250,6 +279,7 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 					setImageUrl("");
 					setSize({ width: 0, height: 0 });
 					setAlt("");
+					setCaption(undefined);
 					onDone();
 				} else {
 					setErrors(result.fieldErrors ?? {});
@@ -274,6 +304,9 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 				}}
 				onUploaded={(image) => {
 					setSize({ width: image.width, height: image.height });
+					if (alt.trim() === "") {
+						void suggest(image.url);
+					}
 				}}
 			/>
 			<TextAreaField
@@ -282,11 +315,16 @@ function AddPhotoForm({ onDone }: { readonly onDone: () => void }) {
 				value={alt}
 				maxLength={300}
 				error={errors.alt}
-				hint="What's in the photo, for people who can't see it. For example: “A Cessna 172 on final approach over the Hudson”."
+				hint={
+					isWriting
+						? "Writing a suggestion from the photo…"
+						: "What's in the photo, for people who can't see it. For example: “A Cessna 172 on final approach over the Hudson”."
+				}
 				onChange={(event) => {
 					setAlt(event.target.value);
 				}}
 			/>
+			{caption ? <Notice tone={caption.tone}>{caption.text}</Notice> : null}
 			{message ? <Notice tone="bad">{message}</Notice> : null}
 			<div>
 				<Button type="submit" disabled={isPending}>
