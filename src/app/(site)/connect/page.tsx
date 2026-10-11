@@ -19,7 +19,7 @@ import Image from "next/image";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-	title: "Connect",
+	title: "Contact Us",
 	description: pageIntros.contact.intro,
 	alternates: { canonical: "/connect" },
 };
@@ -144,7 +144,6 @@ export default async function ConnectPage() {
 
 			<Section
 				id="message"
-				className="pb-24 sm:pb-32"
 				label="Send a message"
 				title="Write to us"
 			>

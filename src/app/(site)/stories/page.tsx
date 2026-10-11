@@ -11,7 +11,7 @@ import { storiesCopy } from "@/content/stories";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "Member Stories",
+	title: "Stories",
 	description: pageIntros.stories.intro,
 	alternates: { canonical: "/stories" },
 };
@@ -81,7 +81,6 @@ export default function StoriesPage() {
 			</Section>
 			<Section
 				id="share"
-				className="pb-24 sm:pb-32"
 				label="Share"
 				title={storiesCopy.shareHeading}
 			>

@@ -13,7 +13,7 @@ import { Accessibility, GraduationCap, Plane, Sparkles, Wrench } from "lucide-re
 import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "Our Mission & Project Skylab",
+	title: "Our Mission",
 	description: pageIntros.about.intro,
 	alternates: { canonical: "/about" },
 };
@@ -136,7 +136,7 @@ export default function AboutPage() {
 				</div>
 			</Section>
 
-			<Section className="py-6 sm:py-8">
+			<Section className="py-4 sm:py-6">
 				<div className="flex flex-wrap justify-center gap-3">
 					<ButtonLink href="/story" variant="secondary">
 						Read our story

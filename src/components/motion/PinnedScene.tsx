@@ -129,7 +129,7 @@ export default function PinnedScene({
 				<div
 					className={cn(
 						isPinned && "sticky top-0 flex h-svh flex-col justify-center",
-						isPinned ? "overflow-hidden" : "py-12 sm:py-16"
+						isPinned ? "overflow-hidden" : "py-8 sm:py-10"
 					)}
 				>
 					<motion.div

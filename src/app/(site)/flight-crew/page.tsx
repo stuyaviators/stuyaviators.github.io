@@ -14,7 +14,7 @@ import { ArrowUpRight } from "lucide-react";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-	title: "The Flight Crew",
+	title: "Flight Crew",
 	description: pageIntros.flightCrew.intro,
 	alternates: { canonical: "/flight-crew" },
 };

@@ -5,6 +5,7 @@ import logo from "@/assets/brand/logo.png";
 import bannerPhoto from "@/assets/photos/hero-cessna-sunset.jpg";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import SignOutForm from "@/components/dashboard/SignOutForm";
+import TabBadge from "@/components/dashboard/TabBadge";
 import { ToastProvider } from "@/components/dashboard/Toast";
 import { Notice } from "@/components/dashboard/ui";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -12,12 +13,12 @@ import { getDb } from "@/db";
 import { countNewSubmissions } from "@/lib/inbox";
 import { isOpenSignIn } from "@/lib/open-signin";
 import { hasRole, requirePageUser } from "@/lib/session";
-import { ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-	title: { default: "Dashboard", template: "%s · Dashboard" },
+	title: { default: "Dashboard", template: "%s - Dashboard" },
 	robots: { index: false, follow: false },
 };
 
@@ -69,6 +70,7 @@ export default async function DashboardLayout({
 
 	return (
 		<ToastProvider>
+			<TabBadge initial={newMessages} />
 			<div className="dash-shell relative min-h-dvh md:grid md:grid-cols-[16rem_1fr]">
 				<aside className="relative z-10 flex flex-col border-b border-hairline bg-surface/90 px-4 py-3 backdrop-blur-md md:sticky md:top-0 md:h-dvh md:overflow-y-auto md:border-r md:border-b-0 md:py-5">
 					<div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 md:block">
@@ -109,7 +111,7 @@ export default async function DashboardLayout({
 								href="/"
 								className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-muted hover:text-text"
 							>
-								View site <ExternalLink aria-hidden className="size-3.5" />
+								<ArrowLeft aria-hidden className="size-3.5" /> Back to site
 							</Link>
 						</div>
 					</div>

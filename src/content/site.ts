@@ -178,12 +178,6 @@ export const socials: Social[] = [
 		action: "Watch",
 	},
 	{
-		key: "facebook",
-		label: "Facebook",
-		href: "https://www.facebook.com/groups/stuyaviators",
-		action: "Join our group",
-	},
-	{
 		key: "epsilon",
 		label: "Epsilon",
 		href: "https://epsilon.stuysu.org/stuyaviators",

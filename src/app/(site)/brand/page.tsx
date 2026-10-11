@@ -18,7 +18,7 @@ import { ArrowUpRight, Check, Download, X } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-	title: "Brand Guidelines",
+	title: "Branding",
 	description:
 		"StuyAviators logos, color palette and typography, with downloads for flyers, slides and social media.",
 	alternates: { canonical: "/brand" },
@@ -294,12 +294,12 @@ export default function BrandPage() {
 					))}
 				</div>
 
-				<h3 className="mt-10 text-2xl">Try it</h3>
+				<h3 className="mt-8 text-2xl">Try it</h3>
 				<div className="mt-5">
 					<TypeTester typefaces={typefaces} />
 				</div>
 
-				<h3 className="mt-10 text-2xl">Type scale</h3>
+				<h3 className="mt-8 text-2xl">Type scale</h3>
 				<ol className="mt-5 divide-y divide-hairline rounded-3xl bg-surface px-6 sm:px-8">
 					{typeScale.map((item) => (
 						<li
@@ -314,7 +314,7 @@ export default function BrandPage() {
 					))}
 				</ol>
 
-				<h3 className="mt-10 text-2xl">Typesetting</h3>
+				<h3 className="mt-8 text-2xl">Typesetting</h3>
 				<ul className="mt-5 grid gap-3 sm:grid-cols-2">
 					{typeRules.map((rule) => (
 						<li key={rule} className="flex gap-3 rounded-2xl bg-surface p-5">

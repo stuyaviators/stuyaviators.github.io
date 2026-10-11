@@ -23,7 +23,7 @@ export default function SiteChrome({
 			<TransitionProvider>
 				<main
 					id="main"
-					className="relative z-10 flex-1 bg-bg lg:rounded-b-[2.5rem] lg:shadow-[0_40px_80px_-40px_rgb(0_0_0/0.35)]"
+					className="relative z-10 flex-1 bg-bg pb-16 sm:pb-20 lg:rounded-b-[2.5rem] lg:shadow-[0_40px_80px_-40px_rgb(0_0_0/0.35)] [&>:last-child]:pb-0"
 				>
 					<SkyBackground />
 					{children}

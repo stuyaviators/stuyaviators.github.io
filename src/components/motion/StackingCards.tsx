@@ -105,7 +105,7 @@ export default function StackingCards({
 	}, [covers]);
 
 	return (
-		<ol className="relative">
+		<ol className="relative pb-[18svh]">
 			{items.map((child, index) => (
 				<StackCard
 					key={index}

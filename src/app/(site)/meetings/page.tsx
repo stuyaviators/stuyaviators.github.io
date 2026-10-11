@@ -132,7 +132,6 @@ export default async function MeetingsPage() {
 
 			<Section
 				id="ideas"
-				className="pb-24 sm:pb-32"
 				label="Suggestions"
 				title={meetings.ideaHeading}
 				intro={meetings.ideaIntro}

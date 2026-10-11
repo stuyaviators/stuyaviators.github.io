@@ -49,7 +49,6 @@ export default async function GalleryPage() {
 			</Section>
 			<Section
 				id="submit"
-				className="pb-24 sm:pb-32"
 				label="Submit"
 				title={galleryCopy.submitHeading}
 			>

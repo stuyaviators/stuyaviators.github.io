@@ -275,7 +275,7 @@ function Caption({
 					<Bot aria-hidden className="size-4" />
 					<span
 						aria-hidden
-						className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-56 -translate-x-1/2 rounded-md bg-black px-2.5 py-1.5 text-center text-xs text-white opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity duration-200 group-hover/tip:opacity-100 group-focus/tip:opacity-100 motion-reduce:transition-none"
+						className="pointer-events-none absolute top-full left-1/2 z-10 mt-2 w-max max-w-56 -translate-x-1/2 rounded-md bg-black px-2.5 py-1.5 text-center text-xs text-white opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity duration-200 group-hover/tip:opacity-100 group-focus/tip:opacity-100 motion-reduce:transition-none"
 					>
 						AI-Generated Caption. May be inaccurate.
 					</span>
