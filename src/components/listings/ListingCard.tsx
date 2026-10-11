@@ -2,9 +2,10 @@ import type { PassField } from "@/components/ui/BoardingPass";
 import type { Listing } from "@/lib/listings";
 import { Md } from "@/components/Md";
 import { BoardingPass } from "@/components/ui/BoardingPass";
-import { daysUntil, isClosingSoon } from "@/lib/listings";
+import { daysUntil, isClosingSoon } from "@/lib/listing-dates";
 import { renderMarkdown } from "@/lib/markdown";
 import { ArrowUpRight, Clock } from "lucide-react";
+import Image from "next/image";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
 	month: "short",
@@ -62,6 +63,19 @@ export default function ListingCard({
 			stub={stubFields(listing)}
 			stubTitle={listing.kind === "scholarship" ? "Scholarship" : "Opportunity"}
 		>
+			{listing.imageUrl ? (
+				<div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-xl bg-surface-2">
+					{/* Already resized by the upload route, so skip the optimizer. */}
+					<Image
+						src={listing.imageUrl}
+						alt=""
+						fill
+						unoptimized
+						sizes="(min-width: 640px) 32rem, 100vw"
+						className="object-cover"
+					/>
+				</div>
+			) : null}
 			<div className="flex flex-wrap items-center gap-2">
 				{listing.featured ? (
 					<span className="label rounded-sm bg-ice px-2 py-0.5 text-ink">

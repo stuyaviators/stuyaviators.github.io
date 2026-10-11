@@ -62,7 +62,9 @@ export default function Confirm({
 				</Button>
 				<Button
 					autoFocus
-					className={isDanger ? "bg-danger text-white hover:brightness-110" : undefined}
+					className={
+						isDanger ? "bg-danger text-white hover:brightness-110" : undefined
+					}
 					onClick={onConfirm}
 				>
 					{confirmLabel}

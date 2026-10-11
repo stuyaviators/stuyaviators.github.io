@@ -17,7 +17,7 @@ type BaseProps = {
 	readonly optional?: boolean;
 };
 
-const inputClass =
+export const inputClass =
 	"mt-1.5 block w-full rounded-md border border-field bg-surface px-3 py-2.5 text-base text-text placeholder:text-muted/70 focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-offset-0 aria-[invalid=true]:border-danger";
 
 function Wrapper({
