@@ -2,7 +2,12 @@
 
 import type { MotionValue } from "motion/react";
 import type { ReactNode } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import {
+	motion,
+	useReducedMotion,
+	useScroll,
+	useTransform,
+} from "motion/react";
 import { Children, useRef } from "react";
 
 /*
@@ -32,7 +37,9 @@ function StackCard({
 		["brightness(1)", `brightness(${1 - below * 0.06})`]
 	);
 	return (
-		<li className="sticky top-24 h-[calc(100svh-7rem)] max-h-[34rem] pt-4">
+		// The gap below each card holds it in the middle of the screen for a
+		// moment before the next one slides over it.
+		<li className="sticky top-24 mb-[18svh] h-[calc(100svh-7rem)] max-h-[34rem] pt-4 last:mb-0">
 			<motion.div
 				className="h-full origin-top"
 				style={isReducedMotion ? undefined : { scale, y, filter }}

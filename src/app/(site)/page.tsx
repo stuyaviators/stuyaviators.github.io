@@ -97,7 +97,7 @@ export default async function Home() {
 						<Link
 							key={type.name}
 							href={`/meetings#${type.code?.toLowerCase() ?? `type-${index + 1}`}`}
-							className="group on-dark relative isolate flex aspect-[4/5] w-[74vw] max-w-[24rem] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-ink p-6 sm:w-[22rem]"
+							className="group on-dark relative isolate flex aspect-[4/5] w-[74vw] max-w-[24rem] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-3xl bg-ink p-6 sm:w-[22rem]"
 						>
 							<Image
 								src={photo.src}
