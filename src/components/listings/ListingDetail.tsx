@@ -33,8 +33,25 @@ export default function ListingDetail({
 				<p className="label text-accent-text">
 					{isScholarship ? "Scholarship" : "Opportunity"}
 				</p>
-				<h1 className="mt-2 text-3xl sm:text-5xl">{listing.title}</h1>
-				<p className="label mt-3 text-muted">{listing.organization}</p>
+				<div className="mt-2 flex items-start justify-between gap-4">
+					<div className="min-w-0 flex-1">
+						<h1 className="text-3xl sm:text-5xl">{listing.title}</h1>
+						<p className="label mt-3 text-muted">{listing.organization}</p>
+					</div>
+					{listing.imageUrl ? (
+						<div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2 sm:size-20">
+							<Image
+								src={listing.imageUrl}
+								alt=""
+								fill
+								unoptimized
+								priority
+								sizes="80px"
+								className="object-cover"
+							/>
+						</div>
+					) : null}
+				</div>
 				{isExpired(listing) ? (
 					<p className="mt-4 rounded-xl border border-hairline bg-surface-2 px-4 py-3 text-sm">
 						This one has closed. Browse the current{" "}
@@ -48,19 +65,6 @@ export default function ListingDetail({
 						Closing soon
 						{days === 0 ? " · today" : ` · ${days} day${days === 1 ? "" : "s"}`}
 					</p>
-				) : null}
-				{listing.imageUrl ? (
-					<div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-2xl bg-surface-2">
-						<Image
-							src={listing.imageUrl}
-							alt=""
-							fill
-							unoptimized
-							priority
-							sizes="(min-width: 768px) 48rem, 100vw"
-							className="object-cover"
-						/>
-					</div>
 				) : null}
 				<p className="mt-6 text-lg">
 					<Md>{listing.summary}</Md>

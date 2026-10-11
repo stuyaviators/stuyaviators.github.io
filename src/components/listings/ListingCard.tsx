@@ -66,47 +66,51 @@ export default function ListingCard({
 			stub={stubFields(listing)}
 			stubTitle={listing.kind === "scholarship" ? "Scholarship" : "Opportunity"}
 		>
-			{listing.imageUrl ? (
-				<div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-xl bg-surface-2">
-					{/* Already resized by the upload route, so skip the optimizer. */}
-					<Image
-						src={listing.imageUrl}
-						alt=""
-						fill
-						unoptimized
-						sizes="(min-width: 640px) 32rem, 100vw"
-						className="object-cover"
-					/>
+			<div className="flex items-start justify-between gap-4">
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2">
+						{listing.featured ? (
+							<span className="label rounded-sm bg-ice px-2 py-0.5 text-ink">
+								Featured
+							</span>
+						) : null}
+						{isClosing ? (
+							<span className="label inline-flex items-center gap-1 rounded-sm bg-danger px-2 py-0.5 text-bg">
+								<Clock aria-hidden className="size-3" />
+								Closing soon
+								{days === 0
+									? " · today"
+									: days === 1
+										? " · 1 day"
+										: ` · ${days} days`}
+							</span>
+						) : null}
+					</div>
+					<h3 className="mt-2 text-xl">
+						{path && !preview ? (
+							<Link href={path} className="hover:underline">
+								{listing.title}
+							</Link>
+						) : (
+							listing.title
+						)}
+					</h3>
+					<p className="label mt-1 text-muted">{listing.organization}</p>
 				</div>
-			) : null}
-			<div className="flex flex-wrap items-center gap-2">
-				{listing.featured ? (
-					<span className="label rounded-sm bg-ice px-2 py-0.5 text-ink">
-						Featured
-					</span>
-				) : null}
-				{isClosing ? (
-					<span className="label inline-flex items-center gap-1 rounded-sm bg-danger px-2 py-0.5 text-bg">
-						<Clock aria-hidden className="size-3" />
-						Closing soon
-						{days === 0
-							? " · today"
-							: days === 1
-								? " · 1 day"
-								: ` · ${days} days`}
-					</span>
+				{listing.imageUrl ? (
+					<div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-surface-2 sm:size-16">
+						{/* Already resized by the upload route, so skip the optimizer. */}
+						<Image
+							src={listing.imageUrl}
+							alt=""
+							fill
+							unoptimized
+							sizes="64px"
+							className="object-cover"
+						/>
+					</div>
 				) : null}
 			</div>
-			<h3 className="mt-2 text-xl">
-				{path && !preview ? (
-					<Link href={path} className="hover:underline">
-						{listing.title}
-					</Link>
-				) : (
-					listing.title
-				)}
-			</h3>
-			<p className="label mt-1 text-muted">{listing.organization}</p>
 			<p className="mt-3">
 				<Md>{listing.summary}</Md>
 			</p>
