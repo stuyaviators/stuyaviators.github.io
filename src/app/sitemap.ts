@@ -16,6 +16,8 @@ const routes = [
 	"/connect",
 	"/join",
 	"/brand",
+	"/privacy",
+	"/terms",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

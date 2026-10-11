@@ -17,7 +17,11 @@ export default function Footer() {
 			<Container className="py-14">
 				<div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(4,1fr)] lg:gap-8">
 					<div className="sm:col-span-2 lg:col-span-1">
-						<Link href="/" aria-label="StuyAviators home" className="inline-block">
+						<Link
+							href="/"
+							aria-label="StuyAviators home"
+							className="inline-block"
+						>
 							<Image
 								src={bannerBlue}
 								alt=""
@@ -46,10 +50,7 @@ export default function Footer() {
 							<br />
 							{site.address.line}
 						</p>
-						<a
-							href="#mailing-list"
-							className={buttonClasses("accent", "mt-6")}
-						>
+						<a href="#mailing-list" className={buttonClasses("accent", "mt-6")}>
 							<Mail aria-hidden className="size-4" />
 							Join the Mailing List
 						</a>
@@ -87,7 +88,9 @@ export default function Footer() {
 										) : (
 											<Link
 												href={link.href}
-												prefetch={link.href === "/dashboard" ? false : undefined}
+												prefetch={
+													link.href === "/dashboard" ? false : undefined
+												}
 												className="text-muted transition-colors hover:text-text"
 											>
 												{link.label}
@@ -104,11 +107,21 @@ export default function Footer() {
 					<p>
 						© {year} StuyAviators · {tagline}
 					</p>
-					<p className="flex gap-5">
+					<p className="flex flex-wrap gap-x-5 gap-y-2">
 						<Link href="/brand" className="hover:text-text">
 							Brand Guidelines
 						</Link>
-						<Link href="/dashboard" className="hover:text-text" prefetch={false}>
+						<Link href="/privacy" className="hover:text-text">
+							Privacy
+						</Link>
+						<Link href="/terms" className="hover:text-text">
+							Terms
+						</Link>
+						<Link
+							href="/dashboard"
+							className="hover:text-text"
+							prefetch={false}
+						>
 							Officer Login
 						</Link>
 					</p>

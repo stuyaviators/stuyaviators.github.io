@@ -54,6 +54,34 @@ Sign-in therefore works on a preview only if you add that exact URL (origin and
 add a preview URL only if you really need it. If you add a custom domain later, add it here
 too.
 
+### Branding (app name, logo, links)
+
+If you fill in the consent screen's **Branding** page, Google asks you to verify it. It checks:
+
+- **Application home page:** `https://stuyaviators.vercel.app`
+- **Privacy policy:** `https://stuyaviators.vercel.app/privacy`
+- **Terms of service:** `https://stuyaviators.vercel.app/terms`
+
+Those pages are part of the site (`/privacy` and `/terms`, linked from every page's footer),
+but they only count once they are **live on the production site**. Google fetches the public
+URL, so a page that exists only on your computer or a preview deployment fails.
+
+Google also needs to know the home page is **yours**:
+
+1. Open [Search Console](https://search.google.com/search-console) with the **same Google
+   account that owns the Cloud project**.
+2. **Add property → URL prefix** → `https://stuyaviators.vercel.app/`.
+3. Choose **HTML tag** (or **HTML file**) as the verification method and copy what Google shows.
+   (DNS verification isn't possible on `vercel.app`, because the domain belongs to Vercel.)
+4. Give the tag or file to a developer to add to the site, deploy it, then click **Verify**.
+5. Wait about **24 hours** (Google's own advice), then in the Cloud console choose **I have
+   fixed the issues → Request re-verification**.
+
+The privacy policy must describe the Google data the app uses. `/privacy` has a "Google user
+data" section covering what is accessed (email, name, picture), how it's used, stored and shared,
+retention and deletion, and the Google API Services "Limited Use" statement. If you change what
+the app does with Google data, update that section first.
+
 ## 4. Add the values to the site
 
 **Locally**, in `.env.local` (never commit this file):
