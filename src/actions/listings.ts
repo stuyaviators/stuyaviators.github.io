@@ -7,7 +7,6 @@ import {
 	createListing,
 	getListing,
 	listingInput,
-	moveListing,
 	setListingStatus,
 	updateListing,
 } from "@/lib/listings-admin";
@@ -85,28 +84,6 @@ export async function publishListing(
 			user.email
 		);
 		if (!updated) {
-			return notFound;
-		}
-
-		refreshPublicPages();
-		return { ok: true };
-	});
-}
-
-export async function moveListingAction(
-	id: string,
-	direction: "up" | "down"
-): Promise<ActionResult> {
-	return guarded("listings", async ({ db }) => {
-		const parsed = z
-			.object({ id: idSchema, direction: z.enum(["up", "down"]) })
-			.safeParse({ id, direction });
-		if (!parsed.success) {
-			return notFound;
-		}
-
-		const kind = await moveListing(db, parsed.data.id, parsed.data.direction);
-		if (!kind) {
 			return notFound;
 		}
 

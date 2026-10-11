@@ -146,9 +146,6 @@ describe("signed out", () => {
 		);
 		expect(await listingActions.saveListing(id, card)).toEqual(notSignedIn);
 		expect(await listingActions.publishListing(id, true)).toEqual(notSignedIn);
-		expect(await listingActions.moveListingAction(id, "up")).toEqual(
-			notSignedIn
-		);
 		expect(await listingActions.trashListing(id)).toEqual(notSignedIn);
 		expect(await count(listings)).toBe(0);
 		expect(updateTag).not.toHaveBeenCalled();
@@ -356,7 +353,6 @@ describe("officers", () => {
 		expect(
 			(await listingActions.saveListing(id, { ...card, title: "Renamed" })).ok
 		).toBe(true);
-		expect((await listingActions.moveListingAction(id, "down")).ok).toBe(true);
 		expect((await listingActions.publishListing(id, false)).ok).toBe(true);
 		expect((await listingActions.trashListing(id)).ok).toBe(true);
 		// Deleting only hides it: the row waits in the (admin-only) trash.

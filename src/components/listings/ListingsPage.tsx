@@ -43,8 +43,15 @@ export default async function ListingsSection({
 	const current = listings
 		.filter((listing) => !isExpired(listing))
 		.map((listing) => toItem(listing));
+	// Current cards keep the soonest-deadline-first order; closed ones show the
+	// most recently closed first.
 	const past = listings
 		.filter((listing) => isExpired(listing))
+		.toSorted((a, b) =>
+			(b.deadline ?? b.endDate ?? "").localeCompare(
+				a.deadline ?? a.endDate ?? ""
+			)
+		)
 		.map((listing) => toItem(listing));
 
 	return (
