@@ -1,6 +1,6 @@
 "use client";
 
-import type { meetingStatuses } from "@/lib/club-meetings";
+import type { meetingStatuses } from "@/lib/meeting-options";
 import {
 	addMeetingAction,
 	deleteMeetingAction,
@@ -19,8 +19,13 @@ import {
 } from "@/components/dashboard/Viewer";
 import { TextAreaField, TextField } from "@/components/forms/Field";
 import { Button, buttonClasses } from "@/components/ui/Button";
-import { meetingStatusLabels, meetingTypes } from "@/lib/club-meetings";
 import { cn } from "@/lib/cn";
+import {
+	defaultEndTime,
+	defaultStartTime,
+	meetingStatusLabels,
+	meetingTypes,
+} from "@/lib/meeting-options";
 import { ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -43,6 +48,42 @@ type Row = {
 	when: string;
 	createdBy: string | undefined;
 };
+
+/*
+ * The form shows a date and two times instead of two date-and-time boxes, so
+ * a new meeting can start with the usual 3:35 PM to 5:00 PM already filled in.
+ * `endDate` only differs from `date` for the rare meeting that runs past
+ * midnight, and is kept as it was saved.
+ */
+type FormState = Omit<Draft, "start" | "end"> & {
+	date: string;
+	startTime: string;
+	endTime: string;
+	endDate: string;
+};
+
+function toFormState(draft: Draft): FormState {
+	const { start, end, ...rest } = draft;
+	const [date = "", startTime = ""] = start.split("T", 2);
+	const [endDate = "", endTime = ""] = end.split("T", 2);
+	const isNew = start === "";
+	return {
+		...rest,
+		date,
+		startTime: isNew ? defaultStartTime : startTime,
+		endTime: isNew ? defaultEndTime : endTime,
+		endDate: endDate || date,
+	};
+}
+
+function toDraft(state: FormState): Draft {
+	const { date, startTime, endTime, endDate, ...rest } = state;
+	return {
+		...rest,
+		start: date === "" || startTime === "" ? "" : `${date}T${startTime}`,
+		end: endTime === "" ? "" : `${endDate || date}T${endTime}`,
+	};
+}
 
 const emptyDraft: Draft = {
 	title: "",
@@ -249,11 +290,11 @@ function MeetingForm({
 }) {
 	const [isPending, startTransition] = useTransition();
 	const { toast } = useToast();
-	const [draft, setDraft] = useState<Draft>(initial);
+	const [draft, setDraft] = useState<FormState>(toFormState(initial));
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [message, setMessage] = useState<string>();
 
-	function change<K extends keyof Draft>(key: K, value: Draft[K]) {
+	function change<K extends keyof FormState>(key: K, value: FormState[K]) {
 		setDraft((current) => ({ ...current, [key]: value }));
 	}
 
@@ -263,11 +304,11 @@ function MeetingForm({
 		setMessage(undefined);
 		startTransition(async () => {
 			try {
-				const result = await onSubmit(draft);
+				const result = await onSubmit(toDraft(draft));
 				if (result.ok) {
 					toast(resetOnSuccess ? "Added to the board" : "Saved");
 					if (resetOnSuccess) {
-						setDraft(emptyDraft);
+						setDraft(toFormState(emptyDraft));
 					}
 
 					onDone();
@@ -293,27 +334,48 @@ function MeetingForm({
 					change("title", event.target.value);
 				}}
 			/>
-			<div className="grid gap-4 sm:grid-cols-2">
+			<div className="grid gap-4 sm:grid-cols-3">
 				<TextField
-					label="Starts"
-					type="datetime-local"
-					value={draft.start}
+					label="Date"
+					type="date"
+					value={draft.date}
 					error={errors.start}
 					onChange={(event) => {
-						change("start", event.target.value);
+						const { value } = event.target;
+						setDraft((current) => ({
+							...current,
+							date: value,
+							// An end on the same day keeps following the date.
+							endDate:
+								current.endDate === current.date || current.endDate === ""
+									? value
+									: current.endDate,
+						}));
+					}}
+				/>
+				<TextField
+					label="Starts"
+					type="time"
+					value={draft.startTime}
+					onChange={(event) => {
+						change("startTime", event.target.value);
 					}}
 				/>
 				<TextField
 					label="Ends"
-					type="datetime-local"
+					type="time"
 					optional
-					value={draft.end}
+					value={draft.endTime}
 					error={errors.end}
 					onChange={(event) => {
-						change("end", event.target.value);
+						change("endTime", event.target.value);
 					}}
 				/>
 			</div>
+			<p className="-mt-2 text-sm text-muted">
+				Times are New York time and start at 3:35 PM – 5:00 PM, the usual
+				meeting time.
+			</p>
 			<div className="grid gap-4 sm:grid-cols-3">
 				<TextField
 					label="Room"

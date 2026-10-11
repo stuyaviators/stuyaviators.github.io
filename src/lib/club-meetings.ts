@@ -1,8 +1,8 @@
 import type { Database } from "@/db";
 import type { Meeting } from "@/lib/meetings";
-import { meetings as meetingsContent } from "@/content/meetings";
 import { getDb } from "@/db";
 import { clubMeetings } from "@/db/schema";
+import { meetingStatuses, meetingTypes } from "@/lib/meeting-options";
 import { instantToNewYork, newYorkToInstant } from "@/lib/ny-time";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
@@ -17,23 +17,6 @@ import { z } from "zod";
 export const meetingsTag = "meetings";
 
 export type ClubMeeting = typeof clubMeetings.$inferSelect;
-
-export const meetingStatuses = ["scheduled", "moved", "cancelled"] as const;
-export const meetingStatusLabels: Record<
-	(typeof meetingStatuses)[number],
-	string
-> = {
-	scheduled: "On time",
-	moved: "Moved",
-	cancelled: "Cancelled",
-};
-
-/**
-The meeting types an officer can pick: the codes from the Meetings page.
-*/
-export const meetingTypes = meetingsContent.types.flatMap((type) =>
-	type.code ? [{ code: type.code, name: type.name }] : []
-);
 
 const dateAndTime = "2000-01-01T00:00";
 
