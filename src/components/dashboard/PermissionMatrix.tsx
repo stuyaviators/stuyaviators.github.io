@@ -23,7 +23,7 @@ export default function PermissionMatrix({
 		(permission) => showSecret || permission.isSecret !== true
 	);
 	return (
-		<div className="overflow-x-auto">
+		<div className="relative overflow-x-auto">
 			<table className="w-full min-w-[34rem] table-fixed border-collapse text-sm">
 				<caption className="sr-only">What each role can do</caption>
 				{/* The first column takes what's left; every role gets the same width. */}
