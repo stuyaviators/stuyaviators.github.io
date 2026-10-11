@@ -21,6 +21,31 @@ export const captionPrompt = [
 
 export class CaptionError extends Error {}
 
+/**
+What to tell the officer when Google refuses, by status code.
+*/
+export function failureMessage(status: number): string {
+	switch (status) {
+		case 402: {
+			return "Automatic descriptions are off: the Gemini account is out of credits. Type one instead, and tell an admin.";
+		}
+
+		case 401:
+		case 403: {
+			return "Automatic descriptions are off: the Gemini key isn’t valid. Type one instead, and tell an admin.";
+		}
+
+		case 400:
+		case 404: {
+			return "Automatic descriptions are off: the caption service is set up wrong. Type one instead, and tell an admin.";
+		}
+
+		default: {
+			return "The caption service said no. Type one instead.";
+		}
+	}
+}
+
 const partSchema = z.object({ text: z.string().optional() });
 const contentSchema = z.object({ parts: z.array(partSchema) });
 const candidateSchema = z.object({ content: contentSchema.optional() });
@@ -120,7 +145,7 @@ export async function captionPhoto(imageUrl: string): Promise<string> {
 
 	if (!response.ok) {
 		console.error("Caption request failed", response.status);
-		throw new CaptionError("The caption service said no. Type one instead.");
+		throw new CaptionError(failureMessage(response.status));
 	}
 
 	const caption = readCaption(await response.json());

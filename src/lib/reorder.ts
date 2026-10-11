@@ -20,3 +20,27 @@ export function moveId(
 
 	return next;
 }
+
+/**
+The same ids in a random order (Fisher-Yates). With more than one id the order
+always changes, so pressing "shuffle" never looks like nothing happened.
+*/
+export function shuffleIds(
+	ids: readonly string[],
+	random: () => number = Math.random
+): string[] {
+	const next = [...ids];
+	for (let index = next.length - 1; index > 0; index--) {
+		const other = Math.floor(random() * (index + 1));
+		const held = next[index];
+		next[index] = next[other] ?? "";
+		next[other] = held ?? "";
+	}
+
+	// A shuffle can land on the original order: rotate by one to avoid that.
+	if (next.length > 1 && next.every((id, position) => id === ids[position])) {
+		next.push(next.shift()!);
+	}
+
+	return next;
+}

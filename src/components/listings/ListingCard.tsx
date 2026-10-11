@@ -65,20 +65,20 @@ export default function ListingCard({
 			highlight={listing.featured}
 			stub={stubFields(listing)}
 			stubTitle={listing.kind === "scholarship" ? "Scholarship" : "Opportunity"}
-		>
-			{listing.imageUrl ? (
-				<div className="relative mb-4 aspect-[16/9] overflow-hidden rounded-xl bg-surface-2">
-					{/* Already resized by the upload route, so skip the optimizer. */}
+			stubImage={
+				listing.imageUrl ? (
+					// Already resized by the upload route, so skip the optimizer.
 					<Image
 						src={listing.imageUrl}
 						alt=""
 						fill
 						unoptimized
-						sizes="(min-width: 640px) 32rem, 100vw"
+						sizes="(min-width: 1024px) 20rem, (min-width: 640px) 16rem, 100vw"
 						className="object-cover"
 					/>
-				</div>
-			) : null}
+				) : undefined
+			}
+		>
 			<div className="flex flex-wrap items-center gap-2">
 				{listing.featured ? (
 					<span className="label rounded-sm bg-ice px-2 py-0.5 text-ink">
