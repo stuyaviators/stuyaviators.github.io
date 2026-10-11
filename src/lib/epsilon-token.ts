@@ -72,11 +72,12 @@ export function parseRefreshTokenInput(input: string): string | undefined {
 type Row = { raw: string; token: StoredEpsilonToken | undefined };
 
 async function readRow(db: Database): Promise<Row | undefined> {
-	const [row] = await db
+	const rowRows = await db
 		.select({ value: settings.value })
 		.from(settings)
 		.where(eq(settings.key, epsilonSettingKey))
 		.limit(1);
+	const row = rowRows.at(0);
 	if (!row) {
 		return undefined;
 	}
@@ -94,7 +95,7 @@ async function readRow(db: Database): Promise<Row | undefined> {
 	}
 }
 
-async function writeToken(
+async function didWriteToken(
 	db: Database,
 	token: StoredEpsilonToken,
 	updatedBy: string,
@@ -123,8 +124,7 @@ async function writeToken(
 }
 
 export type RefreshResult =
-	| { ok: true; token: StoredEpsilonToken }
-	| { ok: false; error: string };
+	{ ok: true; token: StoredEpsilonToken } | { ok: false; error: string };
 
 /**
 Trades a refresh token for a fresh access token (and a new refresh token).
@@ -192,7 +192,7 @@ export async function saveEpsilonToken(
 
 	const result = await refreshEpsilonSession(refreshToken, fetcher);
 	if (result.ok) {
-		await writeToken(db, result.token, updatedBy);
+		await didWriteToken(db, result.token, updatedBy);
 	}
 
 	return result;
@@ -219,7 +219,10 @@ export async function getEpsilonAccessToken(
 	}
 
 	const now = Math.floor(Date.now() / 1000);
-	if (stored.accessToken && (stored.expiresAt ?? 0) - refreshMarginSeconds > now) {
+	if (
+		stored.accessToken &&
+		(stored.expiresAt ?? 0) - refreshMarginSeconds > now
+	) {
 		return stored.accessToken;
 	}
 
@@ -229,12 +232,17 @@ export async function getEpsilonAccessToken(
 
 	const result = await refreshEpsilonSession(stored.refreshToken, fetcher);
 	if (!result.ok) {
-		await writeToken(db, { ...stored, error: result.error }, "system", row.raw);
+		await didWriteToken(
+			db,
+			{ ...stored, error: result.error },
+			"system",
+			row.raw
+		);
 		return undefined;
 	}
 
-	const saved = await writeToken(db, result.token, "system", row.raw);
-	if (!saved) {
+	const isSaved = await didWriteToken(db, result.token, "system", row.raw);
+	if (!isSaved) {
 		// Another request refreshed first; its token is the current one.
 		const latest = await readRow(db);
 		return latest?.token?.accessToken;
@@ -261,25 +269,26 @@ export type EpsilonStatus =
 What the dashboard shows. Never includes the tokens themselves.
 */
 export async function getEpsilonStatus(db: Database): Promise<EpsilonStatus> {
-	const envFallback = Boolean(process.env.EPSILON_ACCESS_TOKEN);
-	const [row] = await db
+	const isEnvFallback = Boolean(process.env.EPSILON_ACCESS_TOKEN);
+	const rowRows = await db
 		.select()
 		.from(settings)
 		.where(eq(settings.key, epsilonSettingKey))
 		.limit(1);
+	const row = rowRows.at(0);
 	if (!row) {
-		return { state: "missing", envFallback };
+		return { state: "missing", envFallback: isEnvFallback };
 	}
 
 	const parsed = await readRow(db);
 	const token = parsed?.token;
 	if (!token) {
-		return { state: "unreadable", envFallback };
+		return { state: "unreadable", envFallback: isEnvFallback };
 	}
 
 	return {
 		state: token.error ? "error" : "connected",
-		envFallback,
+		envFallback: isEnvFallback,
 		email: token.email,
 		expiresAt: token.expiresAt,
 		refreshedAt: token.refreshedAt,

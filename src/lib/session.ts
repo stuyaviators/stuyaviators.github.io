@@ -18,10 +18,11 @@ const rank: Record<Role, number> = { officer: 1, admin: 2 };
 export const currentUser = cache(async (): Promise<User | undefined> => {
 	const session = await auth();
 	const email = session?.user?.email;
-	const db = getDb();
 	if (!email) {
 		return undefined;
 	}
+
+	const db = getDb();
 
 	const user = db ? await findUser(db, email) : undefined;
 	if (!user && isOpenSignIn()) {

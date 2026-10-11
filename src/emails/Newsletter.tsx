@@ -1,4 +1,8 @@
-import type { Block, NewsletterData, SocialPlatform } from "@/lib/newsletter/types";
+import type {
+	Block,
+	NewsletterData,
+	SocialPlatform,
+} from "@/lib/newsletter/types";
 import { emailMarkdown } from "@/lib/newsletter/email-markdown";
 import {
 	Body,
@@ -36,7 +40,10 @@ const colors = {
 	brand: "#0b64a9",
 };
 
-const socialIcon: Record<SocialPlatform, { file: string; label: string; width: number }> = {
+const socialIcon: Record<
+	SocialPlatform,
+	{ file: string; label: string; width: number }
+> = {
 	instagram: { file: "instagram.png", label: "Instagram", width: 22 },
 	discord: { file: "discord.png", label: "Discord", width: 22 },
 	youtube: { file: "youtube.png", label: "YouTube", width: 22 },
@@ -54,7 +61,13 @@ export type NewsletterEmailProps = {
 	readonly unsubscribeUrl: string;
 };
 
-function Markdown({ source, style }: { readonly source: string; readonly style?: React.CSSProperties }) {
+function Markdown({
+	source,
+	style,
+}: {
+	readonly source: string;
+	readonly style?: React.CSSProperties;
+}) {
 	return (
 		<div
 			style={{ fontFamily: font, ...style }}
@@ -80,7 +93,14 @@ function BlockView({ block }: { readonly block: Block }) {
 					>
 						{block.title}
 					</Text>
-					<Hr style={{ borderColor: colors.brand, borderTopWidth: "2px", width: "48px", margin: "12px 0 0" }} />
+					<Hr
+						style={{
+							borderColor: colors.brand,
+							borderTopWidth: "2px",
+							width: "48px",
+							margin: "12px 0 0",
+						}}
+					/>
 				</Section>
 			) : (
 				<Section style={{ padding: "16px 32px" }}>
@@ -116,19 +136,28 @@ function BlockView({ block }: { readonly block: Block }) {
 						src={block.imageUrl}
 						alt={block.caption || "Newsletter image"}
 						width="536"
-						style={{ width: "100%", maxWidth: "536px", height: "auto", borderRadius: "10px" }}
+						style={{
+							width: "100%",
+							maxWidth: "536px",
+							height: "auto",
+							borderRadius: "10px",
+						}}
 					/>
 					{block.caption ? (
 						<Markdown
 							source={block.caption}
-							style={{ marginTop: "8px", fontSize: "13px", color: colors.muted }}
+							style={{
+								marginTop: "8px",
+								fontSize: "13px",
+								color: colors.muted,
+							}}
 						/>
 					) : null}
 				</Section>
 			) : null;
 		}
 
-		default: {
+		case "article": {
 			return (
 				<Section style={{ padding: "20px 32px 0" }}>
 					{block.imageUrl ? (
@@ -208,7 +237,10 @@ export function NewsletterContent({
 		>
 			{webUrl ? (
 				<Section style={{ padding: "12px 32px 0", textAlign: "right" }}>
-					<Link href={webUrl} style={{ fontFamily: font, fontSize: "12px", color: colors.muted }}>
+					<Link
+						href={webUrl}
+						style={{ fontFamily: font, fontSize: "12px", color: colors.muted }}
+					>
 						View in browser
 					</Link>
 				</Section>
@@ -241,7 +273,14 @@ export function NewsletterContent({
 							{data.headerTitle}
 						</Text>
 						{data.headerSubtitle ? (
-							<Text style={{ margin: "2px 0 0", fontFamily: font, fontSize: "12px", color: colors.muted }}>
+							<Text
+								style={{
+									margin: "2px 0 0",
+									fontFamily: font,
+									fontSize: "12px",
+									color: colors.muted,
+								}}
+							>
 								{data.headerSubtitle}
 							</Text>
 						) : null}
@@ -279,7 +318,11 @@ export function NewsletterContent({
 							<Link
 								key={`${social.platform}-${social.url}`}
 								href={social.url}
-								style={{ display: "inline-block", margin: "0 8px", verticalAlign: "middle" }}
+								style={{
+									display: "inline-block",
+									margin: "0 8px",
+									verticalAlign: "middle",
+								}}
 							>
 								<Img
 									src={`${siteUrl}/brand/${icon.file}`}
@@ -294,21 +337,43 @@ export function NewsletterContent({
 			) : null}
 			<Section style={{ padding: "16px 32px 28px", textAlign: "center" }}>
 				{data.footerText ? (
-					<Text style={{ margin: "0 0 8px", fontFamily: font, fontSize: "12px", lineHeight: "1.5", color: colors.muted }}>
+					<Text
+						style={{
+							margin: "0 0 8px",
+							fontFamily: font,
+							fontSize: "12px",
+							lineHeight: "1.5",
+							color: colors.muted,
+						}}
+					>
 						{data.footerText}
 					</Text>
 				) : null}
-				<Text style={{ margin: 0, fontFamily: font, fontSize: "12px", lineHeight: "1.5", color: colors.muted }}>
+				<Text
+					style={{
+						margin: 0,
+						fontFamily: font,
+						fontSize: "12px",
+						lineHeight: "1.5",
+						color: colors.muted,
+					}}
+				>
 					{links.map((link) => (
 						<span key={`${link.label}-${link.url}`}>
-							<Link href={link.url} style={{ color: colors.muted, textDecoration: "underline" }}>
+							<Link
+								href={link.url}
+								style={{ color: colors.muted, textDecoration: "underline" }}
+							>
 								{link.label}
 							</Link>
 							{" · "}
 						</span>
 					))}
 					{/* Always present; officers can't remove it. */}
-					<Link href={unsubscribeUrl} style={{ color: colors.muted, textDecoration: "underline" }}>
+					<Link
+						href={unsubscribeUrl}
+						style={{ color: colors.muted, textDecoration: "underline" }}
+					>
 						Unsubscribe
 					</Link>
 				</Text>
@@ -323,8 +388,17 @@ export default function NewsletterEmail(props: NewsletterEmailProps) {
 			<Head>
 				<title>{props.data.introHeading || props.data.headerTitle}</title>
 			</Head>
-			{props.data.previewText ? <Preview>{props.data.previewText}</Preview> : null}
-			<Body style={{ margin: 0, padding: "24px 12px", backgroundColor: colors.page, fontFamily: font }}>
+			{props.data.previewText ? (
+				<Preview>{props.data.previewText}</Preview>
+			) : null}
+			<Body
+				style={{
+					margin: 0,
+					padding: "24px 12px",
+					backgroundColor: colors.page,
+					fontFamily: font,
+				}}
+			>
 				<NewsletterContent {...props} />
 			</Body>
 		</Html>

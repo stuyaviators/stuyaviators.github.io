@@ -27,9 +27,14 @@ function key(secret = process.env.AUTH_SECRET): Uint8Array {
 export function encrypt(plaintext: string, secret?: string): string {
 	const iv = randomBytes(12);
 	const cipher = createCipheriv("aes-256-gcm", key(secret), iv);
-	const data = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+	const data = Buffer.concat([
+		cipher.update(plaintext, "utf8"),
+		cipher.final(),
+	]);
 	return [version, iv, cipher.getAuthTag(), data]
-		.map((part) => (typeof part === "string" ? part : part.toString("base64url")))
+		.map((part) =>
+			typeof part === "string" ? part : part.toString("base64url")
+		)
 		.join(".");
 }
 
@@ -37,7 +42,7 @@ export function encrypt(plaintext: string, secret?: string): string {
 Returns undefined when the value was tampered with or the secret changed.
 */
 export function decrypt(value: string, secret?: string): string | undefined {
-	const [prefix, iv, tag, data] = value.split(".");
+	const [prefix, iv, tag, data] = value.split(".", 4);
 	if (prefix !== version || !iv || !tag || data === undefined) {
 		return undefined;
 	}

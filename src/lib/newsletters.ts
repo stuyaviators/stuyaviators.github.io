@@ -15,17 +15,18 @@ export type NewsletterPreset = typeof newsletterPresets.$inferSelect;
 
 export const newslettersTag = "newsletters";
 
-export const titleSchema = z
-	.string()
-	.trim()
-	.min(1, "Give it a name")
-	.max(120);
+export const titleSchema = z.string().trim().min(1, "Give it a name").max(120);
+
+/**
+Paths under /newsletter that are real pages, so a web version can't use them.
+*/
+export const reservedSlugs: readonly string[] = ["unsubscribe"];
 
 export const slugSchema = z
 	.string()
 	.trim()
 	.toLowerCase()
-	.regex(/^[a-z\d]+(?:-[a-z\d]+)*$/u, {
+	.regex(/^[\da-z]+(?:-[\da-z]+)*$/u, {
 		message: "Use lowercase letters, numbers and dashes",
 	})
 	.max(80);
@@ -49,11 +50,12 @@ export async function getNewsletter(
 	db: Database,
 	id: string
 ): Promise<Newsletter | undefined> {
-	const [newsletter] = await db
+	const newsletterRows = await db
 		.select()
 		.from(newsletters)
 		.where(eq(newsletters.id, id))
 		.limit(1);
+	const newsletter = newsletterRows.at(0);
 	return newsletter;
 }
 
@@ -62,7 +64,7 @@ export async function createNewsletter(
 	input: { title: string; data: NewsletterData },
 	by: string
 ): Promise<Newsletter> {
-	const [created] = await db
+	const createdRows = await db
 		.insert(newsletters)
 		.values({
 			...input,
@@ -73,7 +75,12 @@ export async function createNewsletter(
 			updatedAt: new Date(),
 		})
 		.returning();
-	return created!;
+	const created = createdRows.at(0);
+	if (!created) {
+		throw new Error("Insert returned no row");
+	}
+
+	return created;
 }
 
 export type SaveResult =
@@ -89,25 +96,31 @@ export async function saveNewsletter(
 	db: Database,
 	id: string,
 	input: { title: string; data: NewsletterData },
-	expectedUpdatedAt: string,
+	/**
+	The version the editor started from; undefined overwrites whatever is
+	saved (after the officer chose "Keep mine").
+	*/
+	expectedUpdatedAt: string | undefined,
 	by: string
 ): Promise<SaveResult> {
-	const [saved] = await db
+	const matchesVersion =
+		expectedUpdatedAt === undefined
+			? undefined
+			: eq(newsletters.updatedAt, new Date(expectedUpdatedAt));
+	const savedRows = await db
 		.update(newsletters)
 		.set({ ...input, updatedBy: by, updatedAt: new Date() })
 		.where(
-			and(
-				eq(newsletters.id, id),
-				eq(newsletters.updatedAt, new Date(expectedUpdatedAt))
-			)
+			and(eq(newsletters.id, id), isNull(newsletters.deletedAt), matchesVersion)
 		)
 		.returning({ updatedAt: newsletters.updatedAt });
+	const saved = savedRows.at(0);
 	if (saved) {
 		return { ok: true, updatedAt: saved.updatedAt.toISOString() };
 	}
 
 	const current = await getNewsletter(db, id);
-	return current
+	return current && !current.deletedAt
 		? { ok: false, conflict: true, updatedBy: current.updatedBy ?? undefined }
 		: { ok: false, conflict: false, error: "This newsletter was deleted." };
 }
@@ -123,12 +136,17 @@ export async function availableSlug(
 	const base = slugify(wanted);
 	for (let attempt = 1; attempt < 50; attempt++) {
 		const slug = attempt === 1 ? base : `${base}-${attempt}`;
+		if (reservedSlugs.includes(slug)) {
+			continue;
+		}
+
 		// eslint-disable-next-line no-await-in-loop -- usually one query.
-		const [taken] = await db
+		const takenRows = await db
 			.select({ id: newsletters.id })
 			.from(newsletters)
 			.where(and(eq(newsletters.slug, slug), ne(newsletters.id, id)))
 			.limit(1);
+		const taken = takenRows.at(0);
 		if (!taken) {
 			return slug;
 		}
@@ -150,11 +168,16 @@ export async function publishNewsletter(
 		return { ok: false, error: "This newsletter was deleted." };
 	}
 
-	const [taken] = await db
+	if (reservedSlugs.includes(slug)) {
+		return { ok: false, error: `/newsletter/${slug} is reserved.` };
+	}
+
+	const takenRows = await db
 		.select({ id: newsletters.id })
 		.from(newsletters)
 		.where(and(eq(newsletters.slug, slug), ne(newsletters.id, id)))
 		.limit(1);
+	const taken = takenRows.at(0);
 	if (taken) {
 		return { ok: false, error: `/newsletter/${slug} is already used.` };
 	}
@@ -193,18 +216,27 @@ export async function setNewsletterDeleted(
 		.set({
 			deletedAt: isDeleted ? new Date() : null,
 			// Deleting also takes the web version down.
-			...(isDeleted ? { status: "draft" as const } : {}),
+			...(isDeleted && { status: "draft" as const }),
 			updatedBy: by,
 			updatedAt: new Date(),
 		})
 		.where(eq(newsletters.id, id));
 }
 
+/**
+Permanent; only for newsletters already in the trash.
+*/
+export async function deleteNewsletterForever(db: Database, id: string) {
+	await db
+		.delete(newsletters)
+		.where(and(eq(newsletters.id, id), isNotNull(newsletters.deletedAt)));
+}
+
 export async function getPublishedNewsletter(
 	db: Database,
 	slug: string
 ): Promise<Newsletter | undefined> {
-	const [newsletter] = await db
+	const newsletterRows = await db
 		.select()
 		.from(newsletters)
 		.where(
@@ -215,6 +247,7 @@ export async function getPublishedNewsletter(
 			)
 		)
 		.limit(1);
+	const newsletter = newsletterRows.at(0);
 	return newsletter?.published ? newsletter : undefined;
 }
 
@@ -229,11 +262,12 @@ export async function getPreset(
 	db: Database,
 	id: string
 ): Promise<NewsletterPreset | undefined> {
-	const [preset] = await db
+	const presetRows = await db
 		.select()
 		.from(newsletterPresets)
 		.where(eq(newsletterPresets.id, id))
 		.limit(1);
+	const preset = presetRows.at(0);
 	return preset;
 }
 

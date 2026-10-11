@@ -126,11 +126,12 @@ export async function getListing(
 	db: Database,
 	id: string
 ): Promise<Listing | undefined> {
-	const [listing] = await db
+	const listingRows = await db
 		.select()
 		.from(listings)
 		.where(eq(listings.id, id))
 		.limit(1);
+	const listing = listingRows.at(0);
 	return listing;
 }
 
@@ -139,17 +140,29 @@ export async function createListing(
 	values: ListingValues,
 	by: string
 ): Promise<Listing> {
-	const [{ next } = { next: 0 }] = await db
+	const lastRows = await db
 		.select({
 			next: sql<number>`coalesce(max(${listings.sortOrder}), -1)::int + 1`,
 		})
 		.from(listings)
 		.where(eq(listings.kind, values.kind));
-	const [created] = await db
+	const last = lastRows.at(0);
+	const next = last?.next ?? 0;
+	const createdRows = await db
 		.insert(listings)
-		.values({ ...columns(values), sortOrder: next, createdBy: by, updatedBy: by })
+		.values({
+			...columns(values),
+			sortOrder: next,
+			createdBy: by,
+			updatedBy: by,
+		})
 		.returning();
-	return created!;
+	const created = createdRows.at(0);
+	if (!created) {
+		throw new Error("Insert returned no row");
+	}
+
+	return created;
 }
 
 export async function updateListing(
@@ -158,11 +171,12 @@ export async function updateListing(
 	values: ListingValues,
 	by: string
 ): Promise<Listing | undefined> {
-	const [updated] = await db
+	const updatedRows = await db
 		.update(listings)
 		.set({ ...columns(values), updatedBy: by, updatedAt: new Date() })
 		.where(eq(listings.id, id))
 		.returning();
+	const updated = updatedRows.at(0);
 	return updated;
 }
 
@@ -177,11 +191,26 @@ export async function setDeleted(
 		.set({
 			deletedAt: isDeleted ? new Date() : null,
 			// Restored cards come back as drafts so nothing reappears by surprise.
-			...(isDeleted ? {} : { status: "draft" as const }),
+			...(!isDeleted && { status: "draft" as const }),
 			updatedBy: by,
 			updatedAt: new Date(),
 		})
 		.where(eq(listings.id, id));
+}
+
+export async function setListingStatus(
+	db: Database,
+	id: string,
+	status: Listing["status"],
+	by: string
+): Promise<Listing | undefined> {
+	const updatedRows = await db
+		.update(listings)
+		.set({ status, updatedBy: by, updatedAt: new Date() })
+		.where(and(eq(listings.id, id), isNull(listings.deletedAt)))
+		.returning();
+	const updated = updatedRows.at(0);
+	return updated;
 }
 
 export async function deleteForever(db: Database, id: string) {
@@ -211,7 +240,7 @@ export async function moveListing(
 	}
 
 	const ids = ordered.map((item) => item.id);
-	[ids[index], ids[target]] = [ids[target]!, ids[index]!];
+	ids.splice(target, 0, ...ids.splice(index, 1));
 	const cases = sql.join(
 		ids.map((item, order) => sql`when ${item}::uuid then ${order}::int`),
 		sql` `

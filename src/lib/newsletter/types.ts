@@ -13,7 +13,7 @@ export const optionalUrl = z
 	.string()
 	.trim()
 	.max(2000)
-	.refine((value) => value === "" || /^https?:\/\/[^\s]+$/iu.test(value), {
+	.refine((value) => value === "" || /^https?:\/\/\S+$/iu.test(value), {
 		message: "Use a full link starting with https://",
 	});
 
@@ -51,6 +51,12 @@ export const socialPlatforms = [
 	"epsilon",
 ] as const;
 
+const footerLink = z.object({ label: z.string().max(60), url: optionalUrl });
+const socialLink = z.object({
+	platform: z.enum(socialPlatforms),
+	url: optionalUrl,
+});
+
 export const newsletterSchema = z.object({
 	headerTitle: line,
 	headerSubtitle: line,
@@ -63,12 +69,8 @@ export const newsletterSchema = z.object({
 	introText: paragraph, // Markdown
 	blocks: z.array(blockSchema).max(60),
 	footerText: z.string().max(500),
-	footerLinks: z
-		.array(z.object({ label: z.string().max(60), url: optionalUrl }))
-		.max(8),
-	socialLinks: z
-		.array(z.object({ platform: z.enum(socialPlatforms), url: optionalUrl }))
-		.max(8),
+	footerLinks: z.array(footerLink).max(8),
+	socialLinks: z.array(socialLink).max(8),
 });
 
 export type NewsletterData = z.infer<typeof newsletterSchema>;

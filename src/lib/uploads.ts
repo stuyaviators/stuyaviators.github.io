@@ -32,7 +32,15 @@ const maxWidth: Record<UploadPurpose, number> = {
 	highlight: 1920,
 };
 
-const allowedFormats = new Set(["jpeg", "png", "webp", "gif", "avif", "heif", "tiff"]);
+const allowedFormats = new Set([
+	"jpeg",
+	"png",
+	"webp",
+	"gif",
+	"avif",
+	"heif",
+	"tiff",
+]);
 
 export class UploadError extends Error {
 	constructor(message: string) {
@@ -74,7 +82,7 @@ export async function processImage(
 
 	// Email clients don't all support WebP/AVIF, so output JPEG, or PNG when the
 	// image has transparency (logos).
-	const isPng = metadata.hasAlpha === true;
+	const isPng = metadata.hasAlpha;
 	const pipeline = sharp(input, { limitInputPixels: 60_000_000, pages: 1 })
 		.rotate()
 		.resize({
@@ -83,9 +91,12 @@ export async function processImage(
 			fit: "inside",
 			withoutEnlargement: true,
 		});
-	const { data, info } = await (isPng
-		? pipeline.png({ compressionLevel: 9, palette: true, quality: 90 })
-		: pipeline.flatten({ background: "#ffffff" }).jpeg({ quality: 80, mozjpeg: true })
+	const { data, info } = await (
+		isPng
+			? pipeline.png({ compressionLevel: 9, palette: true, quality: 90 })
+			: pipeline
+					.flatten({ background: "#ffffff" })
+					.jpeg({ quality: 80, mozjpeg: true })
 	).toBuffer({ resolveWithObject: true });
 
 	return {

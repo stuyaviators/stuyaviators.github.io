@@ -34,7 +34,10 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const result = await renderNewsletter(parsed.data.data, parsed.data.slug);
+	const result = await renderNewsletter(
+		parsed.data.data,
+		parsed.data.slug ?? undefined
+	);
 	return NextResponse.json(result, {
 		headers: { "Cache-Control": "no-store" },
 	});

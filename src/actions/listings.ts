@@ -1,0 +1,155 @@
+"use server";
+
+import type { ActionResult } from "@/lib/action-guard";
+import { actionError, guarded, invalid } from "@/lib/action-guard";
+import { listingsTag } from "@/lib/listings";
+import {
+	createListing,
+	deleteForever,
+	getListing,
+	listingInput,
+	moveListing,
+	setDeleted,
+	setListingStatus,
+	updateListing,
+} from "@/lib/listings-admin";
+import { revalidatePath, updateTag } from "next/cache";
+import { z } from "zod";
+
+/*
+ * Opportunities and scholarships from the dashboard. Each action re-checks the
+ * officer's session (guarded) and validates its input with Zod, then expires
+ * the public pages so changes show up without a redeploy.
+ */
+
+const idSchema = z.uuid();
+
+function refreshPublicPages() {
+	updateTag(listingsTag);
+	revalidatePath("/opportunities");
+	revalidatePath("/scholarships");
+}
+
+const notFound = actionError("That card no longer exists.");
+
+export async function saveListing(
+	id: string | undefined,
+	input: unknown
+): Promise<ActionResult<{ id: string }>> {
+	return guarded("officer", async ({ user, db }) => {
+		const parsed = listingInput.safeParse(input);
+		if (!parsed.success) {
+			return invalid(parsed.error);
+		}
+
+		if (id === undefined) {
+			const created = await createListing(db, parsed.data, user.email);
+			refreshPublicPages();
+			return { ok: true, id: created.id };
+		}
+
+		if (!idSchema.safeParse(id).success) {
+			return notFound;
+		}
+
+		const existing = await getListing(db, id);
+		if (existing?.kind !== parsed.data.kind) {
+			return notFound;
+		}
+
+		const updated = await updateListing(db, id, parsed.data, user.email);
+		if (!updated) {
+			return notFound;
+		}
+
+		refreshPublicPages();
+		return { ok: true, id: updated.id };
+	});
+}
+
+export async function publishListing(
+	id: string,
+	isPublished: boolean
+): Promise<ActionResult> {
+	return guarded("officer", async ({ user, db }) => {
+		if (!idSchema.safeParse(id).success) {
+			return notFound;
+		}
+
+		const updated = await setListingStatus(
+			db,
+			id,
+			isPublished ? "published" : "draft",
+			user.email
+		);
+		if (!updated) {
+			return notFound;
+		}
+
+		refreshPublicPages();
+		return { ok: true };
+	});
+}
+
+export async function moveListingAction(
+	id: string,
+	direction: "up" | "down"
+): Promise<ActionResult> {
+	return guarded("officer", async ({ db }) => {
+		const parsed = z
+			.object({ id: idSchema, direction: z.enum(["up", "down"]) })
+			.safeParse({ id, direction });
+		if (!parsed.success) {
+			return notFound;
+		}
+
+		const kind = await moveListing(db, parsed.data.id, parsed.data.direction);
+		if (!kind) {
+			return notFound;
+		}
+
+		refreshPublicPages();
+		return { ok: true };
+	});
+}
+
+/**
+Soft delete: the card moves to the trash and can be restored.
+*/
+export async function trashListing(id: string): Promise<ActionResult> {
+	return guarded("officer", async ({ user, db }) => {
+		if (!idSchema.safeParse(id).success) {
+			return notFound;
+		}
+
+		await setDeleted(db, id, true, user.email);
+		refreshPublicPages();
+		return { ok: true };
+	});
+}
+
+export async function restoreListing(id: string): Promise<ActionResult> {
+	return guarded("officer", async ({ user, db }) => {
+		if (!idSchema.safeParse(id).success) {
+			return notFound;
+		}
+
+		await setDeleted(db, id, false, user.email);
+		refreshPublicPages();
+		return { ok: true };
+	});
+}
+
+/**
+Permanent; only for cards already in the trash.
+*/
+export async function deleteListingForever(id: string): Promise<ActionResult> {
+	return guarded("officer", async ({ db }) => {
+		if (!idSchema.safeParse(id).success) {
+			return notFound;
+		}
+
+		await deleteForever(db, id);
+		return { ok: true };
+	});
+}

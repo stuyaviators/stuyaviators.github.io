@@ -108,12 +108,11 @@ async function accessToken(): Promise<string | undefined> {
 		}
 	}
 
-	return process.env.EPSILON_ACCESS_TOKEN || undefined;
+	const fallback = process.env.EPSILON_ACCESS_TOKEN;
+	return fallback === "" ? undefined : fallback;
 }
 
-export async function fetchEpsilonMeetings(
-	token?: string
-): Promise<Meeting[]> {
+export async function fetchEpsilonMeetings(token?: string): Promise<Meeting[]> {
 	const bearer = token ?? (await accessToken());
 	if (!bearer) {
 		throw new Error("No Epsilon token");

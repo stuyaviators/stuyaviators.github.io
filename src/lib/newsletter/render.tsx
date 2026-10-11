@@ -3,7 +3,7 @@ import { site } from "@/content/site";
 import NewsletterEmail from "@/emails/Newsletter";
 import { render } from "@react-email/render";
 
-export function newsletterUrls(slug?: string | null) {
+export function newsletterUrls(slug?: string) {
 	return {
 		siteUrl: site.url,
 		webUrl: slug ? `${site.url}/newsletter/${slug}` : undefined,
@@ -16,7 +16,7 @@ Full email HTML, ready for Gmail or download.
 */
 export async function renderNewsletter(
 	data: NewsletterData,
-	slug?: string | null
+	slug?: string
 ): Promise<{ html: string; text: string }> {
 	const element = <NewsletterEmail data={data} {...newsletterUrls(slug)} />;
 	const [html, text] = await Promise.all([

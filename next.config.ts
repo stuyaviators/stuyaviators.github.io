@@ -41,6 +41,8 @@ const nextConfig: NextConfig = {
 		remotePatterns: [
 			{ protocol: "https", hostname: "behold.pictures" },
 			{ protocol: "https", hostname: "cdn2.behold.pictures" },
+			// Officer uploads (Vercel Blob).
+			{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
 		],
 	},
 	async redirects() {

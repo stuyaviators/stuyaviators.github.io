@@ -56,7 +56,8 @@ export function newBlock(
 			return { id, type, imageUrl: "", caption: "" };
 		}
 
-		default: {
+		case "separator":
+		case "subheading": {
 			return { id, type, title: values.title ?? "" };
 		}
 	}
@@ -69,10 +70,10 @@ export function slugify(title: string): string {
 	return (
 		title
 			.normalize("NFKD")
-			.replaceAll(/[̀-ͯ]/gu, "")
+			.replaceAll(/\p{Mark}/gu, "")
 			.toLowerCase()
-			.replaceAll(/[^a-z\d]+/gu, "-")
-			.replaceAll(/^-+|-+$/gu, "")
+			.replaceAll(/[^\da-z]+/gu, "-")
+			.replaceAll(/^-|-$/gu, "")
 			.slice(0, 80) || "newsletter"
 	);
 }

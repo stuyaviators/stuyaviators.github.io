@@ -40,11 +40,12 @@ export async function findUser(
 	db: Database,
 	email: string
 ): Promise<User | undefined> {
-	const [user] = await db
+	const userRows = await db
 		.select()
 		.from(users)
 		.where(eq(users.email, normalizeEmail(email)))
 		.limit(1);
+	const user = userRows.at(0);
 	return user;
 }
 
@@ -53,10 +54,11 @@ export async function listUsers(db: Database): Promise<User[]> {
 }
 
 async function adminCount(db: Database): Promise<number> {
-	const [row] = await db
+	const rowRows = await db
 		.select({ count: sql<number>`count(*)::int` })
 		.from(users)
 		.where(eq(users.role, "admin"));
+	const row = rowRows.at(0);
 	return row?.count ?? 0;
 }
 
@@ -77,11 +79,12 @@ export async function authorizeSignIn(
 	let user = await findUser(db, email);
 
 	if (!user && adminEmails.includes(email) && (await adminCount(db)) === 0) {
-		[user] = await db
+		const userRows = await db
 			.insert(users)
 			.values({ email, role: "admin", addedBy: "ADMIN_EMAILS" })
 			.onConflictDoNothing()
 			.returning();
+		user = userRows.at(0);
 		user ??= await findUser(db, email);
 	}
 
@@ -89,7 +92,7 @@ export async function authorizeSignIn(
 		return undefined;
 	}
 
-	const [updated] = await db
+	const updatedRows = await db
 		.update(users)
 		.set({
 			name: profile.name ?? user.name,
@@ -98,6 +101,7 @@ export async function authorizeSignIn(
 		})
 		.where(eq(users.id, user.id))
 		.returning();
+	const updated = updatedRows.at(0);
 	return updated ?? user;
 }
 
@@ -109,11 +113,12 @@ export async function addUser(
 	addedBy: string
 ): Promise<UserResult> {
 	const email = normalizeEmail(input.email);
-	const [created] = await db
+	const createdRows = await db
 		.insert(users)
 		.values({ email, role: input.role, addedBy })
 		.onConflictDoNothing()
 		.returning({ id: users.id });
+	const created = createdRows.at(0);
 	return created
 		? { ok: true }
 		: { ok: false, error: `${email} is already on the list.` };
@@ -141,15 +146,20 @@ export async function setRole(
 		return { ok: true };
 	}
 
-	return (await findById(db, id))
-		? { ok: false, error: lastAdmin }
-		: { ok: false, error: "That person is no longer on the list." };
+	const isStillListed = (await findById(db, id)) !== undefined;
+	return {
+		ok: false,
+		error: isStillListed ? lastAdmin : "That person is no longer on the list.",
+	};
 }
 
 /**
 Removes someone from the allowlist; never the last admin.
 */
-export async function removeUser(db: Database, id: string): Promise<UserResult> {
+export async function removeUser(
+	db: Database,
+	id: string
+): Promise<UserResult> {
 	const removed = await db
 		.delete(users)
 		.where(
@@ -160,12 +170,16 @@ export async function removeUser(db: Database, id: string): Promise<UserResult> 
 		return { ok: true };
 	}
 
-	return (await findById(db, id))
-		? { ok: false, error: lastAdmin }
-		: { ok: true };
+	const isStillListed = (await findById(db, id)) !== undefined;
+	return isStillListed ? { ok: false, error: lastAdmin } : { ok: true };
 }
 
 async function findById(db: Database, id: string) {
-	const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+	const userRows = await db
+		.select()
+		.from(users)
+		.where(eq(users.id, id))
+		.limit(1);
+	const user = userRows.at(0);
 	return user;
 }
