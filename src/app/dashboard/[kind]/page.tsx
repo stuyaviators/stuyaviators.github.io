@@ -40,7 +40,7 @@ export default async function ListingsDashboardPage({
 		<>
 			<PageHeader
 				title={config.plural}
-				description={`Add and edit the ${config.plural.toLowerCase()} on the public page. They sort themselves by deadline, soonest first. Drafts stay hidden until you publish them.`}
+				description={`Add and edit the ${config.plural.toLowerCase()} on the public page. They sort themselves by date, soonest first: the deadline for scholarships, the start date for opportunities. Drafts stay hidden until you publish them.`}
 				actions={
 					<Link href={`${base}/new`} className={buttonClasses("primary")}>
 						<Plus aria-hidden className="size-4" /> New {config.singular}

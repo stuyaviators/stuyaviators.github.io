@@ -232,6 +232,33 @@ describe("ordering", () => {
 		]);
 	});
 
+	it("sorts opportunities by their start date, or their deadline if they have none", async () => {
+		const addEvent = async (title: string, fields: Record<string, string>) =>
+			createListing(
+				db,
+				listingInput.parse({ ...valid, kind: "opportunity", title, ...fields }),
+				"x"
+			);
+		await addEvent("Undated", { deadline: "" });
+		await addEvent("Camp in December", {
+			startDate: "2026-12-05",
+			deadline: "2026-10-01",
+		});
+		await addEvent("Talk in November", {
+			startDate: "2026-11-10",
+			deadline: "",
+		});
+		await addEvent("Deadline only, October", { deadline: "2026-10-20" });
+		expect(
+			(await listForDashboard(db, "opportunity")).map((card) => card.title)
+		).toEqual([
+			"Deadline only, October",
+			"Talk in November",
+			"Camp in December",
+			"Undated",
+		]);
+	});
+
 	it("keeps each kind to itself", async () => {
 		await add("A", "2027-01-15");
 		await createListing(

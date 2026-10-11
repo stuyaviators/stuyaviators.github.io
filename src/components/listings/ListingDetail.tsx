@@ -2,12 +2,12 @@ import type { Listing } from "@/lib/listings";
 import { Md } from "@/components/Md";
 import { buttonClasses } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Section";
-import { daysUntil, isClosingSoon, isExpired } from "@/lib/listing-dates";
+import { isExpired, soonLabel } from "@/lib/listing-dates";
 import { renderMarkdown } from "@/lib/markdown";
 import { ArrowLeft, ArrowUpRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { stubFields } from "./ListingCard.tsx";
+import { linkLabel, stubFields } from "./ListingCard.tsx";
 
 /**
 One card on its own page: opportunities and scholarships share it.
@@ -19,7 +19,7 @@ export default function ListingDetail({
 }) {
 	const isScholarship = listing.kind === "scholarship";
 	const backHref = isScholarship ? "/scholarships" : "/opportunities";
-	const days = listing.deadline ? daysUntil(listing.deadline) : undefined;
+	const soon = soonLabel(listing);
 	return (
 		<Container className="pt-8 pb-16 sm:pb-24">
 			<Link
@@ -59,13 +59,12 @@ export default function ListingDetail({
 						now.
 					</p>
 				) : null}
-				{isClosingSoon(listing) ? (
+				{soon === undefined ? null : (
 					<p className="label mt-4 inline-flex items-center gap-1 rounded-sm bg-danger px-2 py-0.5 text-bg">
 						<Clock aria-hidden className="size-3" />
-						Closing soon
-						{days === 0 ? " · today" : ` · ${days} day${days === 1 ? "" : "s"}`}
+						{soon}
 					</p>
-				) : null}
+				)}
 				<p className="mt-6 text-lg">
 					<Md>{listing.summary}</Md>
 				</p>
@@ -103,7 +102,7 @@ export default function ListingDetail({
 					rel="noopener noreferrer"
 					className={buttonClasses("accent", "mt-8")}
 				>
-					Learn more and apply
+					{linkLabel(listing)}
 					<ArrowUpRight aria-hidden className="btn-arrow size-4" />
 					<span className="sr-only">
 						(opens {listing.organization} in a new tab)

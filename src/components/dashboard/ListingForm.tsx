@@ -320,12 +320,16 @@ export default function ListingForm({
 				<Card className="space-y-5">
 					<div className="grid gap-5 sm:grid-cols-2">
 						<TextField
-							label="Deadline"
+							label={isScholarship ? "Deadline" : "RSVP deadline"}
 							type="date"
 							optional
 							value={values.deadline}
 							error={fieldErrors.deadline}
-							hint="Shows “Closing soon” in the last 14 days, then moves to Past."
+							hint={
+								isScholarship
+									? "Shows “Closing soon” in the last 14 days, then moves to Past."
+									: "Leave blank if there’s nothing to RSVP to. With one, the link says “Learn more and RSVP”."
+							}
 							onChange={(event) => {
 								set("deadline", event.target.value);
 							}}
@@ -363,6 +367,7 @@ export default function ListingForm({
 									optional
 									value={values.startDate}
 									error={fieldErrors.startDate}
+									hint="Shows “Happening in …” in the 14 days before, then moves to Past once it’s over."
 									onChange={(event) => {
 										set("startDate", event.target.value);
 									}}

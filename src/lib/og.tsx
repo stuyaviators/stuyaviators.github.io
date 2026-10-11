@@ -155,3 +155,97 @@ export async function renderOg({
 		}
 	);
 }
+
+export type OgPicture = { bytes: Uint8Array; type: "image/jpeg" | "image/png" };
+
+/**
+The card for something that has its own picture (an opportunity, a
+scholarship): the whole picture on a light backdrop, uncropped so logos and
+posters stay readable, with a slim StuyAviators bar underneath.
+*/
+export async function renderPictureOg({
+	picture,
+	label,
+}: {
+	picture: OgPicture;
+	label: string;
+}) {
+	const [interTight, logo] = await Promise.all([
+		readFile(
+			new URL(
+				"../assets/fonts/inter-tight-latin-600-normal.woff",
+				import.meta.url
+			)
+		),
+		readFile(new URL("../assets/brand/logo.png", import.meta.url)),
+	]);
+	const dataUri = (buffer: Uint8Array, type: string) =>
+		`data:${type};base64,${Buffer.from(buffer).toString("base64")}`;
+	const barHeight = 84;
+
+	return new ImageResponse(
+		<div
+			style={{
+				width: "100%",
+				height: "100%",
+				display: "flex",
+				flexDirection: "column",
+				backgroundColor: "#F2F4F7",
+				fontFamily: "Inter Tight",
+			}}
+		>
+			<div
+				style={{
+					display: "flex",
+					width: 1200,
+					height: ogSize.height - barHeight,
+				}}
+			>
+				<img
+					src={dataUri(picture.bytes, picture.type)}
+					alt=""
+					width={1200}
+					height={ogSize.height - barHeight}
+					style={{
+						width: 1200,
+						height: ogSize.height - barHeight,
+						objectFit: "contain",
+					}}
+				/>
+			</div>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					height: barHeight,
+					padding: "0 40px",
+					backgroundColor: "#0A0A0C",
+				}}
+			>
+				<div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+					<img src={dataUri(logo, "image/png")} alt="" width={48} height={48} />
+					<span style={{ fontSize: 24, letterSpacing: 2, color: "#F5F5F7" }}>
+						STUYAVIATORS
+					</span>
+				</div>
+				<span
+					style={{
+						fontSize: 22,
+						letterSpacing: 1.5,
+						color: "#8CC4F7",
+						textTransform: "uppercase",
+					}}
+				>
+					{label}
+				</span>
+			</div>
+		</div>,
+		{
+			...ogSize,
+			fonts: [
+				{ name: "Inter Tight", data: interTight, weight: 600, style: "normal" },
+			],
+		}
+	);
+}
