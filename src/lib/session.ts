@@ -1,7 +1,7 @@
 import type { Role, User } from "@/lib/users";
 import { auth } from "@/auth";
 import { getDb } from "@/db";
-import { isOpenSignIn } from "@/lib/open-signin";
+import { isOpenSignIn, localAdminEmail } from "@/lib/open-signin";
 import { findUser } from "@/lib/users";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -15,31 +15,43 @@ import { cache } from "react";
 
 const rank: Record<Role, number> = { officer: 1, admin: 2 };
 
+/**
+Local testing only (see src/lib/open-signin.ts): no Google, always an admin.
+*/
+function localAdmin(
+	email = localAdminEmail,
+	name: string | undefined = "Local developer",
+	image?: string
+): User {
+	return {
+		id: "open-signin",
+		email: email.toLowerCase(),
+		name: name ?? null,
+		image: image ?? null,
+		role: "admin",
+		addedBy: "DASHBOARD_OPEN_SIGNIN",
+		createdAt: new Date(),
+		lastSignInAt: new Date(),
+	};
+}
+
 export const currentUser = cache(async (): Promise<User | undefined> => {
 	const session = await auth();
 	const email = session?.user?.email;
 	if (!email) {
-		return undefined;
+		return isOpenSignIn() ? localAdmin() : undefined;
 	}
 
 	const db = getDb();
 
 	const user = db ? await findUser(db, email) : undefined;
-	if (!user && isOpenSignIn()) {
-		// Local testing only: anyone signed in acts as an admin.
-		return {
-			id: "open-signin",
-			email: email.toLowerCase(),
-			name: session?.user?.name ?? null,
-			image: session?.user?.image ?? null,
-			role: "admin",
-			addedBy: "DASHBOARD_OPEN_SIGNIN",
-			createdAt: new Date(),
-			lastSignInAt: new Date(),
-		};
-	}
-
-	return user;
+	return !user && isOpenSignIn()
+		? localAdmin(
+				email,
+				session?.user?.name ?? undefined,
+				session?.user?.image ?? undefined
+			)
+		: user;
 });
 
 export function hasRole(user: User, role: Role) {

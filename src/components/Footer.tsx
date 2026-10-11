@@ -122,7 +122,7 @@ export default function Footer() {
 							className="hover:text-text"
 							prefetch={false}
 						>
-							Officer Login
+							Crew Dashboard
 						</Link>
 					</p>
 				</div>

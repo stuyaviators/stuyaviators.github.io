@@ -99,8 +99,8 @@ export default async function DashboardLayout({
 			<div className="min-w-0">
 				{isOpenSignIn() ? (
 					<div className="border-b border-danger/60 bg-danger/10 px-4 py-2 text-center text-sm">
-						<strong>Open sign-in is on.</strong> Any Google account can use this
-						dashboard as an admin. This only works on your computer (
+						<strong>Local mode.</strong> Google sign-in is skipped and you are an
+						admin. This only works on your computer (
 						<code>DASHBOARD_OPEN_SIGNIN</code> in <code>.env.local</code>) and
 						is ignored on Vercel.
 					</div>

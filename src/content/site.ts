@@ -99,7 +99,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/dashboard",
-				label: "Officer Login",
+				label: "Crew Dashboard",
 				description: "For club officers",
 			},
 		],
