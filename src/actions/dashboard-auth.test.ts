@@ -1,0 +1,484 @@
+import type { Database } from "@/db";
+import { listings, newsletters, users } from "@/db/schema";
+import { createTestDb } from "@/test/pglite";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+/*
+ * Authorization, tested against the real Server Actions and Route Handlers
+ * (not through the UI): only the Auth.js session and the database are faked.
+ * Anyone who isn't signed in, isn't on the officer list, or doesn't have
+ * the role must change nothing.
+ */
+
+let testDb: Database | undefined;
+vi.mock("@/db", () => ({ getDb: () => testDb }));
+vi.mock("@/auth", () => ({ auth: vi.fn() }));
+vi.mock("next/cache", () => ({
+	revalidatePath: vi.fn(),
+	updateTag: vi.fn(),
+	unstable_cache: <T>(function_: T) => function_,
+}));
+vi.mock("next/navigation", () => ({
+	redirect(url: string) {
+		throw new Error(`redirect:${url}`);
+	},
+}));
+const putMock = vi.fn(async (pathname: string) => ({
+	url: `https://store.public.blob.vercel-storage.com/${pathname}`,
+}));
+vi.mock("@vercel/blob", () => ({ put: putMock }));
+
+const { auth } = await import("@/auth");
+const { updateTag } = await import("next/cache");
+const listingActions = await import("./listings.ts");
+const newsletterActions = await import("./newsletters.ts");
+const officerActions = await import("./officers.ts");
+const settingsActions = await import("./settings.ts");
+const uploadRoute = await import("@/app/api/upload/route");
+const renderRoute = await import("@/app/api/newsletter/render/route");
+const { defaultNewsletter } = await import("@/lib/newsletter/defaults");
+const sharp = (await import("sharp")).default;
+
+const authMock = auth as unknown as ReturnType<typeof vi.fn>;
+
+function signInAs(email: string | undefined) {
+	authMock.mockResolvedValue(
+		email ? { user: { email, name: "Peter" }, expires: "2099-01-01" } : null
+	);
+}
+
+const card = {
+	kind: "opportunity",
+	title: "Summer flight camp",
+	organization: "Peter Stuyvesant Aviation",
+	summary: "A week of flying.",
+	description: "",
+	url: "https://example.org/camp",
+	imageUrl: "",
+	deadline: "",
+	amount: "",
+	startDate: "",
+	endDate: "",
+	location: "",
+	eligibility: "",
+	tags: "",
+	featured: false,
+	status: "published",
+};
+
+const notSignedIn = { ok: false, error: "Please sign in again." };
+const notAllowed = {
+	ok: false,
+	error: "You don’t have permission to do that.",
+};
+
+async function count(
+	table: typeof listings | typeof users | typeof newsletters
+) {
+	return (await testDb!.select().from(table)).length;
+}
+
+async function addUserRow(email: string, role: "admin" | "officer") {
+	const [row] = await testDb!.insert(users).values({ email, role }).returning();
+	return row!;
+}
+
+beforeEach(async () => {
+	testDb = await createTestDb();
+	authMock.mockReset();
+	signInAs(undefined);
+	putMock.mockClear();
+	vi.mocked(updateTag).mockClear();
+	delete process.env.BLOB_READ_WRITE_TOKEN;
+	delete process.env.DASHBOARD_OPEN_SIGNIN;
+});
+
+describe("signed out", () => {
+	it("can't touch listings", async () => {
+		const id = crypto.randomUUID();
+		expect(await listingActions.saveListing(undefined, card)).toEqual(
+			notSignedIn
+		);
+		expect(await listingActions.saveListing(id, card)).toEqual(notSignedIn);
+		expect(await listingActions.publishListing(id, true)).toEqual(notSignedIn);
+		expect(await listingActions.moveListingAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await listingActions.trashListing(id)).toEqual(notSignedIn);
+		expect(await listingActions.restoreListing(id)).toEqual(notSignedIn);
+		expect(await listingActions.deleteListingForever(id)).toEqual(notSignedIn);
+		expect(await count(listings)).toBe(0);
+		expect(updateTag).not.toHaveBeenCalled();
+	});
+
+	it("can't touch newsletters", async () => {
+		const id = crypto.randomUUID();
+		expect(await newsletterActions.createNewsletterAction()).toEqual(
+			notSignedIn
+		);
+		expect(
+			await newsletterActions.saveNewsletterAction(id, {}, undefined)
+		).toEqual(notSignedIn);
+		expect(await newsletterActions.publishNewsletterAction(id, "x")).toEqual(
+			notSignedIn
+		);
+		expect(await newsletterActions.unpublishNewsletterAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(await newsletterActions.trashNewsletter(id)).toEqual(notSignedIn);
+		expect(await newsletterActions.deleteNewsletterForeverAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(
+			await newsletterActions.savePresetAction("x", defaultNewsletter())
+		).toEqual(notSignedIn);
+		expect(await count(newsletters)).toBe(0);
+	});
+
+	it("can't manage officers or settings", async () => {
+		expect(await officerActions.addOfficer("me@gmail.com", "admin")).toEqual(
+			notSignedIn
+		);
+		expect(
+			await officerActions.changeOfficerRole(crypto.randomUUID(), "admin")
+		).toEqual(notSignedIn);
+		expect(await officerActions.removeOfficer(crypto.randomUUID())).toEqual(
+			notSignedIn
+		);
+		expect(
+			await settingsActions.saveEpsilonTokenAction("refresh-token-12345")
+		).toEqual(notSignedIn);
+		expect(await settingsActions.removeEpsilonTokenAction()).toEqual(
+			notSignedIn
+		);
+		expect(await settingsActions.testEpsilonAction()).toEqual(notSignedIn);
+		expect(await count(users)).toBe(0);
+	});
+
+	it("gets 401 from the upload and render routes", async () => {
+		const upload = await uploadRoute.POST(
+			new Request("http://localhost/api/upload", { method: "POST" })
+		);
+		expect(upload.status).toBe(401);
+		const render = await renderRoute.POST(
+			new Request("http://localhost/api/newsletter/render", {
+				method: "POST",
+				body: JSON.stringify({ data: defaultNewsletter() }),
+			})
+		);
+		expect(render.status).toBe(401);
+		expect(putMock).not.toHaveBeenCalled();
+	});
+});
+
+describe("signed in with Google, but not on the officer list", () => {
+	beforeEach(async () => {
+		await addUserRow("real-officer@gmail.com", "officer");
+		signInAs("stranger@gmail.com");
+	});
+
+	it("is turned away from every action", async () => {
+		expect(await listingActions.saveListing(undefined, card)).toEqual(
+			notSignedIn
+		);
+		expect(await newsletterActions.createNewsletterAction()).toEqual(
+			notSignedIn
+		);
+		expect(
+			await officerActions.addOfficer("stranger@gmail.com", "admin")
+		).toEqual(notSignedIn);
+		expect(await count(listings)).toBe(0);
+		expect(await count(newsletters)).toBe(0);
+		expect(await count(users)).toBe(1);
+	});
+
+	it("is turned away from uploads", async () => {
+		process.env.BLOB_READ_WRITE_TOKEN = "token";
+		const body = new FormData();
+		body.set(
+			"file",
+			new File([new Uint8Array([1, 2, 3])], "a.jpg", { type: "image/jpeg" })
+		);
+		body.set("purpose", "listing");
+		const response = await uploadRoute.POST(
+			new Request("http://localhost/api/upload", { method: "POST", body })
+		);
+		expect(response.status).toBe(401);
+		expect(putMock).not.toHaveBeenCalled();
+	});
+
+	it("stays turned away even though the cookie is valid, if removed after signing in", async () => {
+		const officer = await addUserRow("later-removed@gmail.com", "officer");
+		signInAs("later-removed@gmail.com");
+		expect((await listingActions.saveListing(undefined, card)).ok).toBe(true);
+		await testDb!
+			.delete(users)
+			.where((await import("drizzle-orm")).eq(users.id, officer.id));
+		expect(await listingActions.saveListing(undefined, card)).toEqual(
+			notSignedIn
+		);
+	});
+
+	it("ignores the open sign-in switch outside development", async () => {
+		process.env.DASHBOARD_OPEN_SIGNIN = "true"; // NODE_ENV is "test"
+		expect(await listingActions.saveListing(undefined, card)).toEqual(
+			notSignedIn
+		);
+	});
+});
+
+describe("officers", () => {
+	beforeEach(async () => {
+		await addUserRow("officer@gmail.com", "officer");
+		signInAs("officer@gmail.com");
+	});
+
+	it("can create, edit, reorder, publish and delete cards", async () => {
+		const created = await listingActions.saveListing(undefined, card);
+		expect(created.ok).toBe(true);
+		const id = (created as { id: string }).id;
+		expect(updateTag).toHaveBeenCalledWith("listings");
+
+		expect(
+			(await listingActions.saveListing(id, { ...card, title: "Renamed" })).ok
+		).toBe(true);
+		expect((await listingActions.moveListingAction(id, "down")).ok).toBe(true);
+		expect((await listingActions.publishListing(id, false)).ok).toBe(true);
+		expect((await listingActions.trashListing(id)).ok).toBe(true);
+		expect((await listingActions.restoreListing(id)).ok).toBe(true);
+		expect((await listingActions.trashListing(id)).ok).toBe(true);
+		expect((await listingActions.deleteListingForever(id)).ok).toBe(true);
+		expect(await count(listings)).toBe(0);
+	});
+
+	it("get field errors for bad input and nothing is saved", async () => {
+		const result = await listingActions.saveListing(undefined, {
+			...card,
+			url: "javascript:alert(1)",
+			title: "",
+		});
+		expect(result).toMatchObject({
+			ok: false,
+			fieldErrors: { url: expect.any(String), title: expect.any(String) },
+		});
+		expect(
+			await listingActions.saveListing(undefined, "not an object")
+		).toMatchObject({ ok: false });
+		expect(await count(listings)).toBe(0);
+	});
+
+	it("can't change a card's kind or edit one that doesn't exist", async () => {
+		const created = (await listingActions.saveListing(undefined, card)) as {
+			id: string;
+		};
+		expect(
+			await listingActions.saveListing(created.id, {
+				...card,
+				kind: "scholarship",
+			})
+		).toMatchObject({ ok: false });
+		expect(
+			await listingActions.saveListing(crypto.randomUUID(), card)
+		).toMatchObject({ ok: false });
+		expect(await listingActions.saveListing("not-a-uuid", card)).toMatchObject({
+			ok: false,
+		});
+		expect(
+			await listingActions.publishListing("not-a-uuid", true)
+		).toMatchObject({ ok: false });
+	});
+
+	it("can build, save and publish newsletters", async () => {
+		const created = await newsletterActions.createNewsletterAction();
+		expect(created.ok).toBe(true);
+		const id = (created as { id: string }).id;
+		const row = (await testDb!.select().from(newsletters))[0]!;
+		const saved = await newsletterActions.saveNewsletterAction(
+			id,
+			{
+				title: "October",
+				data: { ...defaultNewsletter(), introHeading: "Hi" },
+			},
+			row.updatedAt.toISOString()
+		);
+		expect(saved.ok).toBe(true);
+		expect(
+			await newsletterActions.publishNewsletterAction(id, "october")
+		).toEqual({ ok: true, slug: "october" });
+	});
+
+	it("get a clear message for a half-typed link, and nothing is saved", async () => {
+		const created = (await newsletterActions.createNewsletterAction()) as {
+			id: string;
+		};
+		const row = (await testDb!.select().from(newsletters))[0]!;
+		const result = await newsletterActions.saveNewsletterAction(
+			created.id,
+			{ title: "x", data: { ...defaultNewsletter(), headerLogoUrl: "htt" } },
+			row.updatedAt.toISOString()
+		);
+		expect(result).toMatchObject({
+			ok: false,
+			error: "Use a full link starting with https://",
+		});
+	});
+
+	it("reports a conflict instead of overwriting", async () => {
+		const created = (await newsletterActions.createNewsletterAction()) as {
+			id: string;
+		};
+		const row = (await testDb!.select().from(newsletters))[0]!;
+		const payload = { title: "x", data: defaultNewsletter() };
+		await newsletterActions.saveNewsletterAction(
+			created.id,
+			payload,
+			row.updatedAt.toISOString()
+		);
+		const stale = await newsletterActions.saveNewsletterAction(
+			created.id,
+			payload,
+			row.updatedAt.toISOString()
+		);
+		expect(stale).toMatchObject({ ok: false, conflict: true });
+	});
+
+	it("can't manage officers or settings (admin only)", async () => {
+		const target = await addUserRow("someone@gmail.com", "officer");
+		expect(await officerActions.addOfficer("new@gmail.com", "officer")).toEqual(
+			notAllowed
+		);
+		expect(await officerActions.changeOfficerRole(target.id, "admin")).toEqual(
+			notAllowed
+		);
+		expect(await officerActions.removeOfficer(target.id)).toEqual(notAllowed);
+		expect(
+			await settingsActions.saveEpsilonTokenAction("refresh-token-12345")
+		).toEqual(notAllowed);
+		expect(await settingsActions.removeEpsilonTokenAction()).toEqual(
+			notAllowed
+		);
+		expect(await settingsActions.testEpsilonAction()).toEqual(notAllowed);
+		expect(await count(users)).toBe(2);
+	});
+
+	it("can upload images, with the type and size checked on the server", async () => {
+		process.env.BLOB_READ_WRITE_TOKEN = "token";
+		const photo = new Uint8Array(
+			await sharp({
+				create: { width: 2000, height: 1000, channels: 3, background: "#123" },
+			})
+				.jpeg()
+				.toBuffer()
+		);
+		function request(
+			file: File,
+			purpose = "listing",
+			headers: Record<string, string> = {}
+		) {
+			const body = new FormData();
+			body.set("file", file);
+			body.set("purpose", purpose);
+			return new Request("http://localhost/api/upload", {
+				method: "POST",
+				body,
+				headers,
+			});
+		}
+
+		const ok = await uploadRoute.POST(
+			request(new File([photo], "a.jpg", { type: "image/jpeg" }))
+		);
+		expect(ok.status).toBe(200);
+		expect(await ok.json()).toMatchObject({
+			url: expect.stringContaining("blob.vercel-storage.com/uploads/listing/"),
+			width: 1200,
+		});
+		expect(putMock).toHaveBeenCalledTimes(1);
+
+		const notImage = await uploadRoute.POST(
+			request(
+				new File(["<script>alert(1)</script>"], "x.jpg", { type: "image/jpeg" })
+			)
+		);
+		expect(notImage.status).toBe(400);
+		const badPurpose = await uploadRoute.POST(
+			request(new File([photo], "a.jpg"), "avatar")
+		);
+		expect(badPurpose.status).toBe(400);
+		const crossSite = await uploadRoute.POST(
+			request(new File([photo], "a.jpg"), "listing", {
+				origin: "https://evil.example",
+			})
+		);
+		expect(crossSite.status).toBe(403);
+		expect(putMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("get a clear 503 when Blob isn't set up", async () => {
+		const body = new FormData();
+		body.set("file", new File([new Uint8Array([1])], "a.jpg"));
+		body.set("purpose", "listing");
+		const response = await uploadRoute.POST(
+			new Request("http://localhost/api/upload", { method: "POST", body })
+		);
+		expect(response.status).toBe(503);
+	});
+});
+
+describe("admins", () => {
+	let admin: typeof users.$inferSelect;
+	beforeEach(async () => {
+		admin = await addUserRow("admin@gmail.com", "admin");
+		signInAs("admin@gmail.com");
+	});
+
+	it("can add officers, change roles and remove them", async () => {
+		expect(
+			await officerActions.addOfficer(" New@Gmail.com ", "officer")
+		).toEqual({ ok: true });
+		const added = (await testDb!.select().from(users)).find(
+			(user) => user.email === "new@gmail.com"
+		)!;
+		expect(added.addedBy).toBe("admin@gmail.com");
+		expect(
+			await officerActions.addOfficer("new@gmail.com", "officer")
+		).toMatchObject({ ok: false });
+		expect(await officerActions.changeOfficerRole(added.id, "admin")).toEqual({
+			ok: true,
+		});
+		expect(await officerActions.removeOfficer(added.id)).toEqual({ ok: true });
+	});
+
+	it("validates emails and roles", async () => {
+		expect(
+			await officerActions.addOfficer("not-an-email", "officer")
+		).toMatchObject({ ok: false });
+		expect(
+			await officerActions.addOfficer("a@gmail.com", "owner")
+		).toMatchObject({ ok: false });
+		expect(
+			await officerActions.changeOfficerRole(admin.id, "superuser")
+		).toMatchObject({ ok: false });
+		expect(await count(users)).toBe(1);
+	});
+
+	it("can't remove or demote the last admin", async () => {
+		expect(await officerActions.removeOfficer(admin.id)).toEqual({
+			ok: false,
+			error: "There must always be at least one admin.",
+		});
+		expect(
+			await officerActions.changeOfficerRole(admin.id, "officer")
+		).toMatchObject({ ok: false });
+		expect(await count(users)).toBe(1);
+	});
+
+	it("reject an Epsilon token that isn't a token", async () => {
+		expect(await settingsActions.saveEpsilonTokenAction("hi")).toMatchObject({
+			ok: false,
+		});
+		expect(await settingsActions.testEpsilonAction()).toMatchObject({
+			ok: false,
+		});
+	});
+});

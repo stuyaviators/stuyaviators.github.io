@@ -60,6 +60,21 @@ const xoConfig = [
 			"@stylistic/no-mixed-operators": "off",
 		},
 	},
+	{
+		// Tests feed hostile input on purpose (javascript: and http: URLs) and
+		// read results with terse chains, so a few style rules are relaxed.
+		files: ["**/*.test.{ts,tsx}"],
+		rules: {
+			"no-script-url": "off",
+			"prefer-destructuring": "off",
+			"capitalized-comments": "off",
+			"unicorn/prefer-https": "off",
+			"unicorn/max-nested-calls": "off",
+			"unicorn/no-await-expression-member": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unnecessary-type-assertion": "off",
+		},
+	},
 ];
 
 export default xoConfig;
