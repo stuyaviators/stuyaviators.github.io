@@ -146,6 +146,25 @@ function FloatingStage({
 		offset: ["start end", "end start"],
 	});
 
+	// Ignore the cursor while the page is scrolling, so photos sliding under
+	// it don't enlarge; hover comes back shortly after scrolling stops.
+	useEffect(() => {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const onScroll = () => {
+			ref.current?.classList.add("is-scrolling");
+			clearTimeout(timer);
+			timer = setTimeout(() => {
+				ref.current?.classList.remove("is-scrolling");
+			}, 150);
+		};
+
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => {
+			window.removeEventListener("scroll", onScroll);
+			clearTimeout(timer);
+		};
+	}, []);
+
 	useEffect(() => {
 		const large = globalThis.matchMedia("(min-width: 1024px)");
 		const small = globalThis.matchMedia("(min-width: 640px)");

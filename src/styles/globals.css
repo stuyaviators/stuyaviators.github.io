@@ -793,3 +793,8 @@ dialog[open]::backdrop {
 		animation: none;
 	}
 }
+
+/* No hover effects on gallery photos while the page is scrolling. */
+.floating-stage.is-scrolling {
+	pointer-events: none;
+}
