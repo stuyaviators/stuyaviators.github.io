@@ -73,7 +73,7 @@ export default function ListingCard({
 						alt=""
 						fill
 						unoptimized
-						sizes="(min-width: 640px) 14rem, 100vw"
+						sizes="(min-width: 1024px) 20rem, (min-width: 640px) 16rem, 100vw"
 						className="object-cover"
 					/>
 				) : undefined

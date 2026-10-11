@@ -37,9 +37,9 @@ export function BoardingPass({
 		>
 			<div className="min-w-0 flex-1 p-5 sm:p-6">{children}</div>
 			<div aria-hidden className="perforation h-3 sm:h-auto sm:w-3" />
-			<div className="flex flex-col border-t border-hairline bg-surface-2 sm:w-56 sm:shrink-0 sm:border-t-0 sm:border-l">
+			<div className="flex flex-col border-t border-hairline bg-surface-2 sm:w-64 sm:shrink-0 lg:w-80 sm:border-t-0 sm:border-l">
 				{stubImage === undefined ? null : (
-					<div className="relative h-36 shrink-0 overflow-hidden sm:h-auto sm:min-h-36 sm:flex-1">
+					<div className="relative h-48 shrink-0 overflow-hidden sm:h-auto sm:min-h-56 sm:flex-1">
 						{stubImage}
 					</div>
 				)}
