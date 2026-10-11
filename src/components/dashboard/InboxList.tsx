@@ -7,7 +7,14 @@ import { useAction } from "@/components/dashboard/use-action";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { typeLabels } from "@/lib/inbox";
-import { Archive, ArchiveRestore, ChevronDown, Mail } from "lucide-react";
+import {
+	Archive,
+	ArchiveRestore,
+	ChevronDown,
+	Mail,
+	Quote,
+} from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 const mailingListLabels: Record<string, string> = {
@@ -113,6 +120,15 @@ export default function InboxList({
 											>
 												<Mail aria-hidden className="size-4" /> Reply
 											</a>
+										) : null}
+										{item.type === "story" ? (
+											<Link
+												href={`/dashboard/testimonials?from=${item.id}`}
+												className={buttonClasses("secondary")}
+											>
+												<Quote aria-hidden className="size-4" /> Make a
+												testimonial
+											</Link>
 										) : null}
 										<Button
 											variant="secondary"

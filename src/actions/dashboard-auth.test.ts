@@ -4,6 +4,7 @@ import {
 	listings,
 	newsletters,
 	submissions,
+	testimonials,
 	users,
 } from "@/db/schema";
 import { createTestDb } from "@/test/pglite";
@@ -40,6 +41,7 @@ const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
 const announcementActions = await import("./announcement.ts");
 const crewActions = await import("./crew.ts");
+const testimonialActions = await import("./testimonials.ts");
 const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
@@ -183,6 +185,27 @@ describe("signed out", () => {
 		expect(await crewActions.deleteCrewMemberAction(id)).toEqual(notSignedIn);
 		expect(await crewActions.importCrewAction()).toEqual(notSignedIn);
 		expect(await testDb!.select().from(crewMembers)).toHaveLength(0);
+	});
+
+	it("can't edit testimonials", async () => {
+		const id = crypto.randomUUID();
+		const input = { quote: "Great club", author: "Peter" };
+		expect(await testimonialActions.addTestimonialAction(input)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.updateTestimonialAction(id, input)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.moveTestimonialAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.deleteTestimonialAction(id)).toEqual(
+			notSignedIn
+		);
+		expect(await testimonialActions.importTestimonialsAction()).toEqual(
+			notSignedIn
+		);
+		expect(await testDb!.select().from(testimonials)).toHaveLength(0);
 	});
 
 	it("can't triage the inbox", async () => {
@@ -436,6 +459,33 @@ describe("officers", () => {
 			ok: true,
 		});
 		expect((await crewActions.deleteCrewMemberAction(mine.id)).ok).toBe(false);
+	});
+
+	it("can import, add, edit and remove testimonials", async () => {
+		expect((await testimonialActions.importTestimonialsAction()).ok).toBe(true);
+		expect((await testimonialActions.importTestimonialsAction()).ok).toBe(
+			false
+		);
+		const input = { quote: "Great club", author: "Peter" };
+		expect(await testimonialActions.addTestimonialAction(input)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("testimonials");
+		const rows = await testDb!.select().from(testimonials);
+		const mine = rows.find((row) => row.quote === "Great club")!;
+		expect(
+			await testimonialActions.updateTestimonialAction(mine.id, {
+				...input,
+				quote: "Greater club",
+			})
+		).toEqual({ ok: true });
+		expect(
+			(await testimonialActions.addTestimonialAction({ ...input, quote: "" }))
+				.ok
+		).toBe(false);
+		expect(await testimonialActions.deleteTestimonialAction(mine.id)).toEqual({
+			ok: true,
+		});
 	});
 
 	it("gets field errors for a bad crew photo link", async () => {

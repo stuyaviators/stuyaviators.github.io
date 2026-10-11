@@ -15,6 +15,7 @@ import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { photos } from "@/content/photos";
 import { getUpcomingMeetings } from "@/lib/meetings";
+import { getPublicTestimonials } from "@/lib/testimonials";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +28,7 @@ export const revalidate = 900;
  */
 export default async function Home() {
 	const upcoming = await getUpcomingMeetings();
+	const testimonials = await getPublicTestimonials();
 
 	return (
 		<>
@@ -125,7 +127,7 @@ export default async function Home() {
 			<MembersScene
 				heading={home.testimonialsHeading}
 				intro={home.testimonialsIntro}
-				testimonials={home.testimonials}
+				testimonials={testimonials}
 				poster={photos.homeGrassRunway.src}
 			/>
 

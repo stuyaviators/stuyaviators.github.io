@@ -33,6 +33,11 @@ const baseItems: NavItem[] = [
 	{ href: "/dashboard/newsletter", label: "Newsletter", icon: "newsletter" },
 	{ href: "/dashboard/crew", label: "Flight crew", icon: "crew" },
 	{
+		href: "/dashboard/testimonials",
+		label: "Testimonials",
+		icon: "testimonials",
+	},
+	{
 		href: "/dashboard/announcement",
 		label: "Announcement",
 		icon: "announcement",

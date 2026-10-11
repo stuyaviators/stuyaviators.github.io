@@ -204,3 +204,33 @@ export const crewMembers = pgTable(
 		index("crew_members_group_idx").on(table.groupId, table.sortOrder),
 	]
 );
+
+/**
+"What our members say" on the home page.
+*/
+export const testimonials = pgTable("testimonials", {
+	id: uuid().primaryKey().defaultRandom(),
+	quote: text().notNull(),
+	author: text().notNull(),
+	sortOrder: integer().notNull().default(0),
+	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedBy: text(),
+});
+
+/**
+The gallery page. Photos are an uploaded `imageUrl` (with its size), or
+`photoKey` for the bundled photos in src/content/photos.ts.
+*/
+export const galleryPhotos = pgTable("gallery_photos", {
+	id: uuid().primaryKey().defaultRandom(),
+	alt: text().notNull(),
+	imageUrl: text(),
+	width: integer(),
+	height: integer(),
+	photoKey: text(),
+	sortOrder: integer().notNull().default(0),
+	createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	updatedBy: text(),
+});
