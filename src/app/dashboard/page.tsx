@@ -109,7 +109,7 @@ export default async function OverviewPage({
 
 			<div className="mt-6 grid gap-4 lg:grid-cols-2">
 				{hasAccess(user, "newsletters") ? (
-					<Card aria-labelledby="lists-heading">
+					<Card aria-labelledby="lists-heading" className="flex flex-col">
 						<h2 id="lists-heading" className="text-xl">
 							Mailing lists
 						</h2>
@@ -117,7 +117,7 @@ export default async function OverviewPage({
 							Sign-ups land in a Google Sheet. See{" "}
 							<code>docs/sending-newsletters.md</code> before sending.
 						</p>
-						<div className="mt-4 flex flex-wrap gap-2">
+						<div className="mt-auto flex flex-wrap gap-2 pt-4">
 							{signup ? (
 								<ButtonLink href={signup} variant="secondary">
 									Sign-up Sheet <ExternalLink aria-hidden className="size-4" />
@@ -130,7 +130,7 @@ export default async function OverviewPage({
 				) : null}
 
 				{isAdmin ? (
-					<Card aria-labelledby="epsilon-heading">
+					<Card aria-labelledby="epsilon-heading" className="flex flex-col">
 						<h2 id="epsilon-heading" className="text-xl">
 							Epsilon meetings
 						</h2>
@@ -157,7 +157,7 @@ export default async function OverviewPage({
 								</>
 							)}
 						</p>
-						<div className="mt-4">
+						<div className="mt-auto pt-4">
 							<ButtonLink href="/dashboard/settings" variant="secondary">
 								Manage token
 							</ButtonLink>

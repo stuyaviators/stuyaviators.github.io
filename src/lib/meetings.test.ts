@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { manualMeetings, parseEpsilonMeetings } from "./meetings.ts";
+import { parseEpsilonMeetings } from "./meetings.ts";
 
 describe("parseEpsilonMeetings", () => {
 	it("maps Epsilon meetings and skips private ones", () => {
@@ -38,11 +38,7 @@ describe("parseEpsilonMeetings", () => {
 		]);
 	});
 
-	it("throws on an unexpected payload so the fallback is used", () => {
+	it("throws on an unexpected payload so the board is shown as down", () => {
 		expect(() => parseEpsilonMeetings({ message: "JWT expired" })).toThrow();
-	});
-
-	it("has a valid manual fallback", () => {
-		expect(manualMeetings[0]?.room).toBe("313");
 	});
 });

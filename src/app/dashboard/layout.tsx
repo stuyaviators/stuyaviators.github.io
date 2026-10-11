@@ -155,7 +155,7 @@ export default async function DashboardLayout({
 							<p className="label truncate text-muted">
 								{roleLabels[user.role]}
 							</p>
-							<SignOutForm className="mt-2" />
+							{isOpenSignIn() ? null : <SignOutForm className="mt-2" />}
 						</div>
 					</aside>
 
@@ -175,7 +175,7 @@ export default async function DashboardLayout({
 							{children}
 							<div className="mt-10 md:hidden">
 								<p className="text-sm text-muted">Signed in as {user.email}</p>
-								<SignOutForm className="mt-2" />
+								{isOpenSignIn() ? null : <SignOutForm className="mt-2" />}
 							</div>
 						</main>
 					</div>

@@ -15,7 +15,7 @@ import { meetingImages } from "@/content/meeting-images";
 import { meetings } from "@/content/meetings";
 import { photos } from "@/content/photos";
 import { getInstagramFeed } from "@/lib/behold";
-import { getUpcomingMeetings } from "@/lib/meetings";
+import { getMeetingBoard } from "@/lib/meetings";
 import { getPublicTestimonials } from "@/lib/testimonials";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -28,7 +28,7 @@ export const revalidate = 900;
  * for a moment while you scroll (Apple-style), then handing off to the next.
  */
 export default async function Home() {
-	const upcoming = await getUpcomingMeetings();
+	const board = await getMeetingBoard();
 	const testimonials = await getPublicTestimonials();
 	const feed = await getInstagramFeed();
 
@@ -54,7 +54,10 @@ export default async function Home() {
 						Drop in whenever your schedule allows. No experience needed.
 					</p>
 					<InView className="mt-8 sm:mt-10">
-						<DepartureBoard meetings={upcoming.slice(0, 3)} />
+						<DepartureBoard
+							status={board.isUp ? "up" : "down"}
+							meetings={board.meetings?.slice(0, 3) ?? []}
+						/>
 					</InView>
 				</Container>
 			</PinnedScene>
@@ -169,7 +172,10 @@ export default async function Home() {
 								How to join{" "}
 								<ArrowRight aria-hidden className="btn-arrow size-4" />
 							</ButtonLink>
-							<a href="#mailing-list" className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+							<a
+								href="#mailing-list"
+								className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/40 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+							>
 								Join the mailing list
 							</a>
 						</div>

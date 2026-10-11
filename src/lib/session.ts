@@ -20,7 +20,7 @@ Local testing only (see src/lib/open-signin.ts): no Google, always an admin.
 */
 function localAdmin(
 	email = localAdminEmail,
-	name: string | undefined = "Local developer",
+	name: string | undefined = "Developer",
 	image?: string
 ): User {
 	return {

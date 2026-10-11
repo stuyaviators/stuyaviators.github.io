@@ -21,6 +21,8 @@ export default function TakeoffArrival() {
 		}
 
 		const root = document.documentElement;
+		// A finished sign-out fade must never hide the next page.
+		root.classList.remove("dash-leaving");
 		if (isFlagged && pathname.startsWith("/dashboard")) {
 			root.classList.add("dash-arriving");
 		}
