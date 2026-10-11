@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import LinkInterceptor from "@/components/LinkInterceptor";
 import MediaGuard from "@/components/MediaGuard";
@@ -64,7 +65,8 @@ export default function RootLayout({
 				{children}
 				<LinkInterceptor />
 				<MediaGuard />
-				<Analytics />
+        <Analytics />
+				<SpeedInsights />
 			</body>
 		</html>
 	);
