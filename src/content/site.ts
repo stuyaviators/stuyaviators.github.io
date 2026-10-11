@@ -59,7 +59,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/careers",
-				label: "Future Career & Pathways",
+				label: "Future Career Pathways",
 				description: "Every path in aviation",
 			},
 		],
@@ -74,7 +74,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/gallery",
-				label: "Community Highlights & Photos",
+				label: "Community Highlights",
 				description: "Photos from members",
 			},
 			{
@@ -99,7 +99,7 @@ export const nav: NavGroup[] = [
 			},
 			{
 				href: "/dashboard",
-				label: "Access Crew Dashboard",
+				label: "Crew Dashboard",
 				description: "For club officers",
 			},
 		],
