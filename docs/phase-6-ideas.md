@@ -34,6 +34,11 @@ optionally `NEXT_PUBLIC_SITE_URL=https://stuyaviators.vercel.app`.
 `AUTH_SECRET` must be the **same value** as in `.env.local`: the saved Epsilon token is
 encrypted with it, so a different secret makes the token unreadable.
 
+The Blob store must be a **public** store (images are shown to visitors). A private store
+makes every upload fail with "Cannot use public access on a private store". The access mode
+can't be changed afterwards: create a new public store and connect it with the `aviatorsblob`
+prefix.
+
 Do not add: `DASHBOARD_OPEN_SIGNIN`, `DASHBOARD_DEV_ROLE`, `EPSILON_ACCESS_TOKEN` (no longer
 read), `aviatorsblob_STORE_ID`. `ADMIN_EMAILS` is optional now: the five admins are already
 in the database.

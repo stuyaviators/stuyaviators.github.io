@@ -677,6 +677,32 @@ describe("officers", () => {
 		expect(putMock).toHaveBeenCalledTimes(1);
 	});
 
+	it("get a clear 503 when the Blob store is private", async () => {
+		process.env.BLOB_READ_WRITE_TOKEN = "token";
+		putMock.mockRejectedValueOnce(
+			new Error(
+				"Vercel Blob: Cannot use public access on a private store. The store is configured with private access."
+			)
+		);
+		const photo = new Uint8Array(
+			await sharp({
+				create: { width: 400, height: 300, channels: 3, background: "#123" },
+			})
+				.jpeg()
+				.toBuffer()
+		);
+		const body = new FormData();
+		body.set("file", new File([photo], "a.jpg", { type: "image/jpeg" }));
+		body.set("purpose", "listing");
+		const response = await uploadRoute.POST(
+			new Request("http://localhost/api/upload", { method: "POST", body })
+		);
+		expect(response.status).toBe(503);
+		expect(await response.json()).toMatchObject({
+			error: expect.stringContaining("public Vercel Blob store"),
+		});
+	});
+
 	it("get a clear 503 when Blob isn't set up", async () => {
 		const body = new FormData();
 		body.set("file", new File([new Uint8Array([1])], "a.jpg"));

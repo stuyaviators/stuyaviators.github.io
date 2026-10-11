@@ -79,6 +79,14 @@ export async function POST(request: Request) {
 		}
 
 		console.error("Upload failed", error_);
+		// The site shows its images to everyone, so it needs a *public* store.
+		if (error_ instanceof Error && /private store/iu.test(error_.message)) {
+			return error(
+				"The image store is set to private. An admin needs to connect a public Vercel Blob store to the project (Storage → Blob → Public).",
+				503
+			);
+		}
+
 		return error("Upload failed. Try again.", 500);
 	}
 }
