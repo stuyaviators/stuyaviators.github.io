@@ -16,6 +16,7 @@ const {
 	listGalleryRows,
 	moveGalleryPhoto,
 	newPhotoSchema,
+	shuffleGalleryPhotos,
 	toLightboxImage,
 	updateGalleryAlt,
 } = await import("./gallery.ts");
@@ -90,6 +91,20 @@ describe("gallery", () => {
 		expect(await didMoveToTrash(db, "gallery", a?.id ?? "", "x")).toBe(true);
 		expect(await didMoveToTrash(db, "gallery", a?.id ?? "", "x")).toBe(false);
 		expect(await alts()).toEqual(["B"]);
+	});
+
+	it("shuffles the photos into a new order, leaving none out", async () => {
+		for (const name of ["A", "B", "C", "D"]) {
+			// eslint-disable-next-line no-await-in-loop -- keeps the order of adding.
+			await addGalleryPhoto(db, photo(name), "x");
+		}
+
+		const before = await alts();
+		const order = await shuffleGalleryPhotos(db, () => 0);
+		expect(order).toHaveLength(4);
+		const after = await alts();
+		expect(after.toSorted()).toEqual(before.toSorted());
+		expect(after).not.toEqual(before);
 	});
 
 	it("labels AI descriptions, and an edit takes the label off", async () => {

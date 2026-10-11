@@ -5,7 +5,7 @@ import { galleryPhotos, photos, spotlightPhotos } from "@/content/photos";
 import { getDb } from "@/db";
 import { galleryPhotos as galleryTable } from "@/db/schema";
 import { optionalBlobUrl } from "@/lib/blob-url";
-import { moveId } from "@/lib/reorder";
+import { moveId, shuffleIds } from "@/lib/reorder";
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
@@ -104,6 +104,29 @@ export async function updateGalleryAlt(
 		.where(eq(galleryTable.id, id))
 		.returning();
 	return rows.at(0);
+}
+
+/**
+Puts the photos in a random order. Returns the new order.
+*/
+export async function shuffleGalleryPhotos(
+	db: Database,
+	random: () => number = Math.random
+): Promise<string[]> {
+	const rows = await listGalleryRows(db);
+	const order = shuffleIds(
+		rows.map((row) => row.id),
+		random
+	);
+	await Promise.all(
+		order.map(async (rowId, sortOrder) =>
+			db
+				.update(galleryTable)
+				.set({ sortOrder })
+				.where(eq(galleryTable.id, rowId))
+		)
+	);
+	return order;
 }
 
 export async function moveGalleryPhoto(

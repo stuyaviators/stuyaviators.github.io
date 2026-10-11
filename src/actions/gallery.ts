@@ -12,6 +12,7 @@ import {
 	moveGalleryPhoto,
 	newPhotoSchema,
 	optionalAltSchema,
+	shuffleGalleryPhotos,
 	updateGalleryAlt,
 } from "@/lib/gallery";
 import { canDeleteRow, notYours } from "@/lib/ownership";
@@ -151,6 +152,17 @@ export async function moveGalleryPhotoAction(
 			return missing;
 		}
 
+		refresh();
+		return { ok: true };
+	});
+}
+
+/**
+Puts the gallery in a random order (the officer is asked to confirm first).
+*/
+export async function shuffleGalleryAction(): Promise<ActionResult> {
+	return guarded("gallery", async ({ db }) => {
+		await shuffleGalleryPhotos(db);
 		refresh();
 		return { ok: true };
 	});

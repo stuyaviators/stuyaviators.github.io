@@ -5,6 +5,7 @@ import {
 	deleteGalleryPhotoAction,
 	importGalleryAction,
 	moveGalleryPhotoAction,
+	shuffleGalleryAction,
 	updateGalleryAltAction,
 } from "@/actions/gallery";
 import { discardImageAction } from "@/actions/uploads";
@@ -31,6 +32,7 @@ import {
 	Images,
 	Pencil,
 	Plus,
+	Shuffle,
 	Trash2,
 	Upload,
 } from "lucide-react";
@@ -60,6 +62,7 @@ export default function GalleryManager({
 	const { run, isPending, error, leavingId, markLeaving } = useAction();
 	const [editingId, setEditingId] = useState<string>();
 	const [removing, setRemoving] = useState<Item>();
+	const [isShuffling, setIsShuffling] = useState(false);
 	const { canDeleteItem } = useViewer();
 
 	if (items.length === 0) {
@@ -123,6 +126,22 @@ export default function GalleryManager({
 					{error}
 				</Notice>
 			) : null}
+
+			<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<p className="text-sm text-muted">
+					{items.length === 1 ? "1 photo" : `${items.length} photos`}, in the
+					order they appear on the page.
+				</p>
+				<Button
+					variant="secondary"
+					disabled={isPending || items.length < 2}
+					onClick={() => {
+						setIsShuffling(true);
+					}}
+				>
+					<Shuffle aria-hidden className="size-4" /> Shuffle the order
+				</Button>
+			</div>
 
 			<ul className="dash-stagger space-y-3">
 				{items.map((item, index) => (
@@ -230,6 +249,20 @@ export default function GalleryManager({
 					</li>
 				))}
 			</ul>
+
+			<Confirm
+				isOpen={isShuffling}
+				title="Shuffle the photos?"
+				description="They’ll be put in a random order, replacing the order you set. You can’t undo this, but you can shuffle again or move photos by hand."
+				confirmLabel="Shuffle"
+				onCancel={() => {
+					setIsShuffling(false);
+				}}
+				onConfirm={() => {
+					setIsShuffling(false);
+					run(async () => shuffleGalleryAction(), undefined, "Photos shuffled");
+				}}
+			/>
 
 			<Confirm
 				isOpen={removing !== undefined}
