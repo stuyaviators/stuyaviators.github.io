@@ -186,25 +186,30 @@ export async function updateClubMeeting(
 	return rows.at(0);
 }
 
-/**
-Meetings added by hand, for the public board. An unreachable database counts
-as none, so the board still shows what Epsilon has.
-*/
-export const getPublicClubMeetings = unstable_cache(
+const loadClubMeetings = unstable_cache(
 	async (): Promise<Meeting[]> => {
 		const db = getDb();
 		if (!db) {
 			return [];
 		}
 
-		try {
-			const rows = await listClubMeetings(db);
-			return rows.map((row) => toMeeting(row));
-		} catch (error) {
-			console.error("Could not load the club's own meetings", error);
-			return [];
-		}
+		// A failure throws, so it isn't remembered: the next visit tries again.
+		const rows = await listClubMeetings(db);
+		return rows.map((row) => toMeeting(row));
 	},
 	["club-meetings"],
 	{ tags: [meetingsTag], revalidate: 900 }
 );
+
+/**
+Meetings added by hand, for the public board. An unreachable database counts
+as none, so the board still shows what Epsilon has.
+*/
+export async function getPublicClubMeetings(): Promise<Meeting[]> {
+	try {
+		return await loadClubMeetings();
+	} catch (error) {
+		console.error("Could not load the club's own meetings", error);
+		return [];
+	}
+}
