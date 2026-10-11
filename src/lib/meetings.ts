@@ -9,8 +9,8 @@ import { z } from "zod";
  * Epsilon only shows meetings to signed-in users, so the request needs an
  * officer's Epsilon session. An admin stores a long-lived refresh token in the
  * dashboard (Settings → Epsilon; see epsilon-token.ts), which is exchanged for
- * hourly access tokens. EPSILON_ACCESS_TOKEN (server-only) still works as a
- * short-lived override. With neither, the board falls back to
+ * hourly access tokens. With no saved token (or one Epsilon refused), the
+ * board falls back to
  * `manualMeetings` below. Only meeting fields are requested, never members.
  */
 
@@ -96,20 +96,18 @@ export function parseEpsilonMeetings(data: unknown): Meeting[] {
 }
 
 async function accessToken(): Promise<string | undefined> {
+	// The token saved in the dashboard is the only source.
 	const db = getDb();
-	if (db) {
-		try {
-			const token = await getEpsilonAccessToken(db);
-			if (token) {
-				return token;
-			}
-		} catch (error) {
-			console.error("Could not load the Epsilon token", error);
-		}
+	if (!db) {
+		return undefined;
 	}
 
-	const fallback = process.env.EPSILON_ACCESS_TOKEN;
-	return fallback === "" ? undefined : fallback;
+	try {
+		return await getEpsilonAccessToken(db);
+	} catch (error) {
+		console.error("Could not load the Epsilon token", error);
+		return undefined;
+	}
 }
 
 export async function fetchEpsilonMeetings(token?: string): Promise<Meeting[]> {

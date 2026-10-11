@@ -123,7 +123,7 @@ export function validateFullName(raw: string): string | undefined {
 }
 
 /**
-Domain + digits checks only (used alone by the unsubscribe form).
+Domain + digits checks only (the last name isn't checked).
 */
 export function validateStuyEmail(raw: string): string | undefined {
 	const email = cleanEmail(raw);
@@ -219,13 +219,3 @@ export const signupSchema = z
 		fullName: formatName(value.fullName),
 		email: cleanEmail(value.email),
 	}));
-
-export const unsubscribeSchema = z
-	.object({ email: z.string().max(254) })
-	.superRefine((value, context) => {
-		const error = validateStuyEmail(value.email);
-		if (error) {
-			context.addIssue({ code: "custom", path: ["email"], message: error });
-		}
-	})
-	.transform((value) => ({ email: cleanEmail(value.email) }));

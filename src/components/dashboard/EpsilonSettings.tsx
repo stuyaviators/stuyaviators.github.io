@@ -99,8 +99,6 @@ export default function EpsilonSettings({
 								<Badge tone="bad">Needs a new token</Badge>
 							) : status.state === "unreadable" ? (
 								<Badge tone="bad">Unreadable</Badge>
-							) : status.envFallback ? (
-								<Badge tone="warn">Using EPSILON_ACCESS_TOKEN</Badge>
 							) : (
 								<Badge>Not connected</Badge>
 							)}

@@ -148,11 +148,6 @@ export default async function OverviewPage({
 									<Badge tone="bad">Needs a new token</Badge>{" "}
 									<span className="text-muted">{epsilon.error}</span>
 								</>
-							) : epsilon?.envFallback ? (
-								<>
-									<Badge tone="warn">Using EPSILON_ACCESS_TOKEN</Badge>{" "}
-									<span className="text-muted">expires about hourly</span>
-								</>
 							) : (
 								<>
 									<Badge>Not connected</Badge>{" "}

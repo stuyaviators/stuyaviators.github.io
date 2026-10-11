@@ -264,11 +264,7 @@ export default function PrivacyPage() {
 				<ul>
 					<li>
 						<strong>Unsubscribe</strong> using the link at the bottom of any
-						newsletter, at{" "}
-						<Link href="/newsletter/unsubscribe">
-							{site.url.replace("https://", "")}/newsletter/unsubscribe
-						</Link>
-						, or by emailing us.
+						newsletter, or by emailing us.
 					</li>
 					<li>
 						<strong>Ask to see, correct or delete</strong> what we hold about

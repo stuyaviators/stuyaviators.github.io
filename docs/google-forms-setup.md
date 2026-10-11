@@ -114,26 +114,12 @@ to school users only, and the account disappears when its owner graduates.
 Keep forms (and their response Sheets) in `stuyaviators@gmail.com` and share
 edit access with officers.
 
-## Creating the unsubscribe form
+## Unsubscribing
 
-There's no unsubscribe form yet. Until there is, every unsubscribe link points
-to `mailto:stuyaviators@gmail.com?subject=Unsubscribe`, and officers remove
-those people by hand.
-
-To set one up:
-
-1. In `stuyaviators@gmail.com`, create a form called "unsubscribe" with one
-   short-answer question: **Stuy email**.
-2. Apply the "must stay OFF" settings above.
-3. Find the question's `entry.<id>` and the `formResponse` URL as described
-   above.
-4. In Vercel → Project → Settings → Environment Variables, set:
-   - `GOOGLE_FORM_UNSUBSCRIBE_ACTION`: the `formResponse` URL
-   - `GOOGLE_FORM_UNSUBSCRIBE_EMAIL_ENTRY`: e.g. `entry.123456789`
-   - `GOOGLE_FORM_UNSUBSCRIBE_FALLBACK_URL`: the form's public link
-5. Redeploy. `/newsletter/unsubscribe` now shows a form (it only checks
-   `@stuy.edu` and the trailing numbers, not the last name), and newsletter
-   unsubscribe links point there.
+There is no unsubscribe form. Every unsubscribe link (the newsletter footer, the
+privacy page) points to `mailto:stuyaviators@gmail.com?subject=Unsubscribe`, and
+`/newsletter/unsubscribe` (still linked from older newsletters) just says to email
+that address. Officers remove those addresses from the mailing list before the next send.
 
 ## Testing safely
 
