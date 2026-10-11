@@ -755,3 +755,41 @@ dialog[open]::backdrop {
 	filter: blur(3px) saturate(0.6);
 	opacity: 0.45;
 }
+
+/* Gallery photos wander slow, wide loops. */
+@keyframes wander {
+	0%,
+	100% {
+		transform: translate(0, 0) rotate(0deg);
+	}
+
+	25% {
+		transform: translate(var(--wx), calc(var(--wy) * -1)) rotate(var(--wr));
+	}
+
+	50% {
+		transform: translate(calc(var(--wx) * -0.6), var(--wy)) rotate(0deg);
+	}
+
+	75% {
+		transform: translate(calc(var(--wx) * -1), calc(var(--wy) * -0.4))
+			rotate(calc(var(--wr) * -1));
+	}
+}
+
+.wander {
+	animation: wander var(--wander-d, 18s) ease-in-out var(--wander-delay, 0s)
+		infinite;
+}
+
+/* Pause a photo's wander while it's hovered so it holds still to view. */
+.wander:hover,
+.wander:focus-within {
+	animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wander {
+		animation: none;
+	}
+}

@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import {
-	AnimatePresence,
 	motion,
 	useMotionValueEvent,
 	useReducedMotion,
@@ -31,7 +30,6 @@ function Steps({
 	const { progress, isPinned } = useSceneProgress();
 	const isReducedMotion = useReducedMotion();
 	const [active, setActive] = useState(0);
-	const [direction, setDirection] = useState(1);
 
 	useMotionValueEvent(progress, "change", (value) => {
 		const next = Math.min(steps.length - 1, Math.floor(value * steps.length));
@@ -39,7 +37,6 @@ function Steps({
 			return;
 		}
 
-		setDirection(next > active ? 1 : -1);
 		setActive(next);
 	});
 
@@ -85,25 +82,37 @@ function Steps({
 						</li>
 					))}
 				</ol>
-				<div className="relative min-h-[18rem]">
-					<AnimatePresence mode="wait" custom={direction} initial={false}>
-						<motion.div
-							key={step.key}
-							custom={direction}
-							initial={
-								isReducedMotion
-									? false
-									: { opacity: 0, y: direction * 48, scale: 0.96 }
-							}
-							animate={{ opacity: 1, y: 0, scale: 1 }}
-							exit={{ opacity: 0, y: direction * -48, scale: 0.96 }}
-							transition={{ duration: 0.5, ease }}
-							className="rounded-3xl bg-surface p-6 shadow-card sm:p-10"
-						>
-							<p className="label text-accent-text">{step.label}</p>
-							<div className="mt-3">{step.content}</div>
-						</motion.div>
-					</AnimatePresence>
+				<div className="relative">
+					{/* Every step shares one grid cell, so the card keeps the height
+					    of the tallest step instead of jumping between them. */}
+					<div className="grid">
+						{steps.map((item, index) => {
+							const isActive = index === active;
+							const offset = index < active ? -1 : 1;
+							return (
+								<motion.div
+									key={item.key}
+									aria-hidden={!isActive}
+									inert={!isActive}
+									className="rounded-3xl bg-surface p-6 shadow-card [grid-area:1/1] sm:p-10"
+									initial={false}
+									animate={
+										isActive
+											? { opacity: 1, y: 0, scale: 1 }
+											: {
+													opacity: 0,
+													y: isReducedMotion ? 0 : offset * 40,
+													scale: isReducedMotion ? 1 : 0.97,
+												}
+									}
+									transition={{ duration: 0.5, ease }}
+								>
+									<p className="label text-accent-text">{item.label}</p>
+									<div className="mt-3">{item.content}</div>
+								</motion.div>
+							);
+						})}
+					</div>
 					<div className="mt-6 h-1 overflow-hidden rounded-full bg-hairline">
 						<motion.div
 							className="h-full origin-left rounded-full bg-brand"
@@ -131,7 +140,7 @@ export default function StepSequence({
 		<PinnedScene
 			id={id}
 			labelledBy={labelledBy}
-			length={steps.length * 0.6}
+			length={steps.length * 0.8}
 			isAlwaysPinned
 		>
 			<div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">

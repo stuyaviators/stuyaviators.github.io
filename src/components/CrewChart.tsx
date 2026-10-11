@@ -17,8 +17,8 @@ import { Initials } from "./ui/Initials.tsx";
 
 /*
  * Flight Crew, top to bottom: Cockpit Crew, Leadership Team, Flight Crew,
- * Faculty Advisors, past leadership & crew, then the Alliance of partner
- * clubs. Each person swings in like the story timeline (from the side,
+ * Faculty Advisors, the Alliance of partner clubs, then past leadership &
+ * crew. Each person swings in like the story timeline (from the side,
  * tilted, blurred, small), then floats gently and drifts at their own depth
  * as you scroll. Past members are faded and black and white until hovered.
  * Reduced motion: static layout.
@@ -212,9 +212,13 @@ function Row({
 export default function CrewChart({
 	groups,
 	partners,
+	allianceIntro,
+	pastExtra = [],
 }: {
 	readonly groups: CrewGroup[];
 	readonly partners: PartnerClub[];
+	readonly allianceIntro: string;
+	readonly pastExtra?: CrewMember[];
 }) {
 	const ref = useRef<HTMLDivElement>(null);
 	const isReducedMotion = useReducedMotion();
@@ -224,7 +228,7 @@ export default function CrewChart({
 	});
 	const group = (id: string) =>
 		groups.find((item) => item.id === id)?.members ?? [];
-	const past = [...group("past"), ...group("past-helpers")];
+	const past = [...group("past"), ...group("past-helpers"), ...pastExtra];
 
 	return (
 		<div ref={ref} className="space-y-24 sm:space-y-32">
@@ -240,18 +244,15 @@ export default function CrewChart({
 			<Tier title="Faculty Advisors">
 				<Row members={group("advisors")} size="md" drift={drift} offset={6} />
 			</Tier>
-			<Tier title="Past Leadership & Crew">
-				<Row isPast members={past} size="past" drift={drift} offset={8} />
-			</Tier>
 			<Tier title="Alliance">
-				<p className="mx-auto -mt-6 mb-10 max-w-xl text-muted">
-					Clubs we partner with.
+				<p className="mx-auto -mt-4 mb-10 max-w-2xl text-lg text-muted">
+					{allianceIntro}
 				</p>
 				<ul className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
 					{partners.map((club, index) => (
 						<motion.li
 							key={club.name}
-							className="rounded-3xl border border-hairline bg-surface p-6 sm:p-8"
+							className="flex items-center justify-center gap-4 rounded-3xl border border-hairline bg-surface p-6 sm:p-8"
 							initial={
 								isReducedMotion
 									? false
@@ -261,31 +262,22 @@ export default function CrewChart({
 							viewport={{ once: true, margin: "0px 0px -10% 0px" }}
 							transition={{ type: "spring", stiffness: 160, damping: 20 }}
 						>
-							<div className="flex items-center justify-center gap-3">
-								<Initials
-									name={club.name}
-									className="size-14 rounded-full text-lg"
-								/>
-								<div className="text-left">
-									<p className="font-display text-xl font-semibold">
-										{club.name}
-									</p>
-									<p className="label text-accent-text">Partnered club</p>
-								</div>
+							<Initials
+								name={club.name}
+								className="size-14 shrink-0 rounded-full text-lg"
+							/>
+							<div className="text-left">
+								<p className="font-display text-xl font-semibold">
+									{club.name}
+								</p>
+								<p className="label text-accent-text">Partnered club</p>
 							</div>
-							{club.members.length > 0 ? (
-								<div className="mt-8">
-									<Row
-										members={club.members}
-										size="sm"
-										drift={drift}
-										offset={20 + index}
-									/>
-								</div>
-							) : null}
 						</motion.li>
 					))}
 				</ul>
+			</Tier>
+			<Tier title="Past Leadership & Crew">
+				<Row isPast members={past} size="past" drift={drift} offset={8} />
 			</Tier>
 		</div>
 	);

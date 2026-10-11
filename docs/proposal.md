@@ -288,6 +288,9 @@ review on request.
 | 2026-10-10 | Crew | Top to bottom: Cockpit Crew (captains + first officer), Leadership Team (other officers), Flight Crew (helpers), Faculty Advisors, Past Leadership & Crew (faded, grayscale), Alliance (partnered clubs K2-18B Rocketry and StuySky). Floating portraits. |
 | 2026-10-10 | Gallery | Photos float freely and enlarge on hover; no captions. The viewer shows camera specs from EXIF where present (15 photos). No globe: most photos lack location data, and GPS is never read for privacy. |
 | 2026-10-10 | Motion | Scroll locks on more pages (About stages and Join steps step through one at a time; Meetings, Connect, Stories, Brand sections pin). Charter headings stick while their text scrolls. Meeting types stack vertically. Light mode has drifting clouds. Navbar reappears when the mouse nears the top; scroll-to-top button on every page. |
+| 2026-10-10 | About | Impact & Benefits is a plain 2×2 grid of tilt cards (no sticky stacking). Project Skylab stages use the flight-path timeline so every stage is fully readable. |
+| 2026-10-10 | Gallery (revised) | Photos clump closer and wander slow loops; the viewer keeps its controls in fixed positions, slides between photos, and shows specs only after the photo loads. |
+| 2026-10-10 | Alliance | Lists only partnered organizations (K2-18B Rocketry, StuySky) with the legacy SAAA description; sits above Past Leadership & Crew. Esther Lee moves to the past section. |
 
 ### D2: what's cut vs kept
 

@@ -186,27 +186,26 @@ export const crewGroups: CrewGroup[] = [
 	},
 ];
 
-export type PartnerClub = {
-	name: string;
-	members: CrewMember[];
-};
+/**
+Past Alliance representatives, shown with past leadership & crew.
+*/
+export const pastAllianceMembers: CrewMember[] = [
+	{
+		name: "Esther Lee",
+		classOf: "'26",
+		role: "K2-18B Rocketry President (Alliance)",
+		photo: estherLee,
+	},
+];
+
+export type PartnerClub = { name: string };
 
 /**
 Alliance: clubs StuyAviators partners with.
 */
 export const partnerClubs: PartnerClub[] = [
-	{
-		name: "K2-18B Rocketry",
-		members: [
-			{
-				name: "Esther Lee",
-				classOf: "'26",
-				role: "K2-18B Rocketry President",
-				photo: estherLee,
-			},
-		],
-	},
-	{ name: "StuySky", members: [] },
+	{ name: "K2-18B Rocketry" },
+	{ name: "StuySky" },
 ];
 
 export const crewApplyUrl = "https://forms.gle/4dRYhvUt7iZH7u9E6";

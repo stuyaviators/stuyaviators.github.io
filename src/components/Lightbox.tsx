@@ -6,6 +6,7 @@ import type { StaticImageData } from "next/image";
 import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
+	AnimatePresence,
 	motion,
 	useReducedMotion,
 	useScroll,
@@ -72,15 +73,18 @@ function FloatingPhoto({
 	const left =
 		((column + (row % 2) * 0.5 + jitter(index + 1) * 0.45) / (columns + 0.5)) *
 		100;
-	const top = ((row + jitter(index + 50) * 0.5) / rows) * 100;
-	const width = 7 + jitter(index + 100) * 5; // Rem
+	const top = ((row + jitter(index + 50) * 0.6) / rows) * 100;
+	const width = 8 + jitter(index + 100) * 5; // Rem
 	const tilt = (jitter(index + 150) - 0.5) * 14;
 	const depth = (jitter(index + 200) - 0.5) * 2;
-	const y = useTransform(drift, [0, 1], [depth * 120, depth * -120]);
-	const floatStyle: Record<string, string> = {
-		"--float-d": `${6 + jitter(index + 250) * 5}s`,
-		"--float-delay": `${-jitter(index + 300) * 6}s`,
-		"--float-rot": `${tilt > 0 ? 2 : -2}deg`,
+	const y = useTransform(drift, [0, 1], [depth * 160, depth * -160]);
+	// Each photo wanders its own slow loop.
+	const wanderStyle: Record<string, string> = {
+		"--wander-d": `${14 + jitter(index + 250) * 12}s`,
+		"--wander-delay": `${-jitter(index + 300) * 20}s`,
+		"--wx": `${16 + jitter(index + 350) * 28}px`,
+		"--wy": `${12 + jitter(index + 400) * 22}px`,
+		"--wr": `${tilt > 0 ? 3 : -3}deg`,
 	};
 
 	return (
@@ -93,7 +97,7 @@ function FloatingPhoto({
 			}}
 		>
 			<motion.div style={isReducedMotion ? undefined : { y }}>
-				<div className="float" style={floatStyle}>
+				<div className="wander" style={wanderStyle}>
 					<button
 						type="button"
 						aria-label={`Open photo: ${image.alt}`}
@@ -118,7 +122,7 @@ function FloatingPhoto({
 }
 
 /**
-Photos scattered across the page at different depths, gently floating;
+Photos clumped across the page at different depths, each wandering a slow loop;
 hovering one brings it forward and enlarges it while the rest blur back.
 */
 function FloatingStage({
@@ -156,7 +160,8 @@ function FloatingStage({
 		<ul
 			ref={ref}
 			className="floating-stage relative my-16"
-			style={{ height: `calc(${rows} * clamp(8rem, 26vw, 15rem))` }}
+			// Rows overlap, so photos clump together.
+			style={{ height: `calc(${rows} * clamp(6.5rem, 19vw, 11.5rem) + 8rem)` }}
 		>
 			{images.map((image, index) => (
 				<FloatingPhoto
@@ -186,6 +191,11 @@ export default function Lightbox({
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const triggerRef = useRef<HTMLButtonElement | undefined>(null);
 	const [index, setIndex] = useState<number | undefined>(undefined);
+	const [direction, setDirection] = useState(1);
+	const [loadedIndex, setLoadedIndex] = useState<number | undefined>(
+		undefined
+	);
+	const isReducedMotion = useReducedMotion();
 
 	const open = (i: number, trigger: HTMLButtonElement) => {
 		triggerRef.current = trigger;
@@ -195,6 +205,7 @@ export default function Lightbox({
 
 	const step = useCallback(
 		(delta: number) => {
+			setDirection(delta);
 			setIndex((i) =>
 				i === undefined ? i : (i + delta + images.length) % images.length
 			);
@@ -242,60 +253,108 @@ export default function Lightbox({
 			<dialog
 				ref={dialogRef}
 				aria-label={current ? current.alt : "Photo viewer"}
-				className="m-auto max-h-[92dvh] w-[min(96vw,1200px)] bg-transparent p-0 backdrop:bg-ink/90"
-				onClick={(event) => {
-					if (event.target === event.currentTarget) {
-						dialogRef.current?.close();
-					}
-				}}
+				className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden bg-transparent p-0 text-white backdrop:bg-black/90 backdrop:backdrop-blur-sm"
 			>
-				{current ? (
-					<figure className="relative">
-						<Image
-							src={current.src}
-							alt={current.alt}
-							sizes="96vw"
-							className="mx-auto h-auto max-h-[80dvh] w-auto rounded-md object-contain"
-						/>
-						<figcaption className="mt-3 flex items-center justify-between gap-3 text-sm text-white">
-							<span>{formatSpec(current.spec) ?? ""}</span>
-							<span className="font-mono whitespace-nowrap">
-								{(index ?? 0) + 1} / {images.length}
-							</span>
-						</figcaption>
-						<div className="absolute top-2 right-2 flex gap-2">
-							<button
-								type="button"
-								aria-label="Previous photo"
-								className="rounded-md bg-ink/80 p-2 text-white"
-								onClick={() => {
-									step(-1);
+				<div
+					className="flex size-full items-center justify-center px-16 py-20 sm:px-24"
+					onClick={(event) => {
+						// Clicking the empty area around the photo closes the viewer.
+						if (event.target === event.currentTarget) {
+							dialogRef.current?.close();
+						}
+					}}
+				>
+					<AnimatePresence mode="wait" custom={direction} initial={false}>
+						{current && index !== undefined ? (
+							<motion.figure
+								key={index}
+								custom={direction}
+								className="flex max-h-full max-w-full flex-col items-center"
+								initial={{
+									opacity: 0,
+									x: isReducedMotion ? 0 : direction * 80,
+									scale: 0.96,
 								}}
-							>
-								<ChevronLeft aria-hidden className="size-5" />
-							</button>
-							<button
-								type="button"
-								aria-label="Next photo"
-								className="rounded-md bg-ink/80 p-2 text-white"
-								onClick={() => {
-									step(1);
+								animate={
+									loadedIndex === index
+										? { opacity: 1, x: 0, scale: 1 }
+										: {
+												opacity: 0,
+												x: isReducedMotion ? 0 : direction * 40,
+												scale: 0.98,
+											}
+								}
+								exit={{
+									opacity: 0,
+									x: isReducedMotion ? 0 : direction * -80,
+									scale: 0.96,
 								}}
+								transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
 							>
-								<ChevronRight aria-hidden className="size-5" />
-							</button>
-							<button
-								type="button"
-								aria-label="Close"
-								autoFocus
-								className="rounded-md bg-ink/80 p-2 text-white"
-								onClick={() => dialogRef.current?.close()}
-							>
-								<X aria-hidden className="size-5" />
-							</button>
-						</div>
-					</figure>
-				) : null}
+								<Image
+									src={current.src}
+									alt={current.alt}
+									sizes="92vw"
+									className="h-auto max-h-[76dvh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
+									onLoad={() => {
+										setLoadedIndex(index);
+									}}
+								/>
+								{/* Only once the photo has loaded. */}
+								{loadedIndex === index && formatSpec(current.spec) ? (
+									<motion.figcaption
+										initial={{ opacity: 0, y: 8 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ duration: 0.4, delay: 0.15 }}
+										className="mt-4 text-center text-sm text-white/75"
+									>
+										{formatSpec(current.spec)}
+									</motion.figcaption>
+								) : null}
+							</motion.figure>
+						) : null}
+					</AnimatePresence>
+				</div>
+
+				{/* Controls stay in the same place for every photo. */}
+				<motion.button
+					type="button"
+					aria-label="Close"
+					autoFocus
+					whileHover={{ scale: 1.08 }}
+					whileTap={{ scale: 0.92 }}
+					className="fixed top-4 right-4 inline-flex size-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20"
+					onClick={() => dialogRef.current?.close()}
+				>
+					<X aria-hidden className="size-5" />
+				</motion.button>
+				<motion.button
+					type="button"
+					aria-label="Previous photo"
+					whileHover={{ scale: 1.08, x: -2 }}
+					whileTap={{ scale: 0.9 }}
+					className="fixed top-[calc(50%-1.5rem)] left-3 inline-flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:left-6"
+					onClick={() => {
+						step(-1);
+					}}
+				>
+					<ChevronLeft aria-hidden className="size-6" />
+				</motion.button>
+				<motion.button
+					type="button"
+					aria-label="Next photo"
+					whileHover={{ scale: 1.08, x: 2 }}
+					whileTap={{ scale: 0.9 }}
+					className="fixed top-[calc(50%-1.5rem)] right-3 inline-flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:right-6"
+					onClick={() => {
+						step(1);
+					}}
+				>
+					<ChevronRight aria-hidden className="size-6" />
+				</motion.button>
+				<p className="fixed bottom-5 left-1/2 -translate-x-1/2 font-mono text-sm text-white/70">
+					{(index ?? 0) + 1} / {images.length}
+				</p>
 			</dialog>
 		</>
 	);

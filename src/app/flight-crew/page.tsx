@@ -4,7 +4,12 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import { crewApplyUrl, crewGroups, partnerClubs } from "@/content/crew";
+import {
+	crewApplyUrl,
+	crewGroups,
+	partnerClubs,
+	pastAllianceMembers,
+} from "@/content/crew";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { crewCopy, positions } from "@/content/positions";
@@ -48,7 +53,12 @@ export default function FlightCrewPage() {
 				title="Meet the crew"
 				intro={crewCopy.groupIntros.current}
 			>
-				<CrewChart groups={crewGroups} partners={partnerClubs} />
+				<CrewChart
+					groups={crewGroups}
+					partners={partnerClubs}
+					allianceIntro={crewCopy.groupIntros.alliance}
+					pastExtra={pastAllianceMembers}
+				/>
 			</Section>
 
 			<Section

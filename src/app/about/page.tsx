@@ -4,11 +4,13 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import Parallax from "@/components/motion/Parallax";
-import StepSequence from "@/components/motion/StepSequence";
-import { Section, SectionHeader } from "@/components/ui/Section";
+import StoryTimeline from "@/components/StoryTimeline";
+import TiltCard from "@/components/motion/TiltCard";
+import { Section } from "@/components/ui/Section";
 import { about } from "@/content/about";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
+import { Accessibility, GraduationCap, Plane, Sparkles, Wrench } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
@@ -16,6 +18,8 @@ export const metadata: Metadata = {
 	description: pageIntros.about.intro,
 	alternates: { canonical: "/about" },
 };
+
+const impactIcons = [GraduationCap, Wrench, Accessibility, Plane];
 
 const stageLabels = [
 	"Stage 01 · Community",
@@ -68,58 +72,48 @@ export default function AboutPage() {
 				label="Impact & benefits"
 				title={about.impact.heading}
 			>
-				{/* Cards lock under the header one after another and stack up. */}
-				<ol className="grid gap-6">
-					{about.impact.items.map((item, index) => (
-						<li
-							key={item.title}
-							className="motion-safe:sticky"
-							style={{ top: `calc(6.5rem + ${index * 1.25}rem)` }}
-						>
-							<article className="grid gap-4 rounded-3xl border border-hairline bg-surface p-6 shadow-card sm:grid-cols-[8rem_1fr] sm:p-10">
-								<p className="font-display text-5xl font-semibold text-accent-text sm:text-6xl">
-									{String(index + 1).padStart(2, "0")}
-								</p>
-								<div>
-									<h3 className="text-2xl sm:text-3xl">{item.title}</h3>
-									<p className="mt-3 max-w-2xl text-lg text-muted">
-										{item.body}
-									</p>
-								</div>
-							</article>
-						</li>
-					))}
-				</ol>
+				<ul className="grid gap-6 sm:grid-cols-2">
+					{about.impact.items.map((item, index) => {
+						const Icon = impactIcons[index] ?? Sparkles;
+						return (
+							<Stagger as="li" key={item.title} className="h-full">
+								<TiltCard className="h-full rounded-3xl">
+									<article className="flex h-full flex-col rounded-3xl border border-hairline bg-surface p-6 sm:p-8">
+										<span className="inline-flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+											<Icon aria-hidden className="size-6" />
+										</span>
+										<h3 className="mt-6 text-2xl">{item.title}</h3>
+										<p className="mt-3 text-muted">{item.body}</p>
+									</article>
+								</TiltCard>
+							</Stagger>
+						);
+					})}
+				</ul>
 			</Section>
 
-			<StepSequence
+			<Section
 				id="objectives"
-				labelledBy="objectives-heading"
-				header={
-					<SectionHeader
-						headingId="objectives-heading"
-						eyebrow="Flight plan"
-						title={about.objectives.heading}
-						intro={intro}
-					/>
-				}
-				steps={about.objectives.stages.map((summary, index) => ({
-					key: summary,
-					label: stageLabels[index] ?? `Stage ${index + 1}`,
-					content: (
-						<>
-							<p className="text-2xl font-semibold sm:text-3xl font-display">
-								{summary}
-							</p>
-							{stageDetails.at(index) === undefined ? null : (
-								<p className="mt-4 max-w-3xl text-lg text-muted">
-									{stageDetails.at(index)}
-								</p>
-							)}
-						</>
-					),
-				}))}
-			/>
+				label="Flight plan"
+				title={about.objectives.heading}
+				intro={intro}
+			>
+				<StoryTimeline
+					backdrop="Stage 01 · Stage 02 · Stage 03 · "
+					items={about.objectives.stages.map((summary, index) => ({
+						key: summary,
+						label: stageLabels[index] ?? `Stage ${index + 1}`,
+						content: (
+							<>
+								<p className="font-display text-2xl font-semibold">{summary}</p>
+								{stageDetails.at(index) === undefined ? null : (
+									<p className="mt-4 text-muted">{stageDetails.at(index)}</p>
+								)}
+							</>
+						),
+					}))}
+				/>
+			</Section>
 
 			<Section className="min-h-0 sm:py-16">
 				<div className="flex flex-wrap justify-center gap-3">

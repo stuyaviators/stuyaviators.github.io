@@ -133,8 +133,13 @@ function FlightPath({ progress }: { readonly progress: MotionValue<number> }) {
 
 export default function StoryTimeline({
 	items,
+	backdrop = years,
 }: {
 	readonly items: TimelineItem[];
+	/**
+	Giant outlined text drifting behind the timeline.
+	*/
+	readonly backdrop?: string;
 }) {
 	const ref = useRef<HTMLDivElement>(null);
 	const isReducedMotion = useReducedMotion();
@@ -164,8 +169,8 @@ export default function StoryTimeline({
 					className="font-display text-[22vw] leading-none font-semibold whitespace-nowrap text-transparent opacity-60 [-webkit-text-stroke:1px_var(--hairline)]"
 					style={isReducedMotion ? undefined : { x: marqueeX }}
 				>
-					{years}
-					{years}
+					{backdrop}
+					{backdrop}
 				</motion.p>
 			</div>
 			<FlightPath progress={progress} />
