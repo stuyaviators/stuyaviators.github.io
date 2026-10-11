@@ -127,7 +127,7 @@ export default function OfficersManager({
 								leavingId === user.id && "dash-leave"
 							)}
 						>
-							<div className="min-w-0 flex-1">
+							<div className="min-w-0 flex-1 basis-56">
 								<p className="truncate font-semibold">
 									{user.name ?? user.email}{" "}
 									{isYou ? <Badge tone="brand">You</Badge> : null}

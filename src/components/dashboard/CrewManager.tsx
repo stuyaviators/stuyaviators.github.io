@@ -144,7 +144,7 @@ export default function CrewManager({
 											) : (
 												<div className="flex flex-wrap items-center gap-3">
 													<Avatar person={person} />
-													<div className="min-w-0 flex-1">
+													<div className="min-w-0 flex-1 basis-40">
 														<p className="truncate font-semibold">
 															{person.name}
 															{person.classOf ? (
@@ -157,7 +157,7 @@ export default function CrewManager({
 															{person.role}
 														</p>
 													</div>
-													<div className="flex items-center">
+													<div className="ml-auto flex items-center">
 														<Button
 															variant="ghost"
 															aria-label={`Move ${person.name} up`}

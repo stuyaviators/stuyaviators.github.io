@@ -64,7 +64,7 @@ export default function ListingRows({
 							)}
 						>
 							<div className="flex flex-wrap items-start justify-between gap-3">
-								<div className="min-w-0 flex-1">
+								<div className="min-w-0 flex-1 basis-56">
 									<div className="flex flex-wrap items-center gap-2">
 										<Badge
 											tone={listing.status === "published" ? "good" : "neutral"}

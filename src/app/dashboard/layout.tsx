@@ -66,7 +66,7 @@ export default async function DashboardLayout({
 	return (
 		<div className="dash-shell min-h-dvh md:grid md:grid-cols-[15rem_1fr]">
 			<aside className="border-b border-hairline bg-surface px-4 py-3 md:sticky md:top-0 md:h-dvh md:border-r md:border-b-0 md:py-6">
-				<div className="flex items-center justify-between gap-3 md:block">
+				<div className="flex flex-wrap items-center justify-between gap-x-3 md:block">
 					<Link
 						href="/dashboard"
 						className="text-lg font-semibold tracking-wide"

@@ -108,7 +108,7 @@ export default function GalleryManager({
 									/>
 								) : null}
 							</span>
-							<div className="min-w-0 flex-1">
+							<div className="min-w-0 flex-1 basis-40">
 								{editingId === item.id ? (
 									<AltForm
 										initial={item.alt}
@@ -126,7 +126,7 @@ export default function GalleryManager({
 								)}
 							</div>
 							{editingId === item.id ? null : (
-								<div className="flex items-center">
+								<div className="ml-auto flex items-center">
 									<Button
 										variant="ghost"
 										aria-label="Move up"

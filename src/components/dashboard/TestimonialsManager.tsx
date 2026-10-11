@@ -119,7 +119,7 @@ export default function TestimonialsManager({
 								/>
 							) : (
 								<div className="flex flex-wrap items-start gap-3">
-									<figure className="min-w-0 flex-1">
+									<figure className="min-w-0 flex-1 basis-48">
 										<blockquote className="whitespace-pre-wrap">
 											“{item.quote}”
 										</blockquote>
@@ -127,7 +127,7 @@ export default function TestimonialsManager({
 											— {item.author}
 										</figcaption>
 									</figure>
-									<div className="flex items-center">
+									<div className="ml-auto flex items-center">
 										<Button
 											variant="ghost"
 											aria-label="Move up"
