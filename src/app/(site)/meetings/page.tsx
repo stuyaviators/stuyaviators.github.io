@@ -85,7 +85,7 @@ export default async function MeetingsPage() {
 								<div className="min-h-0 overflow-hidden p-6 sm:p-10">
 									<p className="label text-accent-text">
 										{type.code ?? `Type ${String(index + 1).padStart(2, "0")}`}
-										{type.isNew ? " · New pilot session" : ""}
+										{type.isNew ? " · New" : ""}
 									</p>
 									<h3 className="mt-2 text-2xl sm:text-3xl">{type.name}</h3>
 									<p className="mt-2 font-medium text-muted">{type.tagline}</p>
