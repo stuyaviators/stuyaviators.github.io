@@ -11,6 +11,7 @@ import {
 	Plane,
 	Settings,
 	Users,
+	UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,6 +20,7 @@ const icons = {
 	overview: Gauge,
 	inbox: Inbox,
 	announcement: Megaphone,
+	crew: UsersRound,
 	opportunities: Plane,
 	scholarships: GraduationCap,
 	newsletter: Newspaper,

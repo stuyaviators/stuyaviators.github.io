@@ -179,3 +179,28 @@ export const announcement = pgTable("announcement", {
 	updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updatedBy: text(),
 });
+
+/**
+The flight crew page. `groupId` matches a group in src/content/crew.ts (the
+group titles and intros stay there). Photos are an uploaded `imageUrl`, or
+`photoKey` for the bundled photos of people imported from that file.
+*/
+export const crewMembers = pgTable(
+	"crew_members",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		groupId: text().notNull(),
+		name: text().notNull(),
+		classOf: text(),
+		role: text().notNull(),
+		imageUrl: text(),
+		photoKey: text(),
+		sortOrder: integer().notNull().default(0),
+		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		updatedBy: text(),
+	},
+	(table) => [
+		index("crew_members_group_idx").on(table.groupId, table.sortOrder),
+	]
+);

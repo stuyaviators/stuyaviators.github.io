@@ -4,16 +4,14 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import {
-	crewApplyUrl,
-	crewGroups,
-	partnerClubs,
-	pastAllianceMembers,
-} from "@/content/crew";
+import { crewApplyUrl, partnerClubs } from "@/content/crew";
 import { pageIntros } from "@/content/pages";
 import { photos } from "@/content/photos";
 import { crewCopy, positions } from "@/content/positions";
+import { getPublicCrew } from "@/lib/crew";
 import { ArrowUpRight } from "lucide-react";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
 	title: "The Flight Crew",
@@ -29,7 +27,8 @@ const commitmentLevel: Record<string, number> = {
 	"Very Low": 1,
 };
 
-export default function FlightCrewPage() {
+export default async function FlightCrewPage() {
+	const crew = await getPublicCrew();
 	return (
 		<>
 			<PageHero
@@ -54,10 +53,10 @@ export default function FlightCrewPage() {
 				intro={crewCopy.groupIntros.current}
 			>
 				<CrewChart
-					groups={crewGroups}
+					groups={crew.groups}
 					partners={partnerClubs}
 					allianceIntro={crewCopy.groupIntros.alliance}
-					pastExtra={pastAllianceMembers}
+					pastExtra={crew.pastExtra}
 				/>
 			</Section>
 

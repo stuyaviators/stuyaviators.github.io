@@ -1,5 +1,11 @@
 import type { Database } from "@/db";
-import { listings, newsletters, submissions, users } from "@/db/schema";
+import {
+	crewMembers,
+	listings,
+	newsletters,
+	submissions,
+	users,
+} from "@/db/schema";
 import { createTestDb } from "@/test/pglite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -33,6 +39,7 @@ const { updateTag } = await import("next/cache");
 const listingActions = await import("./listings.ts");
 const newsletterActions = await import("./newsletters.ts");
 const announcementActions = await import("./announcement.ts");
+const crewActions = await import("./crew.ts");
 const inboxActions = await import("./inbox.ts");
 const officerActions = await import("./officers.ts");
 const settingsActions = await import("./settings.ts");
@@ -74,6 +81,14 @@ const announcementInput = {
 	linkLabel: "Apply",
 	isOn: true,
 	endsOn: "",
+};
+
+const crewInput = {
+	groupId: "helpers",
+	name: "Peter Stuyvesant",
+	classOf: "'60",
+	role: "Flight Attendant (Helper)",
+	imageUrl: "",
 };
 
 const notSignedIn = { ok: false, error: "Please sign in again." };
@@ -152,6 +167,22 @@ describe("signed out", () => {
 		expect(
 			await announcementActions.saveAnnouncementAction(announcementInput)
 		).toEqual(notSignedIn);
+	});
+
+	it("can't edit the flight crew", async () => {
+		const id = crypto.randomUUID();
+		expect(await crewActions.addCrewMemberAction(crewInput)).toEqual(
+			notSignedIn
+		);
+		expect(await crewActions.updateCrewMemberAction(id, crewInput)).toEqual(
+			notSignedIn
+		);
+		expect(await crewActions.moveCrewMemberAction(id, "up")).toEqual(
+			notSignedIn
+		);
+		expect(await crewActions.deleteCrewMemberAction(id)).toEqual(notSignedIn);
+		expect(await crewActions.importCrewAction()).toEqual(notSignedIn);
+		expect(await testDb!.select().from(crewMembers)).toHaveLength(0);
 	});
 
 	it("can't triage the inbox", async () => {
@@ -378,6 +409,44 @@ describe("officers", () => {
 			linkUrl: "javascript:alert(1)",
 		});
 		expect(bad.ok).toBe(false);
+	});
+
+	it("can import, add, edit, reorder and remove crew", async () => {
+		expect((await crewActions.importCrewAction()).ok).toBe(true);
+		expect((await crewActions.importCrewAction()).ok).toBe(false);
+		expect(await crewActions.addCrewMemberAction(crewInput)).toEqual({
+			ok: true,
+		});
+		expect(updateTag).toHaveBeenCalledWith("crew");
+		const rows = await testDb!.select().from(crewMembers);
+		const mine = rows.find((row) => row.name === "Peter Stuyvesant")!;
+		expect(
+			await crewActions.updateCrewMemberAction(mine.id, {
+				...crewInput,
+				role: "Captain",
+			})
+		).toEqual({ ok: true });
+		expect(await crewActions.moveCrewMemberAction(mine.id, "up")).toEqual({
+			ok: true,
+		});
+		expect((await crewActions.moveCrewMemberAction(mine.id, "left")).ok).toBe(
+			false
+		);
+		expect(await crewActions.deleteCrewMemberAction(mine.id)).toEqual({
+			ok: true,
+		});
+		expect((await crewActions.deleteCrewMemberAction(mine.id)).ok).toBe(false);
+	});
+
+	it("gets field errors for a bad crew photo link", async () => {
+		const result = await crewActions.addCrewMemberAction({
+			...crewInput,
+			imageUrl: "https://example.org/a.jpg",
+		});
+		expect(result).toMatchObject({
+			ok: false,
+			fieldErrors: { imageUrl: expect.any(String) },
+		});
 	});
 
 	it("can triage the inbox", async () => {

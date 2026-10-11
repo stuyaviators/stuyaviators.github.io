@@ -22,6 +22,13 @@
       "when": 1791724557633,
       "tag": "0002_announcement",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791725199462,
+      "tag": "0003_crew",
+      "breakpoints": true
     }
   ]
 }
