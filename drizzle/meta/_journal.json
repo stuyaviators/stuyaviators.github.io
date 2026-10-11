@@ -71,6 +71,13 @@
       "when": 1791740074076,
       "tag": "0009_trash",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791747308311,
+      "tag": "0010_meetings",
+      "breakpoints": true
     }
   ]
 }

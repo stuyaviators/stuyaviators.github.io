@@ -56,6 +56,7 @@ export default async function Home() {
 					<InView className="mt-8 sm:mt-10">
 						<DepartureBoard
 							status={board.isUp ? "up" : "down"}
+							isEpsilonUp={board.isEpsilonUp}
 							meetings={board.meetings?.slice(0, 3) ?? []}
 						/>
 					</InView>

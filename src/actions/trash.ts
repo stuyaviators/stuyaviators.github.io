@@ -3,6 +3,7 @@
 import type { ActionResult } from "@/lib/action-guard";
 import type { TrashKind } from "@/lib/trash";
 import { actionError, guarded } from "@/lib/action-guard";
+import { meetingsTag } from "@/lib/club-meetings";
 import { crewTag } from "@/lib/crew";
 import { galleryTag } from "@/lib/gallery";
 import { listingsTag } from "@/lib/listings";
@@ -10,8 +11,8 @@ import { newslettersTag } from "@/lib/newsletters";
 import { testimonialsTag } from "@/lib/testimonials";
 import {
 	didDeleteFromTrash,
-	listTrash,
 	didRestoreFromTrash,
+	listTrash,
 	trashKinds,
 } from "@/lib/trash";
 import { revalidatePath, updateTag } from "next/cache";
@@ -62,6 +63,13 @@ function refreshPublic(kind: TrashKind) {
 		case "crew": {
 			updateTag(crewTag);
 			revalidatePath("/flight-crew");
+			break;
+		}
+
+		case "meeting": {
+			updateTag(meetingsTag);
+			revalidatePath("/meetings");
+			revalidatePath("/");
 			break;
 		}
 	}

@@ -1,5 +1,6 @@
 import type { Database } from "@/db";
 import {
+	clubMeetings,
 	crewMembers,
 	galleryPhotos,
 	listings,
@@ -27,6 +28,7 @@ export const trashKinds = [
 	"gallery",
 	"testimonial",
 	"crew",
+	"meeting",
 ] as const;
 export type TrashKind = (typeof trashKinds)[number];
 
@@ -37,6 +39,7 @@ export const trashKindLabels: Record<TrashKind, string> = {
 	gallery: "Gallery photo",
 	testimonial: "Testimonial",
 	crew: "Flight Crew",
+	meeting: "Meeting",
 };
 
 export type TrashItem = {
@@ -50,6 +53,13 @@ export type TrashItem = {
 	addedBy: string | undefined;
 	daysLeft: number;
 };
+
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+	timeZone: "America/New_York",
+	month: "short",
+	day: "numeric",
+	year: "numeric",
+});
 
 const clip = (text: string, length: number) =>
 	text.length > length ? `${text.slice(0, length - 1)}…` : text;
@@ -134,6 +144,15 @@ export async function didMoveToTrash(
 				.returning({ id: crewMembers.id });
 			return rows.length > 0;
 		}
+
+		case "meeting": {
+			const rows = await db
+				.update(clubMeetings)
+				.set({ ...gone, updatedBy: by, updatedAt: new Date() })
+				.where(and(eq(clubMeetings.id, id), isNull(clubMeetings.deletedAt)))
+				.returning({ id: clubMeetings.id });
+			return rows.length > 0;
+		}
 	}
 }
 
@@ -214,6 +233,15 @@ export async function didRestoreFromTrash(
 				.returning({ id: crewMembers.id });
 			return rows.length > 0;
 		}
+
+		case "meeting": {
+			const rows = await db
+				.update(clubMeetings)
+				.set({ ...back, updatedBy: by, updatedAt: new Date() })
+				.where(and(eq(clubMeetings.id, id), isNotNull(clubMeetings.deletedAt)))
+				.returning({ id: clubMeetings.id });
+			return rows.length > 0;
+		}
 	}
 }
 
@@ -280,6 +308,14 @@ export async function didDeleteFromTrash(
 				.returning({ id: crewMembers.id });
 			return rows.length > 0;
 		}
+
+		case "meeting": {
+			const rows = await db
+				.delete(clubMeetings)
+				.where(and(eq(clubMeetings.id, id), isNotNull(clubMeetings.deletedAt)))
+				.returning({ id: clubMeetings.id });
+			return rows.length > 0;
+		}
 	}
 }
 
@@ -317,6 +353,10 @@ export async function purgeExpiredTrash(
 			.delete(crewMembers)
 			.where(lt(crewMembers.deletedAt, cutoff))
 			.returning({ id: crewMembers.id }),
+		db
+			.delete(clubMeetings)
+			.where(lt(clubMeetings.deletedAt, cutoff))
+			.returning({ id: clubMeetings.id }),
 	]);
 	return removed.reduce((sum, rows) => sum + rows.length, 0);
 }
@@ -335,6 +375,7 @@ export async function listTrash(
 		galleryRows,
 		testimonialRows,
 		crewRows,
+		meetingRows,
 	] = await Promise.all([
 		db.select().from(listings).where(isNotNull(listings.deletedAt)),
 		db.select().from(newsletters).where(isNotNull(newsletters.deletedAt)),
@@ -345,6 +386,7 @@ export async function listTrash(
 		db.select().from(galleryPhotos).where(isNotNull(galleryPhotos.deletedAt)),
 		db.select().from(testimonials).where(isNotNull(testimonials.deletedAt)),
 		db.select().from(crewMembers).where(isNotNull(crewMembers.deletedAt)),
+		db.select().from(clubMeetings).where(isNotNull(clubMeetings.deletedAt)),
 	]);
 
 	const item = (
@@ -395,6 +437,14 @@ export async function listTrash(
 		),
 		...crewRows.map((row) =>
 			item("crew", row, row.name, `Flight Crew · ${row.role}`, row.imageUrl)
+		),
+		...meetingRows.map((row) =>
+			item(
+				"meeting",
+				row,
+				row.title,
+				`Meeting · ${dateFormat.format(row.startsAt)}`
+			)
 		),
 	].toSorted((a, b) => b.deletedAt.getTime() - a.deletedAt.getTime());
 }

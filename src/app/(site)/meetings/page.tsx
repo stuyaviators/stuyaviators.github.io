@@ -51,6 +51,7 @@ export default async function MeetingsPage() {
 				<Stagger>
 					<DepartureBoard
 						status={board.isUp ? "up" : "down"}
+						isEpsilonUp={board.isEpsilonUp}
 						meetings={board.meetings ?? []}
 						showAllLink={false}
 					/>

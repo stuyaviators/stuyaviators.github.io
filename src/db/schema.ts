@@ -229,6 +229,36 @@ export const crewMembers = pgTable(
 );
 
 /**
+Meetings added by hand in the dashboard. They appear on the departure board
+and the calendar next to the ones read from Epsilon. Times are instants (UTC);
+the site shows them in New York time.
+*/
+export const clubMeetings = pgTable(
+	"club_meetings",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		title: text().notNull(),
+		// Meeting-type code from the Meetings page (FSD, CLP, PCI, ATC, SLC).
+		code: text(),
+		startsAt: timestamp({ withTimezone: true }).notNull(),
+		endsAt: timestamp({ withTimezone: true }),
+		room: text(),
+		// "scheduled", "moved" or "cancelled".
+		status: text().notNull().default("scheduled"),
+		description: text(), // Markdown
+		linkUrl: text(),
+		linkLabel: text(),
+		createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		createdBy: text(),
+		updatedBy: text(),
+		deletedAt: timestamp({ withTimezone: true }),
+		deletedBy: text(),
+	},
+	(table) => [index("club_meetings_starts_idx").on(table.startsAt)]
+);
+
+/**
 "What our members say" on the home page.
 */
 export const testimonials = pgTable("testimonials", {

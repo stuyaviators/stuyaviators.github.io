@@ -94,7 +94,7 @@ export function buildCalendar(
 			`SUMMARY:${escapeText(meeting.title)}`,
 			`LOCATION:${escapeText(location)}`,
 			`STATUS:${statusMap[meeting.status]}`,
-			`URL:${options.siteUrl}/meetings`
+			`URL:${options.siteUrl}/meetings/${meeting.id}`
 		);
 		if (meeting.description) {
 			lines.push(`DESCRIPTION:${escapeText(meeting.description)}`);
