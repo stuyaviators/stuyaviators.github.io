@@ -4,7 +4,6 @@ import { Stagger } from "@/components/TransitionProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { PageHero } from "@/components/ui/PageHero";
 import Parallax from "@/components/motion/Parallax";
-import StoryTimeline from "@/components/StoryTimeline";
 import TiltCard from "@/components/motion/TiltCard";
 import { Section } from "@/components/ui/Section";
 import { about } from "@/content/about";
@@ -98,21 +97,36 @@ export default function AboutPage() {
 				title={about.objectives.heading}
 				intro={intro}
 			>
-				<StoryTimeline
-					backdrop="Stage 01 · Stage 02 · Stage 03 · "
-					items={about.objectives.stages.map((summary, index) => ({
-						key: summary,
-						label: stageLabels[index] ?? `Stage ${index + 1}`,
-						content: (
-							<>
-								<p className="font-display text-2xl font-semibold">{summary}</p>
-								{stageDetails.at(index) === undefined ? null : (
-									<p className="mt-4 text-muted">{stageDetails.at(index)}</p>
-								)}
-							</>
-						),
-					}))}
-				/>
+				{/* Three stages side by side, joined by a route line that draws in. */}
+				<div className="relative">
+					<div
+						aria-hidden
+						className="draw-line absolute top-6 right-[16%] left-[16%] hidden h-px bg-brand/40 lg:block"
+					/>
+					<ol className="grid gap-6 lg:grid-cols-3">
+						{about.objectives.stages.map((summary, index) => (
+							<Stagger as="li" key={summary} className="h-full">
+								<article className="flex h-full flex-col">
+									<span
+										aria-hidden
+										className="relative z-10 mx-auto hidden size-12 items-center justify-center rounded-full border-2 border-brand bg-bg font-display text-lg font-semibold text-brand lg:inline-flex"
+									>
+										{index + 1}
+									</span>
+									<div className="flex flex-1 flex-col rounded-3xl border border-hairline bg-surface p-6 sm:p-8 lg:mt-6">
+										<p className="label text-accent-text">
+											{stageLabels[index] ?? `Stage ${index + 1}`}
+										</p>
+										<h3 className="mt-3 text-2xl">{summary}</h3>
+										{stageDetails.at(index) === undefined ? null : (
+											<p className="mt-4 text-muted">{stageDetails.at(index)}</p>
+										)}
+									</div>
+								</article>
+							</Stagger>
+						))}
+					</ol>
+				</div>
 			</Section>
 
 			<Section className="min-h-0 sm:py-16">

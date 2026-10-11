@@ -111,8 +111,9 @@ export default function PinnedScene({
 	);
 	const opacity = useTransform(
 		passProgress,
-		[0, enterEnd * 0.9, exitStart, 1],
-		[0.35, 1, 1, 0.5]
+		// Fade only at the far ends so text never looks greyed out mid-read.
+		[0, enterEnd * 0.6, exitStart + (1 - exitStart) * 0.6, 1],
+		[0.2, 1, 1, 0.3]
 	);
 
 	return (

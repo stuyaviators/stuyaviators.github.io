@@ -590,15 +590,26 @@ dialog[open]::backdrop {
 	justify-content: center;
 }
 
+/* Opacity changes only at the very ends, so text is never half-faded
+   (grey-looking in dark mode) while it's still being read. */
 @keyframes scene-in {
-	from {
+	0% {
 		opacity: 0;
 		transform: translateY(6vh) scale(0.96);
+	}
+
+	45% {
+		opacity: 1;
 	}
 }
 
 @keyframes scene-out {
-	to {
+	0%,
+	65% {
+		opacity: 1;
+	}
+
+	100% {
 		opacity: 0;
 		transform: translateY(-5vh) scale(0.96);
 	}
@@ -797,4 +808,25 @@ dialog[open]::backdrop {
 /* No hover effects on gallery photos while the page is scrolling. */
 .floating-stage.is-scrolling {
 	pointer-events: none;
+}
+
+/* A line that draws itself left to right as it scrolls into view. */
+@keyframes draw-line {
+	from {
+		transform: scaleX(0);
+	}
+}
+
+.draw-line {
+	transform-origin: left center;
+}
+
+@supports (animation-timeline: view()) {
+	@media (prefers-reduced-motion: no-preference) {
+		.draw-line {
+			animation: draw-line linear both;
+			animation-timeline: view();
+			animation-range: entry 20% cover 45%;
+		}
+	}
 }
