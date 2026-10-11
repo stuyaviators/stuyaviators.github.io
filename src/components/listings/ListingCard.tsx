@@ -59,10 +59,18 @@ export default function ListingCard({
 }) {
 	const path = listingPath(listing);
 	const isClosing = isClosingSoon(listing);
+	// The whole card opens its own page: the title's link is stretched over it
+	// and the links inside the card sit above that.
+	const isLinked = path !== undefined && !preview;
 	const days = listing.deadline ? daysUntil(listing.deadline) : undefined;
 	return (
 		<BoardingPass
 			highlight={listing.featured}
+			className={
+				isLinked
+					? "group transition-colors hover:border-brand focus-within:border-brand"
+					: undefined
+			}
 			stub={stubFields(listing)}
 			stubTitle={listing.kind === "scholarship" ? "Scholarship" : "Opportunity"}
 			stubImage={
@@ -98,8 +106,11 @@ export default function ListingCard({
 				) : null}
 			</div>
 			<h3 className="mt-2 text-xl">
-				{path && !preview ? (
-					<Link href={path} className="hover:underline">
+				{isLinked ? (
+					<Link
+						href={path}
+						className="group-hover:underline after:absolute after:inset-0"
+					>
 						{listing.title}
 					</Link>
 				) : (
@@ -107,16 +118,16 @@ export default function ListingCard({
 				)}
 			</h3>
 			<p className="label mt-1 text-muted">{listing.organization}</p>
-			<p className="mt-3">
+			<p className="mt-3 [&_a]:relative [&_a]:z-10">
 				<Md>{listing.summary}</Md>
 			</p>
 			{listing.description ? (
 				<details className="group mt-3">
-					<summary className="cursor-pointer text-sm font-semibold text-brand">
+					<summary className="relative z-10 cursor-pointer text-sm font-semibold text-brand">
 						More details
 					</summary>
 					<div
-						className="prose-club mt-3 text-sm"
+						className="prose-club mt-3 text-sm [&_a]:relative [&_a]:z-10"
 						dangerouslySetInnerHTML={{
 							__html: renderMarkdown(listing.description),
 						}}
@@ -140,7 +151,7 @@ export default function ListingCard({
 				target="_blank"
 				rel="noopener noreferrer"
 				tabIndex={preview ? -1 : undefined}
-				className="mt-5 inline-flex items-center gap-1.5 font-semibold text-brand underline-offset-4 hover:underline"
+				className="relative z-10 mt-5 inline-flex items-center gap-1.5 font-semibold text-brand underline-offset-4 hover:underline"
 			>
 				Learn more and apply
 				<ArrowUpRight aria-hidden className="btn-arrow size-4" />
