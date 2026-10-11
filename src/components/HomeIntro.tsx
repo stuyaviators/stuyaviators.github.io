@@ -180,8 +180,13 @@ export default function HomeIntro({
 	}, [isPlaying, isReducedMotion, videoSrc]);
 
 	// Reduced motion: the static split hero (no scroll-linked animation).
+	// (Still attaches sectionRef: useScroll throws if its target is missing.)
 	if (isReducedMotion) {
-		return <Hero />;
+		return (
+			<section ref={sectionRef}>
+				<Hero />
+			</section>
+		);
 	}
 
 	return (

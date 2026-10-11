@@ -63,9 +63,12 @@ export default function HorizontalShowcase({
 		["0%", "100%"]
 	);
 
+	// Both layouts attach sectionRef to the same <section>: useScroll binds to
+	// it once on mount and throws (stopping every scroll animation queued
+	// alongside it) if the ref is still empty.
 	if (!isPinned) {
 		return (
-			<section className="py-14 sm:py-20">
+			<section ref={sectionRef} className="py-14 sm:py-20">
 				<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">{header}</div>
 				<div
 					ref={trackRef}
