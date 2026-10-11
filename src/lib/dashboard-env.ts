@@ -60,11 +60,11 @@ const checks: Array<Omit<EnvCheck, "isSet">> = [
 ];
 
 function isSet(name: string) {
-	const value =
-		process.env[name] ??
-		(name === "DATABASE_URL"
-			? process.env.stuyaviators_DATABASE_URL
-			: undefined);
+	const fallbacks: Record<string, string | undefined> = {
+		DATABASE_URL: process.env.stuyaviators_DATABASE_URL,
+		BLOB_READ_WRITE_TOKEN: process.env.aviatorsblob_READ_WRITE_TOKEN,
+	};
+	const value = process.env[name] ?? fallbacks[name];
 	return value !== undefined && value.trim() !== "";
 }
 

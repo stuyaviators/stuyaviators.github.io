@@ -1,3 +1,4 @@
+import { blobToken } from "@/lib/blob-token";
 import { AuthorizationError, requireUser } from "@/lib/session";
 import {
 	maxUploadBytes,
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
 		return error("Cross-site uploads aren’t allowed.", 403);
 	}
 
-	if (!process.env.BLOB_READ_WRITE_TOKEN) {
+	const token = blobToken();
+	if (token === undefined) {
 		return error(
 			"Uploads aren’t set up yet. An admin needs to connect Vercel Blob (BLOB_READ_WRITE_TOKEN).",
 			503
@@ -72,6 +74,7 @@ export async function POST(request: Request) {
 				access: "public",
 				contentType: image.contentType,
 				cacheControlMaxAge: 60 * 60 * 24 * 365,
+				token,
 			}
 		);
 		return NextResponse.json({
