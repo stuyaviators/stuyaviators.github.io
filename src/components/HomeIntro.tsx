@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Hero from "./Hero.tsx";
 import { SocialIcon } from "./icons.tsx";
+import JoinOrDashboardLink from "./JoinOrDashboardLink.tsx";
 import { buttonClasses } from "./ui/Button.tsx";
 
 /*
@@ -427,13 +428,12 @@ export default function HomeIntro({
 								{site.tagline}
 							</p>
 							<div className="mt-8 flex flex-wrap gap-3">
-								<Link
-									href="/join"
+								<JoinOrDashboardLink
 									tabIndex={isSplit ? undefined : -1}
 									className={buttonClasses("accent")}
 								>
 									Join StuyAviators
-								</Link>
+								</JoinOrDashboardLink>
 								<Link
 									href="/meetings"
 									tabIndex={isSplit ? undefined : -1}

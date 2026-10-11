@@ -5,6 +5,7 @@ import MailingListModal from "@/components/forms/MailingListModal";
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import SkyBackground from "@/components/SkyBackground";
+import TakeoffLauncher from "@/components/TakeoffLauncher";
 import TransitionProvider from "@/components/TransitionProvider";
 import { signupFormConfig } from "@/lib/google-forms";
 
@@ -31,6 +32,7 @@ export default function SiteChrome({
 			</TransitionProvider>
 			<Footer />
 			<ScrollToTop />
+			<TakeoffLauncher />
 			<MailingListModal fallbackUrl={signupFormConfig().fallbackUrl} />
 		</>
 	);
