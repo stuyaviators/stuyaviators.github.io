@@ -1,21 +1,41 @@
-import { readFile } from "node:fs/promises";
+import { renderMarkdown } from "@/lib/markdown";
+import { meetingStatusLabels } from "@/lib/meeting-options";
+import { meetingWhen } from "@/lib/meeting-when";
 import { getMeeting } from "@/lib/meetings";
-import { renderOg } from "@/lib/og";
+import { renderMeetingOg } from "@/lib/og";
 
 export const alt = "StuyAviators meeting";
 
-const zone = "America/New_York";
-const dayFormat = new Intl.DateTimeFormat("en-US", {
-	timeZone: zone,
-	weekday: "long",
-	month: "long",
-	day: "numeric",
-});
-const timeFormat = new Intl.DateTimeFormat("en-US", {
-	timeZone: zone,
-	hour: "numeric",
-	minute: "2-digit",
-});
+const entities: Record<string, string> = {
+	"&amp;": "&",
+	"&lt;": "<",
+	"&gt;": ">",
+	"&quot;": '"',
+	"&#39;": "'",
+};
+
+/**
+The description as one line of plain words, cut to fit under the card's facts.
+*/
+function aboutText(markdown: string | undefined, limit: number) {
+	if (!markdown) {
+		return undefined;
+	}
+
+	const text = renderMarkdown(markdown)
+		.replaceAll(/<[^<>]*>/gu, " ")
+		.replaceAll(
+			/&(?:amp|lt|gt|quot|#39);/gu,
+			(entity) => entities[entity] ?? entity
+		)
+		.replaceAll(/\s+/gu, " ")
+		.trim();
+	if (text.length <= limit) {
+		return text || undefined;
+	}
+
+	return `${text.slice(0, limit).replace(/\s+\S*$/u, "")}…`;
+}
 
 export default async function Image({
 	params,
@@ -24,26 +44,33 @@ export default async function Image({
 }) {
 	const { id } = await params;
 	const meeting = await getMeeting(id);
-	const photo = await readFile(
-		new URL("../../../../assets/photos/hero-sim-setup.jpg", import.meta.url)
-	);
 	if (!meeting) {
-		return renderOg({ title: "Meeting", eyebrow: "StuyAviators", photo });
+		return renderMeetingOg({
+			title: "Meeting",
+			eyebrow: "StuyAviators",
+			facts: [],
+		});
 	}
 
-	const start = new Date(meeting.start);
-	const detail = [
-		`${dayFormat.format(start)}, ${timeFormat.format(start)}`,
-		meeting.room ? `Room ${meeting.room}` : undefined,
-	]
-		.filter(Boolean)
-		.join(" · ");
+	const { day, time } = meetingWhen(
+		new Date(meeting.start),
+		meeting.end ? new Date(meeting.end) : undefined
+	);
+	const status =
+		meeting.status === "scheduled"
+			? ""
+			: ` · ${meetingStatusLabels[meeting.status]}`;
 
-	return renderOg({
+	return renderMeetingOg({
 		title: meeting.title.slice(0, 90),
-		eyebrow: `Meeting${meeting.code ? ` · ${meeting.code}` : ""}`,
-		photo,
-		detail,
+		eyebrow: `Meeting${meeting.code ? ` · ${meeting.code}` : ""}${status}`,
+		facts: [
+			{ label: "Date", value: day.replace(/, \d{4}$/u, "") },
+			{ label: "Time", value: time },
+			{ label: "Room", value: meeting.room ?? "To be announced" },
+		],
+		// A long title takes two lines, so the description gets less room.
+		about: aboutText(meeting.description, meeting.title.length > 40 ? 90 : 170),
 	});
 }
 
