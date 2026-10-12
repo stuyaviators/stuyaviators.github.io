@@ -142,7 +142,7 @@ export default function PrivacyPage() {
 				<p>
 					Club officers sign in with Google. What we receive from Google, and
 					what we do with it, is described in full under{" "}
-					<a href="#google">Google user data</a> below.
+					<a href="#google">Google user data</a> above.
 				</p>
 
 				<h3>Collected automatically</h3>
@@ -296,8 +296,7 @@ export default function PrivacyPage() {
 			<LegalSection id="contact" title="Contact">
 				<p>
 					Questions about this policy: email{" "}
-					<a href={adminContact.href}>{adminContact.value}</a>, or write to{" "}
-					{site.name}, {site.address.school}, {site.address.line}. See also our{" "}
+					<a href={adminContact.href}>{adminContact.value}</a>. See also our{" "}
 					<Link href="/terms">Terms of Service</Link>.
 				</p>
 			</LegalSection>
