@@ -4,41 +4,13 @@ import { Container } from "@/components/ui/Section";
 import { site } from "@/content/site";
 import { renderMarkdown } from "@/lib/markdown";
 import { meetingStatusLabels, meetingTypes } from "@/lib/meeting-options";
+import { dayFormat, meetingWhen, timeFormat } from "@/lib/meeting-when";
 import { epsilonClubUrl, getMeeting } from "@/lib/meetings";
 import { ArrowLeft, ArrowUpRight, CalendarPlus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 900;
-
-const zone = "America/New_York";
-const dayFormat = new Intl.DateTimeFormat("en-US", {
-	timeZone: zone,
-	weekday: "long",
-	month: "long",
-	day: "numeric",
-	year: "numeric",
-});
-const timeFormat = new Intl.DateTimeFormat("en-US", {
-	timeZone: zone,
-	hour: "numeric",
-	minute: "2-digit",
-});
-const timeZoneFormat = new Intl.DateTimeFormat("en-US", {
-	timeZone: zone,
-	timeZoneName: "short",
-	hour: "numeric",
-});
-
-function when(start: Date, end: Date | undefined) {
-	const zoneName =
-		timeZoneFormat.formatToParts(start).find((p) => p.type === "timeZoneName")
-			?.value ?? "";
-	const times = end
-		? `${timeFormat.format(start)} – ${timeFormat.format(end)}`
-		: timeFormat.format(start);
-	return { day: dayFormat.format(start), time: `${times} ${zoneName}`.trim() };
-}
 
 export async function generateMetadata({
 	params,
@@ -74,7 +46,7 @@ export default async function MeetingPage({
 
 	const start = new Date(meeting.start);
 	const end = meeting.end ? new Date(meeting.end) : undefined;
-	const { day, time } = when(start, end);
+	const { day, time } = meetingWhen(start, end);
 	const isOver = (end ?? start) < new Date();
 	const type = meetingTypes.find((item) => item.code === meeting.code);
 	const facts = [

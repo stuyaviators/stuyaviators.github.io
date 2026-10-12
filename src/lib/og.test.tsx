@@ -1,7 +1,7 @@
 import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchOgPicture } from "./og-picture.ts";
-import { renderPictureOg } from "./og.tsx";
+import { renderMeetingOg, renderPictureOg } from "./og.tsx";
 
 const blobUrl = "https://abc.public.blob.vercel-storage.com/uploads/a.png";
 
@@ -92,12 +92,36 @@ describe("the picture for an Open Graph card", () => {
 		const bytes = new Uint8Array(await png());
 		const response = await renderPictureOg({
 			picture: { bytes, type: "image/png" },
-			label: "Scholarship · Peter Foundation",
+			title: "Peter Foundation Scholarship",
+			eyebrow: "Scholarship · Peter Foundation",
+			facts: [
+				{ label: "Deadline", value: "Mar 1, 2027" },
+				{ label: "Amount", value: "$5,000" },
+				{ label: "Eligibility", value: "Seniors pursuing aviation" },
+			],
 		});
 		expect(response.status).toBe(200);
 		expect(response.headers.get("content-type")).toBe("image/png");
 		const image = Buffer.from(await response.arrayBuffer());
 		const meta = await sharp(image).metadata();
+		expect([meta.width, meta.height]).toEqual([1200, 630]);
+	});
+
+	it("draws a 1200 by 630 card for a meeting", async () => {
+		const response = await renderMeetingOg({
+			title: "Flight Simulator Day",
+			eyebrow: "Meeting · FSD",
+			facts: [
+				{ label: "Date", value: "Friday, October 17" },
+				{ label: "Time", value: "3:35 PM – 5:00 PM EDT" },
+				{ label: "Room", value: "432" },
+			],
+			about: "Bring a friend and fly the sims.",
+		});
+		expect(response.status).toBe(200);
+		const meta = await sharp(
+			Buffer.from(await response.arrayBuffer())
+		).metadata();
 		expect([meta.width, meta.height]).toEqual([1200, 630]);
 	});
 });

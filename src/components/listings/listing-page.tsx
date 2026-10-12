@@ -1,4 +1,5 @@
 import type { ListingKind } from "@/lib/listings";
+import type { OgFact } from "@/lib/og";
 import type { Metadata } from "next";
 import { site } from "@/content/site";
 import { listingPath } from "@/lib/listing-path";
@@ -6,7 +7,7 @@ import { getPublishedListing } from "@/lib/listings";
 import { renderOg, renderPictureOg } from "@/lib/og";
 import { fetchOgPicture } from "@/lib/og-picture";
 import { notFound } from "next/navigation";
-import { formatDate } from "./ListingCard.tsx";
+import { stubFields } from "./ListingCard.tsx";
 import ListingDetail from "./ListingDetail.tsx";
 
 /*
@@ -69,30 +70,25 @@ export async function renderListingOg({
 		return renderOg({ title: noun, eyebrow: "StuyAviators", photo });
 	}
 
-	// A card with its own picture shares that picture; one without (or with a
-	// picture we can't draw) gets the usual club-photo card.
+	// The same facts the card shows (an opportunity says "RSVP by" or "Date",
+	// never "Deadline"), trimmed to fit.
+	const facts: OgFact[] = [];
+	for (const { label, value } of stubFields(listing).slice(0, 4)) {
+		if (typeof value === "string") {
+			facts.push({
+				label,
+				value: value.length > 60 ? `${value.slice(0, 59).trimEnd()}…` : value,
+			});
+		}
+	}
+
+	const title = listing.title.slice(0, 90);
+	const eyebrow = `${noun} · ${listing.organization}`.slice(0, 60);
+
+	// A card with its own picture shares that picture, filling the card; one
+	// without (or with a picture we can't draw) gets the usual club-photo card.
 	const picture = await fetchOgPicture(listing.imageUrl ?? undefined);
-	if (picture) {
-		return renderPictureOg({
-			picture,
-			label: `${noun} · ${listing.organization}`.slice(0, 48),
-		});
-	}
-
-	let detail: string | undefined;
-	if (kind === "opportunity") {
-		const when = listing.startDate ?? listing.deadline;
-		detail = when ? formatDate(when) : undefined;
-	} else if (listing.deadline) {
-		detail = `Deadline ${formatDate(listing.deadline)}`;
-	} else if (listing.amount) {
-		detail = listing.amount;
-	}
-
-	return renderOg({
-		title: listing.title.slice(0, 90),
-		eyebrow: `${noun} · ${listing.organization}`.slice(0, 60),
-		photo,
-		detail,
-	});
+	return picture
+		? renderPictureOg({ picture, title, eyebrow, facts })
+		: renderOg({ title, eyebrow, photo, facts });
 }
